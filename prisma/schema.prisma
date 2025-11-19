@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+module user{
+
+
+    }
+
+module profile{
+
+
+}
+
+module languages{
+
+
+}
+
+module mocktest{
+
+}
+
+module questions{
+
+
+}
+
+
+module answers{
+
+
+}
+
+module result {
+
+
+}
+
+module culture{
+
+
+}
+
+module 
+
+
+

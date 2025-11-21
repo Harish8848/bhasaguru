@@ -2,42 +2,42 @@
 import { BookOpen, Users, Globe } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { languages, levels } from "@/lib/data"
+import { mockTests, testLevels } from "@/lib/data"
 
-export default function CoursesSection() {
+export default function MockTestsSection() {
   return (
     <section className="py-20 md:py-32 bg-muted/30 border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        {/* Languages Offered */}
+        {/* Mock Tests Offered */}
         <div className="space-y-8">
           <div className="text-center space-y-3">
             <h2 className="text-3xl md:text-5xl font-bold leading-tight">
-              <span className="text-accent">Master</span> Global Languages
+              <span className="text-accent">Practice</span> with Mock Tests
             </h2>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Choose from Japanese, Korean, English, and more. Each with expert-curated curriculum
+              Prepare for your exams with our realistic mock tests for various languages.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {languages.map((lang) => (
-              <Card key={lang.code} className="hover:shadow-lg transition-shadow border-border group cursor-pointer">
+            {mockTests.map((test) => (
+              <Card key={test.code} className="hover:shadow-lg transition-shadow border-border group cursor-pointer">
                 <CardHeader>
                   <div className="flex items-start justify-between mb-4">
-                    <span className="text-4xl">{lang.icon}</span>
+                    <span className="text-4xl">{test.icon}</span>
                     <Globe className="w-5 h-5 text-accent/60 group-hover:text-accent transition-colors" />
                   </div>
-                  <CardTitle className="text-2xl">{lang.label}</CardTitle>
+                  <CardTitle className="text-2xl">{test.label}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
                       <BookOpen className="w-4 h-4 text-accent" />
-                      <span>{lang.courses} Courses Available</span>
+                      <span>{test.tests} Tests Available</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Users className="w-4 h-4 text-accent" />
-                      <span>{lang.learners.toLocaleString()} Active Learners</span>
+                      <span>{test.learners.toLocaleString()} Active Takers</span>
                     </div>
                   </div>
                   <div className="flex gap-2 flex-wrap">
@@ -54,19 +54,19 @@ export default function CoursesSection() {
           </div>
         </div>
 
-        {/* Language Levels - CEFR Framework */}
+        {/* Test Levels */}
         <div className="space-y-8">
           <div className="text-center space-y-3">
             <h2 className="text-3xl md:text-5xl font-bold leading-tight">
-              Learn at <span className="text-accent">Your Level</span>
+              Test at <span className="text-accent">Your Level</span>
             </h2>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-              CEFR framework ensures structured progression from A1 to C2 proficiency
+              Our tests are designed to match your proficiency level, from beginner to advanced.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {levels.map((item, index) => (
+            {testLevels.map((item, index) => (
               <Card key={item.level} className="border-border hover:border-accent/50 transition-colors">
                 <CardContent className="pt-6">
                   <div className="space-y-3">

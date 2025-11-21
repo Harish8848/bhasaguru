@@ -25,26 +25,29 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#courses" className="text-sm font-medium hover:text-accent transition-colors">
+            <a href="/courses" className="text-sm font-medium hover:text-accent transition-colors">
               Courses
             </a>
-            <a href="#jobs" className="text-sm font-medium hover:text-accent transition-colors">
+            <a href="/jobs" className="text-sm font-medium hover:text-accent transition-colors">
               Jobs
             </a>
-            <a href="#culture" className="text-sm font-medium hover:text-accent transition-colors">
+            <a href="/culture" className="text-sm font-medium hover:text-accent transition-colors">
               Culture
             </a>
-            <a href="#blog" className="text-sm font-medium hover:text-accent transition-colors">
+            <a href="/blog" className="text-sm font-medium hover:text-accent transition-colors">
               Blog
+            </a>
+            <a href="/mock-tests" className="text-sm font-medium hover:text-accent transition-colors">
+              Mock Tests
             </a>
           </div>
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            <Button variant="outline" className="border-accent text-accent hover:bg-accent/10 bg-transparent">
+          <div className="hidden md:flex  items-center gap-3 " >
+            <Button variant="outline" className="border-accent  hover:bg-blue-400 bg-white text-stone-900">
               Sign In
             </Button>
-            <Button className="bg-gradient-accent hover:opacity-90">Get Started</Button>
+            <Button className="bg-gradient-accent hover:bg-green-700 text-stone-900">Get Started</Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -56,17 +59,20 @@ export default function Navbar() {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden pb-4 space-y-3">
-            <a href="#courses" className="block text-sm font-medium hover:text-accent py-2">
+            <a href="/courses" className="block text-sm font-medium hover:text-accent py-2">
               Courses
             </a>
-            <a href="#jobs" className="block text-sm font-medium hover:text-accent py-2">
+            <a href="/jobs" className="block text-sm font-medium hover:text-accent py-2">
               Jobs
             </a>
-            <a href="#culture" className="block text-sm font-medium hover:text-accent py-2">
+            <a href="/culture" className="block text-sm font-medium hover:text-accent py-2">
               Culture
             </a>
-            <a href="#blog" className="block text-sm font-medium hover:text-accent py-2">
+            <a href="/blog" className="block text-sm font-medium hover:text-accent py-2">
               Blog
+            </a>
+            <a href="/tests" className="block text-sm font-medium hover:text-accent py-2">
+              Tests
             </a>
             <div className="flex gap-2 pt-3">
               <Button variant="outline" size="sm" className="w-full border-accent text-accent bg-transparent">

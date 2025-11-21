@@ -14,9 +14,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-
-  title: "BhasaGuru - Master Languages for Global Careers",
-  description: "Learn Japanese, Korean, English and more. Connect with job opportunities abroad and advance your career globally.",
+  icons: {
+    icon: "@/public/bhasaguru.png",
+  },
+  title: "BhasaGuru",
+  description: "Learn Japanese(N5, N4, N3, N2), Korean(TOPIC I, TOPIC II), English(IELTS, TOEFL, PTE) and more. Connect with job opportunities abroad and advance your career globally.",
 };
 
 export default function RootLayout({

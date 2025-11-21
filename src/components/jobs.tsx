@@ -5,6 +5,7 @@ import { Briefcase, MapPin, Globe, TrendingUp, ArrowRight, Loader2 } from "lucid
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { jobStats } from "@/lib/data"
 
 interface JobListing {
@@ -26,12 +27,17 @@ export default function JobsSection() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCountry, setSelectedCountry] = useState("japan")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/jobs?country=${selectedCountry}`)
+        const url = searchQuery
+          ? `/api/jobs/search?query=${encodeURIComponent(searchQuery)}&country=${selectedCountry}`
+          : `/api/jobs?country=${selectedCountry}`
+        const response = await fetch(url)
         const result = await response.json()
 
         if (result.success) {
@@ -49,7 +55,7 @@ export default function JobsSection() {
     }
 
     fetchJobs()
-  }, [selectedCountry])
+  }, [selectedCountry, searchQuery])
 
   return (
     <section className="py-20 md:py-32 bg-background border-t border-border">
@@ -82,23 +88,49 @@ export default function JobsSection() {
           })}
         </div>
 
-        {/* Country Filter */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          {["japan", "korea"].map((country) => (
+        {/* Search and Filters */}
+        <div className="space-y-4">
+          {/* Search Input */}
+          <div className="flex gap-2 max-w-md mx-auto">
+            <Input
+              type="text"
+              placeholder="Search jobs by title, company, or keywords..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1"
+            />
             <Button
-              key={country}
-              onClick={() => setSelectedCountry(country)}
-              variant={selectedCountry === country ? "default" : "outline"}
-              className={selectedCountry === country ? "bg-accent text-accent-foreground" : ""}
+              onClick={() => setIsSearching(!isSearching)}
+              variant={isSearching ? "default" : "outline"}
             >
-              {country === "japan" ? "🇯🇵 Japan" : "🇰🇷 Korea"}
+              Search
             </Button>
-          ))}
+          </div>
+
+          {/* Country Filter */}
+          <div className="flex flex-wrap gap-2 justify-center">
+            {[
+              { key: "japan", label: "🇯🇵 Japan" },
+              { key: "korea", label: "🇰🇷 Korea" },
+              { key: "uk", label: "🇬🇧 UK" },
+              { key: "us", label: "🇺🇸 US" },
+              { key: "australia", label: "🇦🇺 Australia" },
+            ].map((country) => (
+              <Button
+                key={country.key}
+                onClick={() => setSelectedCountry(country.key)}
+                variant={selectedCountry === country.key ? "default" : "outline"}
+                className={selectedCountry === country.key ? "bg-accent text-accent-foreground" : ""}
+              >
+                {country.label}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* Featured Job Listings */}
         <div className="space-y-4">
-          <h3 className="text-2xl font-bold">Featured Opportunities</h3>
+          <h3 className="text-2xl font-bold">{searchQuery ? "Search Results" : "Featured Opportunities"}</h3>
 
           {/* Loading State */}
           {loading && (

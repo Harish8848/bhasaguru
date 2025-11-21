@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-
+import { countryCodes, queries } from "@/lib/data"
 // This API route fetches jobs from external sources
 // Currently implements free job API with fallback to mock data
 
@@ -17,20 +17,12 @@ export async function GET(request: Request) {
         const jsearchResponse = await fetchFromJSearchAPI(language, country, apiKey)
         return jsearchResponse
       } catch (error) {
-        console.error("[v0] JSearch API failed, falling back to RemoteOK:", error)
+        console.error("JSearch API failed:", error)
       }
     }
 
-    // Fallback to RemoteOK API
-    const remoteOkJobs = await fetchFromRemoteOKAPI(country)
-
-    return NextResponse.json({
-      success: true,
-      data: remoteOkJobs,
-      source: "remoteok",
-    })
   } catch (error) {
-    console.error("[v0] All job APIs failed:", error)
+    console.error(" All job APIs failed:", error)
     return NextResponse.json(
       {
         success: false,
@@ -44,12 +36,10 @@ export async function GET(request: Request) {
 
 // Fetch from JSearch API (RapidAPI)
 async function fetchFromJSearchAPI(language: string, country: string, apiKey: string) {
-  const queries = {
-    japan: "Japanese language jobs Tokyo",
-    korea: "Korean language jobs Seoul",
-  }
+  
 
-  const query = queries[country as keyof typeof queries] || queries.japan
+  const query = queries[country as keyof typeof queries] || "jobs"
+  const countryCode = countryCodes[country as keyof typeof countryCodes] || "US"
 
   const options = {
     method: "GET",
@@ -60,13 +50,14 @@ async function fetchFromJSearchAPI(language: string, country: string, apiKey: st
   }
 
   const response = await fetch(
-    `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&page=1&num_pages=1`,
+    `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&country=${encodeURIComponent(countryCode)}&page=1&num_pages=1`,
     options,
   )
 
   if (!response.ok) throw new Error("JSearch API failed")
 
   const data = await response.json()
+  console.log("JSearch API response:", JSON.stringify(data, null, 2))
 
   const transformedJobs =
     data.data?.map((job: any) => ({
@@ -90,51 +81,3 @@ async function fetchFromJSearchAPI(language: string, country: string, apiKey: st
     source: "jsearch",
   })
 }
-
-// Fetch from RemoteOK API (free, no authentication required)
-async function fetchFromRemoteOKAPI(country: string) {
-  try {
-    const countryMap: { [key: string]: string } = {
-      japan: "Japan",
-      korea: "South Korea",
-    }
-
-    const countryName = countryMap[country] || "Japan"
-
-    const response = await fetch("https://remoteok.com/api", {
-      cache: "no-store",
-    })
-
-    if (!response.ok) return []
-
-    const allJobs: any[] = await response.json()
-
-    // Filter jobs by country and language-related keywords
-    const filteredJobs = allJobs
-      .filter(
-        (job: any) =>
-          job.location?.includes(countryName) &&
-          (job.tags?.includes("language") ||
-            job.title?.toLowerCase().includes("language") ||
-            job.company?.toLowerCase().includes("language")),
-      )
-      .slice(0, 10)
-
-    return filteredJobs.map((job: any) => ({
-      id: job.id,
-      title: job.title,
-      company: job.company,
-      location: job.location || countryName,
-      type: "FULL_TIME",
-      languageLevel: "INTERMEDIATE",
-      salary: job.salary_max ? `$${job.salary_max}/year` : "Competitive",
-      applications: Math.floor(Math.random() * 150 + 50),
-      description: job.description || "See full job details at RemoteOK",
-      url: `https://remoteok.com/jobs/${job.id}`,
-    }))
-  } catch (error) {
-    console.error("[v0] RemoteOK API error:", error)
-    return []
-  }
-}
-

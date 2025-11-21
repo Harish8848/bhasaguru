@@ -136,8 +136,162 @@ export const faqs = [
 
   //Job Stats Data
   export const jobStats = [
-    { label: "Active Listings", value: "1,200+", icon: Briefcase },
-    { label: "Average Salary", value: "NPR 1Lakh/Month", icon: TrendingUp },
-    { label: "Successful Placements", value: "8,500+", icon: Globe },
+    { label: "Active Listings", value: "0", icon: Briefcase },
+    { label: "Average Salary", value: "0", icon: TrendingUp },
+    { label: "Successful Placements", value: "0", icon: Globe },
   ]
   
+//Blog Posts Data
+  export const blogPosts = [
+    {
+      id: 1,
+      title: "Top 5 Tips to Accelerate Your Japanese Learning",
+      excerpt: "Master the fundamentals and progress from A1 to B1 in just 3 months with these proven techniques.",
+      author: "Ravi Kumar",
+      date: "Dec 15, 2024",
+      category: "Learning Tips",
+      image: "/japanese-learning-tips.jpg",
+    },
+    {
+      id: 2,
+      title: "Job Interview Tips in Korean - Complete Guide",
+      excerpt: "Learn how to ace your job interview in Korean. Real examples and common phrases explained.",
+      author: "Priya Patel",
+      date: "Dec 12, 2024",
+      category: "Career Tips",
+      image: "/korean-job-interview.jpg",
+    },
+    {
+      id: 3,
+      title: "Living & Working in Tokyo: Nepali Professionals Guide",
+      excerpt: "Everything you need to know about relocating to Tokyo for work. Visa, salary, culture, and more.",
+      author: "Arjun Singh",
+      date: "Dec 10, 2024",
+      category: "Career Guide",
+      image: "/tokyo-expatriate-guide.jpg",
+    },
+  ]
+
+  //Culture Posts Data
+  export const culturePosts = [
+    {
+      id: 1,
+      title: "The Art of Japanese Tea Ceremony",
+      excerpt: "Explore the rich history and traditions of the Japanese tea ceremony, a spiritual and aesthetic ritual.",
+      author: "Yuki Tanaka",
+      date: "Nov 28, 2024",
+      category: "Tradition",
+      image: "/japanese-tea-ceremony.jpg",
+    },
+    {
+      id: 2,
+      title: "K-Pop: A Global Phenomenon",
+      excerpt: "Discover the rise of Korean Pop music and its impact on global culture, fashion, and entertainment.",
+      author: "Min-jun Kim",
+      date: "Nov 25, 2024",
+      category: "Modern Culture",
+      image: "/k-pop-phenomenon.jpg",
+    },
+    {
+      id: 3,
+      title: "A Guide to British Pub Culture",
+      excerpt: "Learn about the social etiquette and traditions of British pubs, an integral part of UK social life.",
+      author: "Emily Clark",
+      date: "Nov 22, 2024",
+      category: "Social Life",
+      image: "/british-pub-culture.jpg",
+    },
+  ]
+
+  //Pricing Plans Data
+  export const plans = [
+    {
+      id: "basic",
+      name: "Basic",
+      description: "Perfect for beginners",
+      price: "Free",
+      period: "forever",
+      features: [
+        "A1 & A2 level courses",
+        "Basic lessons only",
+        "Community access",
+        "Limited job listings",
+        "Certificate of completion",
+        "Mobile app access",
+      ],
+      cta: "Get Started",
+      highlighted: false,
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      description: "Most popular for learners",
+      price: "$29",
+      period: "/month",
+      features: [
+        "All A & B level courses",
+        "Live classes & workshops",
+        "1-on-1 mentoring",
+        "Premium job listings",
+        "Official CEFR certificate",
+        "Mobile app + offline",
+        "Job matching service",
+        "Career consulting",
+      ],
+      cta: "Start Free Trial",
+      highlighted: true,
+    },
+    {
+      id: "enterprise",
+      name: "Enterprise",
+      description: "For organizations & teams",
+      price: "Custom",
+      period: "pricing",
+      features: [
+        "All courses & features",
+        "Unlimited team members",
+        "Team analytics",
+        "Dedicated support",
+        "Custom curriculum",
+        "API access",
+        "White-label options",
+        "Priority job matching",
+      ],
+      cta: "Contact Sales",
+      highlighted: false,
+    },
+  ]
+
+  // Job Queries and Country Codes
+  export const queries = {
+    japan: "jobs in Japan",
+    korea: "jobs in South Korea",
+    uk: "jobs in United Kingdom",
+    us: "jobs in United States",
+    australia: "jobs in Australia",
+  }
+
+  export const countryCodes = {
+    japan: "JP",
+        korea: "KR",
+        uk: "GB",
+        us: "US",
+        australia: "AU",
+      }
+    
+      //Mock Tests Data
+      export const mockTests = [
+        { code: "jlpt", label: "JLPT", tests: 5, icon: "🇯🇵", learners: 4500 },
+        { code: "topik", label: "TOPIK", tests: 4, icon: "🇰🇷", learners: 3200 },
+        { code: "ielts", label: "IELTS", tests: 6, icon: "🇬🇧", learners: 7800 },
+      ]
+    
+      export const testLevels = [
+        { level: "N5", label: "N5", description: "Basic proficiency" },
+        { level: "N4", label: "N4", description: "Elementary proficiency" },
+        { level: "N3", label: "N3", description: "Intermediate proficiency" },
+        { level: "N2", label: "N2", description: "Upper-intermediate proficiency" },
+        { level: "N1", label: "N1", description: "Advanced proficiency" },
+        { level: "IELTS 6.5+", label: "IELTS 6.5+", description: "University entrance level" },
+      ]
+    

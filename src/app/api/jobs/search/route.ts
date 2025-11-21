@@ -152,7 +152,7 @@ async function fetchFromRemoteOKAPI(query: string, country: string) {
 
     if (!response.ok) return []
 
-    const allJobs: any[] = await response.json()
+    const allJobs: Job[] = await response.json()
 
     console.log(`[RemoteOK] Fetched ${allJobs.length} jobs for country: ${country}`)
 

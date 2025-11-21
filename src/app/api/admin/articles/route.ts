@@ -6,34 +6,40 @@ import { withErrorHandler } from '@/lib/api-wrapper';
 
 // GET - List articles with pagination and optional status filter
 
+interface WhereClause {
+  status?: string;
+}
+
+// GET - List articles with pagination and optional status filter
+
 export const GET = withErrorHandler(async (request: NextRequest) => {
-    await requireAdmin();
-  
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const status = searchParams.get('status');
-  
-    const where: any = {};
-    if (status) where.status = status;
-  
-    const [articles, total] = await Promise.all([
-      prisma.article.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        include: {
-          _count: {
-            select: { comments: true },
-          },
+  await requireAdmin();
+
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '20');
+  const status = searchParams.get('status');
+
+  const where: WhereClause = {};
+  if (status) where.status = status;
+
+  const [articles, total] = await Promise.all([
+    prisma.article.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        _count: {
+          select: { comments: true },
         },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.article.count({ where }),
-    ]);
-  
-    return ApiResponse.paginated(articles, total, page, limit);
-  });
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.article.count({ where }),
+  ]);
+
+  return ApiResponse.paginated(articles, total, page, limit);
+});
   
   // POST - Create article
   export const POST = withErrorHandler(async (request: NextRequest) => {

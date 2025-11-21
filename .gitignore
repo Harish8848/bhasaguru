@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/lib/generated/prisma
+
+/lib/generated/prisma
+
+/lib/generated/prisma
+
+# Keep the generated Prisma Client + query engine out of version control
+/src/generated/prisma

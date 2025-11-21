@@ -1,53 +1,549 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client"
+  previewFeatures = ["fullTextSearchPostgres"] 
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql" 
+  url       = env("DATABASE_URL")
 }
 
-module user{
+// USERS & AUTHENTICATION
 
-
-    }
-
-module profile{
-
-
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
 }
 
-module languages{
-
-
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
 }
 
-module mocktest{
-
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  name          String?
+  image         String? // Profile picture from Google
+  role          UserRole      @default(USER)
+  status        AccountStatus @default(ACTIVE)
+  googleId      String?       @unique // Google OAuth ID
+  emailVerified DateTime?
+  
+  // Preferences
+  nativeLanguage    String?
+  learningLanguages String[] // Array of language codes
+  timezone          String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLoginAt DateTime?
+  
+  // Relations
+  enrollments      Enrollment[]
+  progress         Progress[]
+  testAttempts     TestAttempt[]
+  savedItems       SavedItem[]
+  jobApplications  JobApplication[]
+  comments         Comment[]
+  
+  @@index([email])
+  @@index([googleId])
+  @@index([status, role])
+  @@map("users")
 }
 
-module questions{
+// COURSE STRUCTURE
 
-
+enum LanguageLevel {
+  BEGINNER      // A1
+  ELEMENTARY    // A2
+  INTERMEDIATE  // B1
+  UPPER_INTERMEDIATE // B2
+  ADVANCED      // C1
+  PROFICIENT    // C2
 }
 
-
-module answers{
-
-
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
-module result {
-
-
+model Course {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  title       String
+  description String       @db.Text
+  language    String // "nepali", "japanese", "korean", etc.
+  level       LanguageLevel
+  status      CourseStatus @default(DRAFT)
+  
+  // Media
+  thumbnail   String?
+  coverImage  String?
+  
+  // Metadata
+  duration    Int? // Estimated hours
+  lessonsCount Int @default(0)
+  studentsCount Int @default(0)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  // Ordering
+  order       Int          @default(0)
+  
+  // Timestamps
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  publishedAt DateTime?
+  
+  // Relations
+  lessons     Lesson[]
+  enrollments Enrollment[]
+  mockTests   MockTest[]
+  
+  @@index([language, level, status])
+  @@index([slug])
+  @@index([status, publishedAt])
+  @@map("courses")
 }
 
-module culture{
-
-
+enum LessonType {
+  VIDEO
+  TEXT
+  AUDIO
+  INTERACTIVE
+  QUIZ
 }
 
-module 
+model Lesson {
+  id          String     @id @default(cuid())
+  courseId    String
+  slug        String
+  title       String
+  description String?    @db.Text
+  type        LessonType
+  
+  // Content
+  content     String     @db.Text // HTML/Markdown content
+  videoUrl    String?
+  audioUrl    String?
+  
+  // Resources
+  attachments Json? // Array of {name, url, type, size}
+  
+  // Metadata
+  duration    Int? // Minutes
+  order       Int
+  isFree      Boolean    @default(false) // Preview lessons
+  
+  // Timestamps
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  // Relations
+  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress    Progress[]
+  
+  @@unique([courseId, slug])
+  @@index([courseId, order])
+  @@map("lessons")
+}
 
+// ENROLLMENT & PROGRESS TRACKING
 
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
 
+model Enrollment {
+  id              String           @id @default(cuid())
+  userId          String
+  courseId        String
+  status          EnrollmentStatus @default(ACTIVE)
+  
+  // Progress
+  completedLessons Int             @default(0)
+  progressPercent  Int             @default(0)
+  
+  // Timestamps
+  enrolledAt      DateTime         @default(now())
+  completedAt     DateTime?
+  lastAccessedAt  DateTime?
+  
+  // Relations
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+  @@index([userId, status])
+  @@index([courseId])
+  @@map("enrollments")
+}
+
+model Progress {
+  id             String   @id @default(cuid())
+  userId         String
+  lessonId       String
+  
+  // Progress tracking
+  completed      Boolean  @default(false)
+  timeSpent      Int      @default(0) // Seconds
+  lastPosition   Int?     // For video/audio (seconds)
+  
+  // Timestamps
+  startedAt      DateTime @default(now())
+  completedAt    DateTime?
+  updatedAt      DateTime @updatedAt
+  
+  // Relations
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, lessonId])
+  @@index([userId, completed])
+  @@map("progress")
+}
+
+// MOCK TESTS & ASSESSMENTS
+
+enum TestType {
+  PRACTICE
+  FINAL
+  CERTIFICATION
+}
+
+model MockTest {
+  id              String     @id @default(cuid())
+  courseId        String?
+  title           String
+  description     String?    @db.Text
+  type            TestType
+  
+  // Configuration
+  duration        Int // Minutes
+  passingScore    Int // Percentage
+  questionsCount  Int
+  
+  // Settings
+  shuffleQuestions Boolean   @default(true)
+  shuffleOptions   Boolean   @default(true)
+  showResults      Boolean   @default(true)
+  allowRetake      Boolean   @default(true)
+  
+  // Timestamps
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  // Relations
+  course          Course?    @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  questions       Question[]
+  attempts        TestAttempt[]
+  
+  @@index([courseId, type])
+  @@map("mock_tests")
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  FILL_BLANK
+  MATCHING
+  AUDIO_QUESTION
+}
+
+model Question {
+  id              String       @id @default(cuid())
+  testId          String
+  type            QuestionType
+  
+  // Content
+  questionText    String       @db.Text
+  audioUrl        String?
+  imageUrl        String?
+  
+  // Options (JSON array for flexibility)
+  options         Json? // [{id, text, isCorrect}] for MCQ
+  correctAnswer   String? // For fill-blank, true/false
+  
+  // Metadata
+  points          Int          @default(1)
+  order           Int
+  explanation     String?      @db.Text
+  
+  // Timestamps
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  // Relations
+  test            MockTest     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  answers         Answer[]
+  
+  @@index([testId, order])
+  @@map("questions")
+}
+
+model TestAttempt {
+  id              String   @id @default(cuid())
+  userId          String
+  testId          String
+  
+  // Results
+  score           Float // Percentage
+  correctAnswers  Int
+  totalQuestions  Int
+  passed          Boolean
+  
+  // Timing
+  timeSpent       Int // Seconds
+  
+  // Timestamps
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test            MockTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+  answers         Answer[]
+  
+  @@index([userId, testId])
+  @@index([userId, completedAt])
+  @@map("test_attempts")
+}
+
+model Answer {
+  id              String      @id @default(cuid())
+  attemptId       String
+  questionId      String
+  
+  // Answer data
+  selectedOption  String? // For MCQ
+  textAnswer      String? // For fill-blank
+  isCorrect       Boolean
+  
+  // Timestamps
+  answeredAt      DateTime    @default(now())
+  
+  // Relations
+  attempt         TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question        Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@index([attemptId])
+  @@map("answers")
+}
+
+// JOB LISTINGS ABROAD
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum JobStatus {
+  ACTIVE
+  FILLED
+  CLOSED
+  EXPIRED
+}
+
+model JobListing {
+  id              String      @id @default(cuid())
+  slug            String      @unique
+  title           String
+  company         String
+  location        String // Country/City
+  
+  // Job details
+  type            JobType
+  status          JobStatus   @default(ACTIVE)
+  description     String      @db.Text
+  requirements    String      @db.Text
+  
+  // Language requirements
+  languageRequired String // e.g., "Japanese"
+  languageLevel    LanguageLevel
+  
+  // Compensation
+  salary          String?
+  currency        String?
+  
+  // Contact
+  applicationUrl  String?
+  email           String?
+  
+  // Metadata
+  viewCount       Int         @default(0)
+  applicationCount Int        @default(0)
+  
+  // Timestamps
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  expiresAt       DateTime?
+  
+  // Relations
+  applications    JobApplication[]
+  
+  @@index([status, expiresAt])
+  @@index([languageRequired, languageLevel])
+  @@map("job_listings")
+}
+
+model JobApplication {
+  id              String     @id @default(cuid())
+  userId          String
+  jobId           String
+  
+  // Application data
+  resumeUrl       String?
+  coverLetter     String?    @db.Text
+  status          String     @default("PENDING") // PENDING, REVIEWED, CONTACTED, REJECTED
+  
+  // Timestamps
+  appliedAt       DateTime   @default(now())
+  
+  // Relations
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job             JobListing @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId, status])
+  @@map("job_applications")
+}
+
+// CULTURE ARTICLES
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Article {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  title           String
+  excerpt         String?       @db.Text
+  content         String        @db.Text
+  
+  // Categorization
+  language        String // Related language
+  category        String // "Culture", "Travel", "Food", etc.
+  tags            String[]
+  
+  // Media
+  featuredImage   String?
+  
+  // Metadata
+  status          ArticleStatus @default(DRAFT)
+  viewCount       Int           @default(0)
+  readTime        Int? // Minutes
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  // Author
+  authorId        String?
+  authorName      String?
+  
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  publishedAt     DateTime?
+  
+  // Relations
+  comments        Comment[]
+  
+  @@index([status, publishedAt])
+  @@index([language, category])
+  @@map("articles")
+}
+
+model Comment {
+  id              String   @id @default(cuid())
+  articleId       String
+  userId          String
+  
+  // Content
+  content         String   @db.Text
+  
+  // Moderation
+  isApproved      Boolean  @default(false)
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  article         Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([articleId, isApproved])
+  @@index([userId])
+  @@map("comments")
+}
+
+// SAVED ITEMS (Bookmarks)
+
+enum SavedItemType {
+  LESSON
+  ARTICLE
+  JOB
+}
+
+model SavedItem {
+  id              String        @id @default(cuid())
+  userId          String
+  itemType        SavedItemType
+  itemId          String // Reference to lesson/article/job ID
+  
+  // Metadata
+  notes           String?       @db.Text
+  
+  // Timestamps
+  savedAt         DateTime      @default(now())
+  
+  // Relations
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, itemType, itemId])
+  @@index([userId, itemType])
+  @@map("saved_items")
+}
+
+// ANALYTICS & ADMIN (Optional but recommended)
+
+model PageView {
+  id              String   @id @default(cuid())
+  
+  // Page info
+  path            String
+  referrer        String?
+  
+  // User info (optional, for logged-in users)
+  userId          String?
+  
+  // Metadata
+  userAgent       String?
+  ipAddress       String?
+  country         String?
+  
+  // Timestamp
+  viewedAt        DateTime @default(now())
+  
+  @@index([path, viewedAt])
+  @@index([userId, viewedAt])
+  @@map("page_views")
+}

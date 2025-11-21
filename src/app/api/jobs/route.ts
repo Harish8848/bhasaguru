@@ -7,6 +7,39 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const language = searchParams.get("language") || "japan"
   const country = searchParams.get("country") || "japan"
+
+  const apiKey = process.env.RAPIDAPI_KEY
+
+  try {
+    // Try JSearch API first if API key is available
+    if (apiKey) {
+      try {
+        const jsearchResponse = await fetchFromJSearchAPI(language, country, apiKey)
+        return jsearchResponse
+      } catch (error) {
+        console.error("[v0] JSearch API failed, falling back to RemoteOK:", error)
+      }
+    }
+
+    // Fallback to RemoteOK API
+    const remoteOkJobs = await fetchFromRemoteOKAPI(country)
+
+    return NextResponse.json({
+      success: true,
+      data: remoteOkJobs,
+      source: "remoteok",
+    })
+  } catch (error) {
+    console.error("[v0] All job APIs failed:", error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch jobs",
+        data: [],
+      },
+      { status: 500 }
+    )
+  }
 }
 
 // Fetch from JSearch API (RapidAPI)

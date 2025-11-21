@@ -1,27 +1,5 @@
 "use client"
-
-const stats = [
-  {
-    number: "50K+",
-    label: "Active Learners",
-    description: "From 85+ countries learning with BhasaGuru",
-  },
-  {
-    number: "500+",
-    label: "Expert Courses",
-    description: "From beginner to advanced proficiency levels",
-  },
-  {
-    number: "95%",
-    label: "Satisfaction Rate",
-    description: "Learners recommend BhasaGuru to others",
-  },
-  {
-    number: "1000+",
-    label: "Job Placements",
-    description: "Successful placements in 2024 alone",
-  },
-]
+import { stats } from "@/lib/data"  
 
 export default function StatsSection() {
   return (

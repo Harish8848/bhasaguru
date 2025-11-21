@@ -5,6 +5,7 @@ import { Briefcase, MapPin, Globe, TrendingUp, ArrowRight, Loader2 } from "lucid
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { jobStats } from "@/lib/data"
 
 interface JobListing {
   id: string | number
@@ -19,11 +20,6 @@ interface JobListing {
   url?: string
 }
 
-const jobStats = [
-  { label: "Active Listings", value: "1,200+", icon: Briefcase },
-  { label: "Average Salary", value: "$52K/year", icon: TrendingUp },
-  { label: "Successful Placements", value: "8,500+", icon: Globe },
-]
 
 export default function JobsSection() {
   const [jobs, setJobs] = useState<JobListing[]>([])

@@ -1,24 +1,8 @@
 "use client"
-
 import { BookOpen, Users, Globe } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-
-// Mock data based on Prisma schema - replace with actual API calls
-const languages = [
-  { code: "japanese", label: "Japanese", courses: 12, icon: "🇯🇵", learners: 8500 },
-  { code: "korean", label: "Korean", courses: 10, icon: "🇰🇷", learners: 6200 },
-  { code: "english", label: "English", courses: 15, icon: "🇺🇸", learners: 12000 },
-]
-
-const levels = [
-  { level: "BEGINNER", label: "A1 - A2", description: "Start your journey" },
-  { level: "ELEMENTARY", label: "A2", description: "Build foundation" },
-  { level: "INTERMEDIATE", label: "B1", description: "Speak with confidence" },
-  { level: "UPPER_INTERMEDIATE", label: "B2", description: "Advanced fluency" },
-  { level: "ADVANCED", label: "C1", description: "Near native level" },
-  { level: "PROFICIENT", label: "C2", description: "Mastery achieved" },
-]
+import { languages, levels } from "@/lib/data"
 
 export default function CoursesShowcase() {
   return (

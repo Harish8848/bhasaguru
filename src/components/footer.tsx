@@ -1,23 +1,6 @@
 import { Globe, Mail, Phone } from "lucide-react"
-
-const footerLinks = [
-  {
-    title: "Product",
-    links: ["Courses", "Jobs", "Certifications", "Pricing"],
-  },
-  {
-    title: "Company",
-    links: ["About", "Blog", "Careers", "Contact"],
-  },
-  {
-    title: "Resources",
-    links: ["Help Center", "Community", "API Docs", "Status"],
-  },
-  {
-    title: "Legal",
-    links: ["Privacy", "Terms", "Cookies", "Compliance"],
-  },
-]
+import React from "react"
+import { footerLinks } from "@/lib/data"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()

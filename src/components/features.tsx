@@ -1,32 +1,5 @@
-import { BookOpen, Briefcase, Award, Users } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
-
-const features = [
-  {
-    icon: BookOpen,
-    title: "Expert-Led Courses",
-    description:
-      "Comprehensive curriculum from CEFR A1 to C2 level. Learn at your own pace with video, audio, and interactive lessons.",
-  },
-  {
-    icon: Award,
-    title: "Certifications",
-    description:
-      "Earn recognized language proficiency certificates. Boost your resume and demonstrate your skills to employers.",
-  },
-  {
-    icon: Briefcase,
-    title: "Job Opportunities",
-    description:
-      "Browse 1000+ international job listings. Get matched with positions that fit your language skills and career goals.",
-  },
-  {
-    icon: Users,
-    title: "Community",
-    description:
-      "Connect with learners worldwide. Share experiences, get feedback, and build professional networks globally.",
-  },
-]
+import { features } from "@/lib/data"
 
 export default function FeaturesSection() {
   return (

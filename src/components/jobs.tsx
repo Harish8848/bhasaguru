@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { jobStats } from "@/lib/data"
 
 interface JobListing {
   id: string | number
@@ -29,6 +28,12 @@ export default function JobsSection() {
   const [selectedCountry, setSelectedCountry] = useState("japan")
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
+
+  const [jobStats, setJobStats] = useState([
+    { label: "Active Listings", value: "0", icon: Briefcase },
+    { label: "Average Salary", value: "N/A", icon: TrendingUp },
+    { label: "Successful Placements", value: "1000+", icon: Globe },
+  ])
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -57,8 +62,35 @@ export default function JobsSection() {
     fetchJobs()
   }, [selectedCountry, searchQuery])
 
+  useEffect(() => {
+    if (jobs.length > 0) {
+      const activeListings = jobs.length.toString()
+
+      const calculateAverageSalary = () => {
+        const salaries = jobs
+          .map((job) => {
+            const salary = job.salary.replace(/[^0-9.-]+/g, "")
+            return salary ? parseFloat(salary) : 0
+          })
+          .filter((salary) => salary > 0)
+
+        if (salaries.length === 0) return "N/A"
+
+        const average = salaries.reduce((a, b) => a + b, 0) / salaries.length
+        return `$${Math.round(average).toLocaleString()}`
+      }
+
+      setJobStats([
+        { label: "Active Listings", value: activeListings, icon: Briefcase },
+        { label: "Average Salary", value: calculateAverageSalary(), icon: TrendingUp },
+        { label: "Successful Placements", value: "1000+", icon: Globe },
+      ])
+    }
+  }, [jobs])
+
+
   return (
-    <section className="py-20 md:py-32 bg-background border-t border-border">
+    <section className="py-20 md:py-10 bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -71,13 +103,13 @@ export default function JobsSection() {
         </div>
 
         {/* Job Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="grid md:grid-cols-3 gap-6 mb-5 p-">
           {jobStats.map((stat, index) => {
             const Icon = stat.icon
             return (
               <Card key={index} className="border-border">
-                <CardContent className="pt-6">
-                  <div className="space-y-2 text-center">
+                <CardContent className="pt-2">
+                  <div className="space-y-1 text-center">
                     <Icon className="w-8 h-8 text-accent mx-auto" />
                     <div className="text-3xl font-bold text-foreground">{stat.value}</div>
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
@@ -91,17 +123,18 @@ export default function JobsSection() {
         {/* Search and Filters */}
         <div className="space-y-4">
           {/* Search Input */}
-          <div className="flex gap-2 max-w-md mx-auto">
+          <div className="flex gap-2  max-w-md mx-auto">
             <Input
               type="text"
               placeholder="Search jobs by title, company, or keywords..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1"
+              className="flex-1 p-8 bg-accent/10 mb-4 max-w-full"
             />
             <Button
               onClick={() => setIsSearching(!isSearching)}
               variant={isSearching ? "default" : "outline"}
+              className="p-8"
             >
               Search
             </Button>

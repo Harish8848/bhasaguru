@@ -18,9 +18,12 @@ export default function Navbar() {
             <div className="w-8 h-8 rounded-lg bg-gradient-accent flex items-center justify-center">
               <Globe className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
+            <a href="/" className="inline-flex">
+            <img src="/favicon.ico" alt="" />
+            <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mt-2">
               BhasaGuru
             </span>
+            </a>
           </div>
 
           {/* Desktop Navigation */}

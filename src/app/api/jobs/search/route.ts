@@ -1,5 +1,33 @@
 import { NextResponse } from "next/server"
 
+interface Job {
+  job_id: string;
+  job_title: string;
+  employer_name: string;
+  job_city: string;
+  job_country: string;
+  job_employment_type: string;
+  job_required_experience: {
+    required_experience_in_years: number;
+  };
+  job_salary_currency: string;
+  job_salary_max: number;
+  job_description: string;
+  job_apply_link: string;
+  location: string;
+  id: string;
+  title: string;
+  company: string;
+  type: string;
+  languageLevel: string;
+  salary: string;
+  applications: number;
+  description: string;
+  url: string;
+  salary_max: number;
+  tags: string[];
+}
+
 // This API route searches for jobs using external APIs
 // Uses JSearch API with fallback to RemoteOK
 
@@ -81,10 +109,9 @@ async function fetchFromJSearchAPI(query: string, country: string, apiKey: strin
   if (!response.ok) throw new Error("JSearch API failed")
 
   const data = await response.json()
-  console.log("JSearch API response:", JSON.stringify(data, null, 2))
 
   const transformedJobs =
-    data.data?.map((job: any) => ({
+    data.data?.map((job: Job) => ({
       id: job.job_id,
       title: job.job_title,
       company: job.employer_name,
@@ -109,41 +136,50 @@ async function fetchFromJSearchAPI(query: string, country: string, apiKey: strin
 // Fetch from RemoteOK API with basic filtering (limited search)
 async function fetchFromRemoteOKAPI(query: string, country: string) {
   try {
-    const countryMap: { [key: string]: string } = {
-      japan: "Japan",
-      korea: "South Korea",
-      uk: "United Kingdom",
-      us: "United States",
-      australia: "Australia",
+    const countryMap: { [key: string]: string[] } = {
+      japan: ["Japan"],
+      korea: ["South Korea", "Korea", "Seoul"],
+      uk: ["United Kingdom", "UK", "London", "England"],
+      us: ["United States", "USA", "US"],
+      australia: ["Australia"],
     }
 
-    const countryName = countryMap[country] || "Japan"
+    const countryNames = countryMap[country] || ["Japan"]
 
     const response = await fetch("https://remoteok.com/api", {
-      cache: "no-store",
+      cache: "no-store" as RequestCache,
     })
 
     if (!response.ok) return []
 
     const allJobs: any[] = await response.json()
 
+    console.log(`[RemoteOK] Fetched ${allJobs.length} jobs for country: ${country}`)
+
     // Filter jobs by country, query keywords, and language-related
     const filteredJobs = allJobs
       .filter(
-        (job: any) =>
-          job.location?.includes(countryName) &&
-          (job.tags?.some((tag: string) => query.toLowerCase().includes(tag.toLowerCase())) ||
+        (job: Job) => {
+          const locationMatch = countryNames.some(name =>
+            job.location?.toLowerCase().includes(name.toLowerCase())
+          ) && !job.location?.toLowerCase().includes('north')
+          const queryMatch = job.tags?.some((tag: string) => query.toLowerCase().includes(tag.toLowerCase())) ||
             job.title?.toLowerCase().includes(query.toLowerCase()) ||
             job.company?.toLowerCase().includes(query.toLowerCase()) ||
-            job.description?.toLowerCase().includes(query.toLowerCase())),
+            job.description?.toLowerCase().includes(query.toLowerCase())
+
+          return locationMatch && queryMatch
+        }
       )
       .slice(0, 10)
 
-    return filteredJobs.map((job: any) => ({
+    console.log(`[RemoteOK] Filtered to ${filteredJobs.length} jobs for country: ${country}`)
+
+    const jobsToReturn = filteredJobs.map((job: Job) => ({
       id: job.id,
       title: job.title,
       company: job.company,
-      location: job.location || countryName,
+      location: job.location?.toLowerCase().includes('korea') && !job.location?.toLowerCase().includes('north') ? 'South Korea' : (job.location || countryNames[0]),
       type: "FULL_TIME",
       languageLevel: "INTERMEDIATE",
       salary: job.salary_max ? `$${job.salary_max}/year` : "Competitive",
@@ -151,8 +187,16 @@ async function fetchFromRemoteOKAPI(query: string, country: string) {
       description: job.description || "See full job details at RemoteOK",
       url: `https://remoteok.com/jobs/${job.id}`,
     }))
+
+    
+    if (jobsToReturn.length === 0) {
+      console.log(`[v0] No jobs found for country: ${country} with query: ${query}`)
+    }
+
+
+    return jobsToReturn
   } catch (error) {
-    console.error("[v0] RemoteOK API error:", error)
+    console.error(" RemoteOK API error:", error)
     return []
   }
 }

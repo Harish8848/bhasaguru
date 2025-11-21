@@ -271,27 +271,10 @@ export const faqs = [
     australia: "jobs in Australia",
   }
 
-  export const countryCodes = {
-    japan: "JP",
-        korea: "KR",
-        uk: "GB",
-        us: "US",
-        australia: "AU",
-      }
-    
-      //Mock Tests Data
-      export const mockTests = [
-        { code: "jlpt", label: "JLPT", tests: 5, icon: "🇯🇵", learners: 4500 },
-        { code: "topik", label: "TOPIK", tests: 4, icon: "🇰🇷", learners: 3200 },
-        { code: "ielts", label: "IELTS", tests: 6, icon: "🇬🇧", learners: 7800 },
-      ]
-    
-      export const testLevels = [
-        { level: "N5", label: "N5", description: "Basic proficiency" },
-        { level: "N4", label: "N4", description: "Elementary proficiency" },
-        { level: "N3", label: "N3", description: "Intermediate proficiency" },
-        { level: "N2", label: "N2", description: "Upper-intermediate proficiency" },
-        { level: "N1", label: "N1", description: "Advanced proficiency" },
-        { level: "IELTS 6.5+", label: "IELTS 6.5+", description: "University entrance level" },
-      ]
-    
+        export const countryCodes = {
+          japan: "JP",
+              korea: "KR",
+              uk: "GB",
+              us: "US",
+              australia: "AU",
+            }

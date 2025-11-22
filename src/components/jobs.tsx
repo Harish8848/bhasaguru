@@ -46,7 +46,7 @@ export default function JobsSection() {
         const result = await response.json()
 
         if (result.success) {
-          setJobs(result.data)
+          setJobs(result.jobs)
           setError(null)
         } else {
           throw new Error(result.error || "Failed to fetch jobs")

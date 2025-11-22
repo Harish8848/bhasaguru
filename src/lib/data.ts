@@ -150,7 +150,7 @@ export const faqs = [
       author: "Ravi Kumar",
       date: "Dec 15, 2024",
       category: "Learning Tips",
-      image: "/japanese-learning-tips.jpg",
+      image: "/bhasaguru.png",
     },
     {
       id: 2,
@@ -159,7 +159,7 @@ export const faqs = [
       author: "Priya Patel",
       date: "Dec 12, 2024",
       category: "Career Tips",
-      image: "/korean-job-interview.jpg",
+      image: "/bhasaguru.png",
     },
     {
       id: 3,
@@ -168,7 +168,7 @@ export const faqs = [
       author: "Arjun Singh",
       date: "Dec 10, 2024",
       category: "Career Guide",
-      image: "/tokyo-expatriate-guide.jpg",
+      image: "/bhasaguru.png",
     },
   ]
 
@@ -182,6 +182,7 @@ export const faqs = [
       date: "Nov 28, 2024",
       category: "Tradition",
       image: "/japanese-tea-ceremony.jpg",
+      country: "japan",
     },
     {
       id: 2,
@@ -191,6 +192,7 @@ export const faqs = [
       date: "Nov 25, 2024",
       category: "Modern Culture",
       image: "/k-pop-phenomenon.jpg",
+      country: "korea",
     },
     {
       id: 3,
@@ -200,6 +202,27 @@ export const faqs = [
       date: "Nov 22, 2024",
       category: "Social Life",
       image: "/british-pub-culture.jpg",
+      country: "uk",
+    },
+    {
+      id: 4,
+      title: "American Dream: From Immigration to Innovation",
+      excerpt: "Explore the cultural narrative of the American Dream and its impact on global immigration and entrepreneurship.",
+      author: "Sarah Johnson",
+      date: "Nov 20, 2024",
+      category: "Modern Culture",
+      image: "/american-dream.jpg",
+      country: "us",
+    },
+    {
+      id: 5,
+      title: "Australian Outback Adventures",
+      excerpt: "Discover the unique traditions and lifestyle of Australia's outback culture, from Aboriginal heritage to modern bush life.",
+      author: "David Mitchell",
+      date: "Nov 18, 2024",
+      category: "Adventure",
+      image: "/australian-outback.jpg",
+      country: "australia",
     },
   ]
 

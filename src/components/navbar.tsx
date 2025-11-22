@@ -3,9 +3,21 @@
 import { useState } from "react"
 import { Menu, X, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { signIn, signOut, useSession } from "next-auth/react"
+import Image from "next/image"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const { data: session } = useSession()
 
   const toggleMenu = () => setIsOpen(!isOpen)
 
@@ -47,9 +59,27 @@ export default function Navbar() {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex  items-center gap-3 " >
-            <Button variant="outline" className="border-accent  hover:bg-blue-400 bg-white text-stone-900">
-              Sign In
-            </Button>
+            {session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="cursor-pointer">
+                    <AvatarImage src={session.user?.image || undefined} />
+                    <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel>{session.user?.name}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>Sign Out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="outline" className="border-accent  hover:bg-blue-400 bg-white text-stone-900" onClick={() => signIn('google', { callbackUrl: '/' })}>
+                Sign In
+              </Button>
+            )}
             <Button className="bg-gradient-accent hover:bg-green-700 text-stone-900">Get Started</Button>
           </div>
 
@@ -78,9 +108,15 @@ export default function Navbar() {
               Tests
             </a>
             <div className="flex gap-2 pt-3">
-              <Button variant="outline" size="sm" className="w-full border-accent text-accent bg-transparent">
-                Sign In
-              </Button>
+              {session ? (
+                <Button size="sm" className="w-full bg-gradient-accent" onClick={() => signOut()}>
+                  Sign Out
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" className="w-full border-accent text-accent bg-transparent" onClick={() => signIn('google')}>
+                  Sign In
+                </Button>
+              )}
               <Button size="sm" className="w-full bg-gradient-accent">
                 Get Started
               </Button>

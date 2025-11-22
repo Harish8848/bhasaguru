@@ -24,11 +24,11 @@ export async function requireAdmin() {
 
 export async function requireModerator() {
   const session = await requireAuth();
-  
-  if (![UserRole.ADMIN, UserRole.MODERATOR].includes(session.user.role as UserRole)) {
+
+  if (session.user.role !== UserRole.ADMIN && session.user.role !== UserRole.MODERATOR) {
     throw new Error('Forbidden: Moderator access required');
   }
-  
+
   return session;
 }
 

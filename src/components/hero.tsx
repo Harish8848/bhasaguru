@@ -32,7 +32,7 @@ export default function HeroSection() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button size="lg" className="bg-gradient-accent hover:opacity-90 text-accent-foreground font-semibold">
+              <Button size="lg" className=" hover:opacity-90 text-accent-foreground font-semibold">
                 Start Learning Free
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

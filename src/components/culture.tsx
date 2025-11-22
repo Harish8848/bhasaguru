@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { ArrowRight, Calendar, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -7,6 +8,12 @@ import { Badge } from "@/components/ui/badge"
 import { culturePosts } from "@/lib/data"
 
 export default function CultureSection() {
+  const [selectedCountry, setSelectedCountry] = useState("all")
+
+  const filteredPosts = selectedCountry === "all"
+    ? culturePosts
+    : culturePosts.filter(post => post.country === selectedCountry)
+
   return (
     <section className="py-20 md:py-32 bg-muted/30 border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -25,8 +32,29 @@ export default function CultureSection() {
           </Button>
         </div>
 
+        {/* Country Filter */}
+        <div className="flex flex-wrap gap-2 justify-center">
+          {[
+            { key: "all", label: "🌍 All Countries" },
+            { key: "japan", label: "🇯🇵 Japan" },
+            { key: "korea", label: "🇰🇷 Korea" },
+            { key: "uk", label: "🇬🇧 UK" },
+            { key: "us", label: "🇺🇸 US" },
+            { key: "australia", label: "🇦🇺 Australia" },
+          ].map((country) => (
+            <Button
+              key={country.key}
+              onClick={() => setSelectedCountry(country.key)}
+              variant={selectedCountry === country.key ? "default" : "outline"}
+              className={selectedCountry === country.key ? "bg-accent text-accent-foreground" : ""}
+            >
+              {country.label}
+            </Button>
+          ))}
+        </div>
+
         <div className="grid md:grid-cols-3 gap-6">
-          {culturePosts.map((post) => (
+          {filteredPosts.map((post) => (
             <Card
               key={post.id}
               className="border-border overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer"

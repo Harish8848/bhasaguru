@@ -1,10 +1,11 @@
+import { CourseStatus } from '@/lib/prisma/enums';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
 interface WhereClause {
-  status?: string;
+  status?: CourseStatus;
   language?: string;
 }
 
@@ -18,7 +19,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const language = searchParams.get('language');
 
   const where: WhereClause = {};
-  if (status) where.status = status;
+  if (status) where.status = status as CourseStatus;
   if (language) where.language = language;
 
   const [courses, total] = await Promise.all([

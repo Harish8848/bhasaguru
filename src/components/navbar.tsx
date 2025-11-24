@@ -72,7 +72,7 @@ export default function Navbar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Profile</DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>Sign Out</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut()}>Sign Out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
@@ -113,7 +113,7 @@ export default function Navbar() {
                   Sign Out
                 </Button>
               ) : (
-                <Button variant="outline" size="sm" className="w-full border-accent text-accent bg-transparent" onClick={() => signIn('google')}>
+                <Button variant="outline" size="sm" className="w-full border-accent text-accent bg-transparent" onClick={() => signIn()}>
                   Sign In
                 </Button>
               )}

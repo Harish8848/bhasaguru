@@ -1,3 +1,4 @@
+import { UserRole, AccountStatus } from '@/lib/prisma/enums';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
@@ -6,8 +7,8 @@ import { withErrorHandler } from '@/lib/api-wrapper';
 
 interface WhereClause {
   OR?: Array<{ email?: { contains: string; mode: 'insensitive' }; name?: { contains: string; mode: 'insensitive' } }>;
-  role?: string;
-  status?: string;
+  role?: UserRole;
+  status?: AccountStatus;
 }
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
@@ -29,8 +30,8 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     ];
   }
 
-  if (role) where.role = role;
-  if (status) where.status = status;
+  if (role) where.role = role as UserRole;
+  if (status) where.status = status as AccountStatus;
 
   const [users, total] = await Promise.all([
     prisma.user.findMany({

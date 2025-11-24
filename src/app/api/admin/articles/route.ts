@@ -1,3 +1,4 @@
+import { ArticleStatus } from '@/lib/prisma/enums';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
@@ -7,7 +8,7 @@ import { withErrorHandler } from '@/lib/api-wrapper';
 // GET - List articles with pagination and optional status filter
 
 interface WhereClause {
-  status?: string;
+  status?: ArticleStatus;
 }
 
 // GET - List articles with pagination and optional status filter
@@ -21,7 +22,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const status = searchParams.get('status');
 
   const where: WhereClause = {};
-  if (status) where.status = status;
+  if (status) where.status = status as ArticleStatus;
 
   const [articles, total] = await Promise.all([
     prisma.article.findMany({

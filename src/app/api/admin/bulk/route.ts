@@ -16,6 +16,14 @@ interface BulkResult {
   count: number;
 }
 
+const modelMap = {
+    article: prisma.article,
+    course: prisma.course,
+    jobListing: prisma.jobListing,
+    comment: prisma.comment,
+    user: prisma.user,
+  };
+
 export const POST = withErrorHandler(async (request: NextRequest) => {
   await requireAdmin();
 
@@ -24,22 +32,24 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
   let result: BulkResult;
 
+  const prismaModel = modelMap[model];
+
   switch (action) {
     case 'delete':
-      result = await prisma[model].deleteMany({
+      result = await (prismaModel as any).deleteMany({
         where: { id: { in: ids } },
       });
       break;
 
     case 'publish':
-      result = await prisma[model].updateMany({
+      result = await (prismaModel as any).updateMany({
         where: { id: { in: ids } },
         data: { status: 'PUBLISHED', publishedAt: new Date() },
       });
       break;
 
     case 'archive':
-      result = await prisma[model].updateMany({
+      result = await (prismaModel as any).updateMany({
         where: { id: { in: ids } },
         data: { status: 'ARCHIVED' },
       });

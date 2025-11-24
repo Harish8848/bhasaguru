@@ -1,3 +1,4 @@
+import { JobStatus } from '@/lib/prisma/enums';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
@@ -5,7 +6,7 @@ import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
 
 interface WhereClause {
-  status?: string;
+  status?: JobStatus;
 }
 
 // GET - List job listings with pagination and optional status filter 
@@ -18,7 +19,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const status = searchParams.get('status');
 
   const where: WhereClause = {};
-  if (status) where.status = status;
+  if (status) where.status = status as JobStatus;
 
   const [jobs, total] = await Promise.all([
     prisma.jobListing.findMany({

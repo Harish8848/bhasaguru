@@ -1,3 +1,9 @@
+import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth-middleware';
+import { ApiResponse } from '@/lib/api-response';
+import { withErrorHandler } from '@/lib/api-wrapper';
+
 export const GET = withErrorHandler(async (request: NextRequest) => {
     await requireAdmin();
   

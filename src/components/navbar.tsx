@@ -80,7 +80,6 @@ export default function Navbar() {
                 Sign In
               </Button>
             )}
-            <Button className="bg-gradient-accent hover:bg-green-700 text-stone-900">Get Started</Button>
           </div>
 
           {/* Mobile Menu Button */}

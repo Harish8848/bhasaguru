@@ -47,12 +47,12 @@ export const faqs = [
 
   export const stats = [
     {
-      number: "50K+",
+      number: "2",
       label: "Active Learners",
       description: "From 85+ countries learning with BhasaGuru",
     },
     {
-      number: "500+",
+      number: "10+",
       label: "Expert Courses",
       description: "From beginner to advanced proficiency levels",
     },
@@ -62,7 +62,7 @@ export const faqs = [
       description: "Learners recommend BhasaGuru to others",
     },
     {
-      number: "1000+",
+      number: "0",
       label: "Job Placements",
       description: "Successful placements in 2024 alone",
     },
@@ -72,19 +72,16 @@ export const faqs = [
   export const footerLinks = [
     {
       title: "Product",
-      links: ["Courses", "Jobs", "Certifications", "Pricing"],
+      links: ["Courses", "Jobs", "Pricing"],
     },
     {
       title: "Company",
-      links: ["About", "Blog", "Careers", "Contact"],
+      links: ["About", "Careers", "Contact"],
     },
-    {
-      title: "Resources",
-      links: ["Help Center", "Community", "API Docs", "Status"],
-    },
+  
     {
       title: "Legal",
-      links: ["Privacy", "Terms", "Cookies", "Compliance"],
+      links: ["Privacy", "Terms",  "Licenses"],
     },
   ]
 
@@ -139,37 +136,6 @@ export const faqs = [
     { label: "Active Listings", value: "0", icon: Briefcase },
     { label: "Average Salary", value: "0", icon: TrendingUp },
     { label: "Successful Placements", value: "0", icon: Globe },
-  ]
-  
-//Blog Posts Data
-  export const blogPosts = [
-    {
-      id: 1,
-      title: "Top 5 Tips to Accelerate Your Japanese Learning",
-      excerpt: "Master the fundamentals and progress from A1 to B1 in just 3 months with these proven techniques.",
-      author: "Ravi Kumar",
-      date: "Dec 15, 2024",
-      category: "Learning Tips",
-      image: "/bhasaguru.png",
-    },
-    {
-      id: 2,
-      title: "Job Interview Tips in Korean - Complete Guide",
-      excerpt: "Learn how to ace your job interview in Korean. Real examples and common phrases explained.",
-      author: "Priya Patel",
-      date: "Dec 12, 2024",
-      category: "Career Tips",
-      image: "/bhasaguru.png",
-    },
-    {
-      id: 3,
-      title: "Living & Working in Tokyo: Nepali Professionals Guide",
-      excerpt: "Everything you need to know about relocating to Tokyo for work. Visa, salary, culture, and more.",
-      author: "Arjun Singh",
-      date: "Dec 10, 2024",
-      category: "Career Guide",
-      image: "/bhasaguru.png",
-    },
   ]
 
   //Culture Posts Data

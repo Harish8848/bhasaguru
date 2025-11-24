@@ -49,9 +49,6 @@ export default function Navbar() {
             <a href="/culture" className="text-sm font-medium hover:text-accent transition-colors">
               Culture
             </a>
-            <a href="/blog" className="text-sm font-medium hover:text-accent transition-colors">
-              Blog
-            </a>
             <a href="/mock-tests" className="text-sm font-medium hover:text-accent transition-colors">
               Mock Tests
             </a>
@@ -112,7 +109,7 @@ export default function Navbar() {
                   Sign Out
                 </Button>
               ) : (
-                <Button variant="outline" size="sm" className="w-full border-accent text-accent bg-transparent" onClick={() => signIn()}>
+                <Button variant="outline" size="sm" className="w-full border-accent text-accent bg-transparent" onClick={() => signIn('google', { callbackUrl: '/' })}>
                   Sign In
                 </Button>
               )}

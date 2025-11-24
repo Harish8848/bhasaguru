@@ -7,10 +7,11 @@ export default function Footer() {
 
   return (
     <footer className="bg-card border-t border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 flex justify-center align-items-center flex-col">
         {/* Main Footer Content */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 mb-8 md:mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 mb-8 md:mb-12 ">
           {/* Brand Section */}
+         
           <div className="md:col-span-2 lg:col-span-1 space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-accent flex items-center justify-center">
@@ -35,7 +36,6 @@ export default function Footer() {
               </a>
             </div>
           </div>
-
           {/* Links */}
           {footerLinks.map((section, index) => (
             <div key={index} className="space-y-4">
@@ -49,28 +49,13 @@ export default function Footer() {
                   </li>
                 ))}
               </ul>
+              
             </div>
           ))}
+                  <p>&copy; {currentYear} BhasaGuru. All rights reserved.</p>
+
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-border my-8 md:my-12" />
-
-        {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>&copy; {currentYear} BhasaGuru. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-accent transition-colors">
-              Twitter
-            </a>
-            <a href="#" className="hover:text-accent transition-colors">
-              LinkedIn
-            </a>
-            <a href="#" className="hover:text-accent transition-colors">
-              Facebook
-            </a>
-          </div>
-        </div>
       </div>
     </footer>
   )

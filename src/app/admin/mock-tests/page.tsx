@@ -3,8 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Plus, Edit2, Copy, Trash2, Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useState, useEffect } from "react"
+import CreateTestForm from "@/components/admin/CreateTestForm"
 
 interface MockTest {
   id: string
@@ -41,6 +43,7 @@ export default function MockTestsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalTests, setTotalTests] = useState(0)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
   const fetchTests = async (page = 1) => {
     try {
@@ -71,6 +74,11 @@ export default function MockTestsPage() {
     fetchTests(currentPage)
   }, [currentPage])
 
+  const handleCreateSuccess = () => {
+    setCreateDialogOpen(false)
+    fetchTests(currentPage) // Refresh the tests list
+  }
+
   if (loading && tests.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -95,7 +103,10 @@ export default function MockTestsPage() {
           <h1 className="text-3xl font-bold text-foreground">Mock Tests Management</h1>
           <p className="text-muted-foreground mt-1">Create and manage assessments</p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button
+          onClick={() => setCreateDialogOpen(true)}
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+        >
           <Plus size={18} className="mr-2" />
           Create Test
         </Button>
@@ -215,6 +226,19 @@ export default function MockTestsPage() {
           </div>
         </div>
       )}
+
+      {/* Create Test Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Test</DialogTitle>
+          </DialogHeader>
+          <CreateTestForm
+            onSuccess={handleCreateSuccess}
+            onCancel={() => setCreateDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

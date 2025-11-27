@@ -6,7 +6,7 @@ import { languages, levels } from "@/lib/data"
 
 export default function CoursesSection() {
   return (
-    <section className="py-20 md:py-32 bg-muted/30 border-t border-border">
+    <section className="py-20 md:py-32 bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Languages Offered */}
         <div className="space-y-8">

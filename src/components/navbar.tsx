@@ -40,6 +40,9 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
+          <a href="/lessons" className="text-sm font-medium hover:text-accent transition-colors">
+              Lessons
+            </a>
             <a href="/courses" className="text-sm font-medium hover:text-accent transition-colors">
               Courses
             </a>
@@ -67,7 +70,9 @@ export default function Navbar() {
                 <DropdownMenuContent>
                   <DropdownMenuLabel>{session.user?.name}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <a href="/profile">Profile</a>
+                  </DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => signOut()}>Sign Out</DropdownMenuItem>
                 </DropdownMenuContent>

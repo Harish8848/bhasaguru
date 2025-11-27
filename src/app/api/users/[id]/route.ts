@@ -5,17 +5,19 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) {
     try {
       const session = await getServerSession(authOptions);
-      
+
       if (!session) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
-  
+
+      const { id } = await params;
+
       const user = await prisma.user.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
           enrollments: {
             include: { course: true },
@@ -45,22 +47,26 @@ export async function GET(
   }
   export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) {
     try {
       const session = await getServerSession(authOptions);
-      
-      if (!session || (session.user.id !== params.id && session.user.role !== "ADMIN")) {
+
+      const { id } = await params;
+
+      if (!session || (session.user.id !== id && session.user.role !== "ADMIN")) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
-  
+
       const body = await request.json();
-      const { name, nativeLanguage, learningLanguages, timezone } = body;
-  
+      const { name, phone, address, nativeLanguage, learningLanguages, timezone } = body;
+
       const user = await prisma.user.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           name,
+          phone,
+          address,
           nativeLanguage,
           learningLanguages,
           timezone,
@@ -75,4 +81,3 @@ export async function GET(
       );
     }
   }
-  

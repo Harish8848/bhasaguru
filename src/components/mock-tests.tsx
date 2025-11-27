@@ -1,7 +1,7 @@
 
 export default function MockTestsSection() {
   return (
-    <section className="py-20 md:py-32 bg-muted/30 border-t border-border">
+    <section className="py-20 md:py-32 bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <div className="text-center space-y-3">
           <h2 className="text-3xl md:text-5xl font-bold leading-tight">

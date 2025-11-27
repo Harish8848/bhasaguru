@@ -45,13 +45,13 @@ export function generateSlug(text: string): string {
     if (excludeSlug) {
       where.slug = { not: excludeSlug };
     }
-  
+
     const modelMap = {
       course: prisma.course,
       article: prisma.article,
       job: prisma.jobListing,
     };
-  
-    const count = await modelMap[model].count({ where });
+
+    const count = await (modelMap[model] as any).count({ where });
     return count > 0;
   }

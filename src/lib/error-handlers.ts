@@ -1,5 +1,6 @@
 import { Prisma } from '@/lib/prisma/client';
 import { ZodError } from 'zod';
+import { ApiResponse } from '@/lib/api-response';
 
 export function handleApiError(error: unknown) {
   console.error('API Error:', error);
@@ -9,7 +10,7 @@ export function handleApiError(error: unknown) {
     return ApiResponse.error(
       'Validation failed',
       400,
-      error.errors.map(e => ({
+      error.issues.map((e: any) => ({
         field: e.path.join('.'),
         message: e.message,
       }))

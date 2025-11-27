@@ -1,4 +1,4 @@
-import { UserRole, UserStatus } from "@prisma/client";
+import { UserRole, AccountStatus } from "@/lib/prisma/enums";
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
@@ -6,12 +6,12 @@ declare module "next-auth" {
     user: {
       id: string;
       role: UserRole;
-      status: UserStatus;
+      status: AccountStatus;
     } & DefaultSession["user"];
   }
 
   interface User {
     role: UserRole;
-    status: UserStatus;
+    status: AccountStatus;
   }
 }

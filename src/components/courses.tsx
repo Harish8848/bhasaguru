@@ -32,18 +32,27 @@ export default function CoursesSection() {
         const result = await response.json()
 
         if (result.courses) {
+          console.log('Fetched courses:', result.courses)
           setCourses(result.courses.slice(0, 6)) // Limit to 6 for featured section
 
           // Calculate language statistics
           const stats: {[key: string]: {courses: number, learners: number}} = {}
           result.courses.forEach((course: Course) => {
-            const lang = course.language.toLowerCase()
+            // Map database language values to lib/data codes
+            const languageMap: {[key: string]: string} = {
+              'Japanese': 'japanese',
+              'Korean': 'korean',
+              'English': 'english'
+            }
+            const lang = languageMap[course.language] || course.language.toLowerCase()
+            console.log(`Course: ${course.title}, Language: ${course.language}, Mapped to: ${lang}`)
             if (!stats[lang]) {
               stats[lang] = { courses: 0, learners: 0 }
             }
             stats[lang].courses += 1
             stats[lang].learners += course.studentsCount || 0
           })
+          console.log('Calculated language stats:', stats)
           setLanguageStats(stats)
         }
       } catch (err) {

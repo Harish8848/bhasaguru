@@ -1,18 +1,74 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowRight, Calendar, User } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ArrowRight, Calendar, User, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { culturePosts } from "@/lib/data"
+
+interface Article {
+  id: string
+  title: string
+  excerpt?: string
+  category: string
+  language: string
+  status: string
+  viewCount: number
+  authorName?: string
+  publishedAt?: string
+  featuredImage?: string
+  createdAt: string
+}
 
 export default function CultureSection() {
+  const [articles, setArticles] = useState<Article[]>([])
+  const [loading, setLoading] = useState(true)
   const [selectedCountry, setSelectedCountry] = useState("all")
 
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch('/api/articles?status=PUBLISHED')
+        const result = await response.json()
+
+        if (result.success) {
+          setArticles(result.data)
+        }
+      } catch (err) {
+        console.error('Failed to fetch articles:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchArticles()
+  }, [])
+
   const filteredPosts = selectedCountry === "all"
-    ? culturePosts
-    : culturePosts.filter(post => post.country === selectedCountry)
+    ? articles
+    : articles.filter(post => {
+        // Map language to country for filtering
+        const countryMap: { [key: string]: string } = {
+          'japan': 'Japanese',
+          'korea': 'Korean',
+          'uk': 'English',
+          'us': 'English',
+          'australia': 'English'
+        }
+        return countryMap[selectedCountry] === post.language
+      })
+
+  if (loading) {
+    return (
+      <section className="py-20 md:py-32 border-t border-border bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-20 md:py-32  border-t border-border bg-background">
@@ -61,7 +117,7 @@ export default function CultureSection() {
             >
               <div className="aspect-video bg-muted overflow-hidden relative">
                 <img
-                  src={post.image || "/placeholder.svg"}
+                  src={post.featuredImage || "/placeholder.svg"}
                   alt={post.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 />
@@ -82,12 +138,12 @@ export default function CultureSection() {
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1">
                       <User className="w-3.5 h-3.5" />
-                      <span>{post.author}</span>
+                      <span>{post.authorName || 'Anonymous'}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
-                    <span>{post.date}</span>
+                    <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : new Date(post.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               </CardContent>

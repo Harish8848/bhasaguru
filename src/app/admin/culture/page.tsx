@@ -3,42 +3,103 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Edit2, Eye, Trash2, Search } from "lucide-react"
-import { useState } from "react"
+import { Plus, Edit2, Eye, Trash2, Search, Loader2 } from "lucide-react"
+import { useState, useEffect } from "react"
 
-const articles = [
-  {
-    id: 1,
-    title: "Traditions of Japanese Tea Ceremony",
-    category: "Traditions",
-    language: "Japanese",
-    views: 1203,
-    status: "PUBLISHED",
-  },
-  {
-    id: 2,
-    title: "Korean Cuisine: Kimchi and Beyond",
-    category: "Food",
-    language: "Korean",
-    views: 892,
-    status: "PUBLISHED",
-  },
-  {
-    id: 3,
-    title: "Cherry Blossom Festival Guide",
-    category: "Festivals",
-    language: "Japanese",
-    views: 567,
-    status: "PUBLISHED",
-  },
-  { id: 4, title: "English Breakfast Traditions", category: "Food", language: "English", views: 234, status: "DRAFT" },
-  { id: 5, title: "Korean Fashion Tips", category: "Lifestyle", language: "Korean", views: 445, status: "PUBLISHED" },
-]
+interface Article {
+  id: string
+  title: string
+  category: string
+  language: string
+  viewCount: number
+  status: string
+  _count?: {
+    comments: number
+  }
+}
 
 export default function CulturePage() {
+  const [articles, setArticles] = useState<Article[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null)
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch('/api/admin/articles')
+        const result = await response.json()
+
+        if (result.success) {
+          setArticles(result.data)
+        } else {
+          setError(result.message || 'Failed to fetch articles')
+        }
+      } catch (err) {
+        setError('Failed to fetch articles')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchArticles()
+  }, [])
 
   const filteredArticles = articles.filter((article) => article.title.toLowerCase().includes(searchTerm.toLowerCase()))
+
+  const handleEdit = (article: Article) => {
+    setEditingArticle(article)
+    // TODO: Open edit dialog/form
+  }
+
+  const handleDelete = async (articleId: string) => {
+    if (!confirm('Are you sure you want to delete this article?')) return
+
+    try {
+      const response = await fetch(`/api/admin/articles/${articleId}`, {
+        method: 'DELETE',
+      })
+      const result = await response.json()
+
+      if (result.success) {
+        setArticles(articles.filter(article => article.id !== articleId))
+      } else {
+        alert(result.message || 'Failed to delete article')
+      }
+    } catch (err) {
+      alert('Failed to delete article')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Culture Content Management</h1>
+            <p className="text-muted-foreground mt-1">Loading articles...</p>
+          </div>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Culture Content Management</h1>
+            <p className="text-red-500 mt-1">{error}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -94,7 +155,7 @@ export default function CulturePage() {
             <CardContent className="flex-1 flex flex-col justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">{article.language}</p>
-                <p className="text-sm text-muted-foreground mt-2">{article.views} views</p>
+                <p className="text-sm text-muted-foreground mt-2">{article.viewCount} views</p>
               </div>
               <div className="flex gap-2 mt-4 pt-4 border-t border-border">
                 <Button
@@ -109,6 +170,7 @@ export default function CulturePage() {
                   variant="outline"
                   size="sm"
                   className="flex-1 border-border text-foreground hover:bg-secondary bg-transparent"
+                  onClick={() => handleEdit(article)}
                 >
                   <Edit2 size={14} className="mr-1" />
                   Edit
@@ -117,6 +179,7 @@ export default function CulturePage() {
                   variant="outline"
                   size="sm"
                   className="border-border text-destructive hover:bg-destructive/10 bg-transparent"
+                  onClick={() => handleDelete(article.id)}
                 >
                   <Trash2 size={14} />
                 </Button>

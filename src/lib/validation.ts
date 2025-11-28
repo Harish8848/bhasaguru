@@ -45,9 +45,14 @@ export const createTestSchema = z.object({
   courseId: z.string().cuid().optional(),
   title: z.string().min(1).max(200),
   description: z.string().optional(),
+  language: z.string().optional(),
+  module: z.string().optional(),
+  section: z.string().optional(),
+  standardSection: z.string().optional(),
   type: z.enum(['PRACTICE', 'FINAL', 'CERTIFICATION']),
   duration: z.number().positive(),
   passingScore: z.number().min(0).max(100),
+  questionsCount: z.number().int().nonnegative(),
   shuffleQuestions: z.boolean().default(true),
   shuffleOptions: z.boolean().default(true),
   showResults: z.boolean().default(true),
@@ -65,7 +70,14 @@ export const createQuestionSchema = z.object({
   points: z.number().positive().default(1),
   order: z.number().int().nonnegative(),
   explanation: z.string().optional(),
+  language: z.string().optional(),
+  module: z.string().optional(),
+  section: z.string().optional(),
+  standardSection: z.string().optional(),
+  difficulty: z.string().optional(),
 });
+
+export const updateQuestionSchema = createQuestionSchema.partial().omit({ testId: true });
 
 // Job listing validation schemas
 export const createJobSchema = z.object({

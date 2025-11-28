@@ -22,9 +22,14 @@ export async function POST(
         where: { id: attemptId },
         include: { test: { include: { questions: true } } },
       });
-  
+
       if (!attempt || attempt.userId !== session.user.id) {
         return NextResponse.json({ error: "Invalid attempt" }, { status: 400 });
+      }
+
+      // Ensure this is a formal test attempt (not a practice session)
+      if (!attempt.test) {
+        return NextResponse.json({ error: "Invalid test attempt" }, { status: 400 });
       }
   
       // Grade answers

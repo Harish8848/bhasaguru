@@ -53,7 +53,7 @@ export default function MockTestsPage() {
         limit: '20'
       })
 
-      const response = await fetch(`/api/admin/tests?${params}`)
+      const response = await fetch(`/api/admin/mock-tests?${params}`)
       if (!response.ok) {
         throw new Error('Failed to fetch tests')
       }

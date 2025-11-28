@@ -79,7 +79,7 @@ export default function CreateTestForm({ onSuccess, onCancel }: CreateTestFormPr
     setLoading(true)
 
     try {
-      const response = await fetch('/api/admin/tests', {
+      const response = await fetch('/api/admin/mock-test/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

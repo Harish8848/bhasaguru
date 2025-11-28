@@ -1,4 +1,4 @@
-import { UserRole, AccountStatus } from '@/lib/prisma/enums';
+import { UserRole, AccountStatus } from '@/generated/prisma/client';
 import { NextAuthOptions, User, Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
@@ -68,4 +68,3 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin',
   },
 };
-

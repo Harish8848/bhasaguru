@@ -1,4 +1,4 @@
-import { JobStatus } from '@/lib/prisma/enums';
+import { JobStatus } from '@/generated/prisma/client';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';

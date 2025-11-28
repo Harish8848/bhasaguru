@@ -1,4 +1,4 @@
-import { CourseStatus } from '@/lib/prisma/enums';
+import { CourseStatus } from '@/generated/prisma/client';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';

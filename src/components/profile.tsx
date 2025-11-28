@@ -138,12 +138,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-linear-to-r from-primary/10 via-primary/5 to-background border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Profile</h1>
-          <p className="text-muted-foreground">Manage your account information</p>
-        </div>
-      </div>
+     
 
       <main className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-12">
         <Card className="bg-card border-border">

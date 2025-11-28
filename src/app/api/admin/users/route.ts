@@ -1,4 +1,4 @@
-import { UserRole, AccountStatus } from '@/lib/prisma/enums';
+import { UserRole, AccountStatus } from '@/generated/prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';

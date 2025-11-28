@@ -1,4 +1,4 @@
-import { ArticleStatus } from '@/lib/prisma/enums';
+import { ArticleStatus } from '@/generated/prisma/client';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
@@ -61,4 +61,3 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   
     return ApiResponse.success(article, 'Article created successfully', 201);
   });
-  

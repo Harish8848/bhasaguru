@@ -26,7 +26,7 @@ import {
     JobStatus,
     ArticleStatus,
     SavedItemType,
-  } from '@/lib/prisma/client'; // Update the path to the correct relative location
+  } from '@/generated/prisma/client'; // Update the path to the correct relative location
   
   // 1. EXTENDED PRISMA TYPES (With Relations)
   
@@ -857,4 +857,3 @@ import {
     export type Mutable<T> = {
     -readonly [P in keyof T]: T[P];
     };
-    

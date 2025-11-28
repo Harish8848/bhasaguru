@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { JobListing,Article } from './prisma/client';
+import { JobListing,Article } from '@/generated/prisma/client';
 
 export {
     requireAuth,

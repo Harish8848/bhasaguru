@@ -13,7 +13,7 @@ export const authOptions: NextAuthOptions = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "jwt",
+    strategy: "database",
     maxAge: 24 * 60 * 60, // 24 hours
     updateAge: 60 * 60, // 1 hour
   },
@@ -21,44 +21,19 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth",
   },
   callbacks: {
-    session: ({ session, token }) => {
-      if (token) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.status = token.status;
-      }
-      return session;
-    },
-    jwt: async ({ token, user }) => {
-      if (user?.email) {
+    session: async ({ session, user }) => {
+      if (session?.user) {
+        session.user.id = user.id;
+        // Fetch additional user data from database
         const dbUser = await prisma.user.findUnique({
-          where: { email: user.email },
+          where: { email: user.email! },
         });
         if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
-          token.status = dbUser.status;
+          session.user.role = dbUser.role;
+          session.user.status = dbUser.status;
         }
       }
-      return token;
-    },
-    signIn: async ({ user, account, profile }) => {
-      if (account?.provider === "google" && user?.email) {
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email },
-        });
-        if (!existingUser) {
-          // Create a new user if they don't exist
-          await prisma.user.create({
-            data: {
-              email: user.email,
-              name: user.name,
-              image: user.image,
-            },
-          });
-        }
-      }
-      return true;
+      return session;
     },
     redirect: ({ url, baseUrl }) => {
       return baseUrl;

@@ -3,7 +3,7 @@ import { BookOpen, Users, Globe, Clock, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { languages, levels } from "@/lib/data"
+
 import { useState, useEffect } from "react"
 
 interface Course {
@@ -23,7 +23,18 @@ interface Course {
 export default function CoursesSection() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
+  const [languages, setLanguages] = useState<{code: string, label: string, icon: string}[]>([])
   const [languageStats, setLanguageStats] = useState<{[key: string]: {courses: number, learners: number}}>({})
+
+  // CEFR Levels based on database enum
+  const levels = [
+    { level: "BEGINNER", label: "A1", description: "Start your journey" },
+    { level: "ELEMENTARY", label: "A2", description: "Build foundation" },
+    { level: "INTERMEDIATE", label: "B1", description: "Speak with confidence" },
+    { level: "UPPER_INTERMEDIATE", label: "B2", description: "Advanced fluency" },
+    { level: "ADVANCED", label: "C1", description: "Near native level" },
+    { level: "PROFICIENT", label: "C2", description: "Mastery achieved" },
+  ]
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -35,25 +46,36 @@ export default function CoursesSection() {
           console.log('Fetched courses:', result.courses)
           setCourses(result.courses.slice(0, 6)) // Limit to 6 for featured section
 
-          // Calculate language statistics
-          const stats: {[key: string]: {courses: number, learners: number}} = {}
+          // Calculate distinct languages from courses
+          const languageSet = new Set<string>()
+          const languageStats: {[key: string]: {courses: number, learners: number}} = {}
+
           result.courses.forEach((course: Course) => {
-            // Map database language values to lib/data codes
-            const languageMap: {[key: string]: string} = {
-              'Japanese': 'japanese',
-              'Korean': 'korean',
-              'English': 'english'
+            languageSet.add(course.language)
+            const langCode = course.language.toLowerCase()
+            if (!languageStats[langCode]) {
+              languageStats[langCode] = { courses: 0, learners: 0 }
             }
-            const lang = languageMap[course.language] || course.language.toLowerCase()
-            console.log(`Course: ${course.title}, Language: ${course.language}, Mapped to: ${lang}`)
-            if (!stats[lang]) {
-              stats[lang] = { courses: 0, learners: 0 }
-            }
-            stats[lang].courses += 1
-            stats[lang].learners += course.studentsCount || 0
+            languageStats[langCode].courses += 1
+            languageStats[langCode].learners += course.studentsCount || 0
           })
-          console.log('Calculated language stats:', stats)
-          setLanguageStats(stats)
+
+          // Create language objects with icons
+          const languageIcons: {[key: string]: string} = {
+            'japanese': '🇯🇵',
+            'korean': '🇰🇷',
+            'english': '🇺🇸'
+          }
+
+          const dynamicLanguages = Array.from(languageSet).map(lang => ({
+            code: lang.toLowerCase(),
+            label: lang,
+            icon: languageIcons[lang.toLowerCase()] || '🌍'
+          }))
+
+          setLanguages(dynamicLanguages)
+          setLanguageStats(languageStats)
+          console.log('Calculated language stats:', languageStats)
         }
       } catch (err) {
         console.error('Failed to fetch courses:', err)
@@ -81,7 +103,7 @@ export default function CoursesSection() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {languages.map((lang) => {
-              const stats = languageStats[lang.code] || { courses: lang.courses, learners: lang.learners }
+              const stats = languageStats[lang.code] || { courses: 0, learners: 0 }
               return (
                 <Card key={lang.code} className="hover:shadow-lg transition-shadow border-border group cursor-pointer">
                   <CardHeader>

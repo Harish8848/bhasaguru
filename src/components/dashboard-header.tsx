@@ -10,12 +10,7 @@ export function DashboardHeader() {
   const { isOpen, toggle } = useSidebar()
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 bg-card border-b border-border px-6 py-4 z-30 transition-all duration-300",
-        isOpen ? "md:ml-64" : "md:ml-0",
-      )}
-    >
+    <header className="sticky top-0 bg-card border-b border-border px-6 py-4 z-30">
       <div className="flex items-center justify-between gap-4">
         <Button
           variant="ghost"

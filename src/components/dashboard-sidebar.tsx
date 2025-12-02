@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, BookOpen, BarChart3, Briefcase, FileText, Users, LogOut } from "lucide-react"
+import { LayoutDashboard, BookOpen, BarChart3, Briefcase, FileText, Users, LogOut, Video } from "lucide-react"
 import { useSidebar } from "@/components/sidebar-context"
 
 interface DashboardSidebarProps {
@@ -17,6 +17,7 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
   const adminLinks = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/courses", label: "Courses", icon: BookOpen },
+    { href: "/admin/lessons", label: "Lessons", icon: Video },
     { href: "/admin/mock-tests", label: "Mock Tests", icon: BarChart3 },
     { href: "/admin/jobs", label: "Jobs Board", icon: Briefcase },
     { href: "/admin/culture", label: "Culture Posts", icon: FileText },

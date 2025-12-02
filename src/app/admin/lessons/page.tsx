@@ -3,97 +3,109 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Plus, Edit2, Trash2, Eye, Search, FileText, ImageIcon, Video } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import CreateLessonForm from "@/components/admin/CreateLessonForm"
 
-const lessons = [
-  {
-    id: 1,
-    title: "Hiragana Introduction",
-    course: "Japanese N5 Fundamentals",
-    type: "video",
-    duration: "12:45",
-    fileSize: "245 MB",
-    status: "Published",
-    students: 342,
-  },
-  {
-    id: 2,
-    title: "Katakana Writing Guide",
-    course: "Japanese N5 Fundamentals",
-    type: "pdf",
-    duration: "-",
-    fileSize: "5.2 MB",
-    status: "Published",
-    students: 298,
-  },
-  {
-    id: 3,
-    title: "Korean Alphabet Basics",
-    course: "Korean Topic I",
-    type: "photo",
-    duration: "-",
-    fileSize: "8.4 MB",
-    status: "Published",
-    students: 256,
-  },
-  {
-    id: 4,
-    title: "IELTS Listening Techniques",
-    course: "English IELTS Preparation",
-    type: "video",
-    duration: "18:30",
-    fileSize: "312 MB",
-    status: "Draft",
-    students: 189,
-  },
-  {
-    id: 5,
-    title: "Grammar Rules Summary",
-    course: "Japanese N4 Grammar",
-    type: "pdf",
-    duration: "-",
-    fileSize: "3.8 MB",
-    status: "Published",
-    students: 145,
-  },
-  {
-    id: 6,
-    title: "Verb Conjugation Examples",
-    course: "Korean Topic II",
-    type: "photo",
-    duration: "-",
-    fileSize: "12.1 MB",
-    status: "Published",
-    students: 167,
-  },
-  {
-    id: 7,
-    title: "Reading Comprehension Video",
-    course: "English IELTS Preparation",
-    type: "video",
-    duration: "25:15",
-    fileSize: "428 MB",
-    status: "Published",
-    students: 203,
-  },
-]
+interface Lesson {
+  id: string
+  title: string
+  type: string
+  duration: number | null
+  course: {
+    title: string
+  }
+  _count: {
+    progress: number
+  }
+}
 
 const typeConfig = {
-  video: { icon: Video, label: "Video", color: "bg-blue-500/20 text-blue-400" },
-  pdf: { icon: FileText, label: "PDF", color: "bg-purple-500/20 text-purple-400" },
-  photo: { icon: ImageIcon, label: "Photo", color: "bg-orange-500/20 text-orange-400" },
+  VIDEO: { icon: Video, label: "Video", color: "bg-blue-500/20 text-blue-400" },
+  TEXT: { icon: FileText, label: "Text", color: "bg-green-500/20 text-green-400" },
+  AUDIO: { icon: FileText, label: "Audio", color: "bg-purple-500/20 text-purple-400" },
+  INTERACTIVE: { icon: FileText, label: "Interactive", color: "bg-orange-500/20 text-orange-400" },
+  QUIZ: { icon: FileText, label: "Quiz", color: "bg-red-500/20 text-red-400" },
 }
 
 export default function LessonsPage() {
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
+
+  useEffect(() => {
+    const fetchLessons = async () => {
+      try {
+        const response = await fetch('/api/admin/lessons')
+        const result = await response.json()
+
+        if (result.success) {
+          setLessons(result.data)
+        } else {
+          setError(result.message || 'Failed to fetch lessons')
+        }
+      } catch (err) {
+        setError('Failed to fetch lessons')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchLessons()
+  }, [])
 
   const filteredLessons = lessons.filter((lesson) => {
     const matchesSearch = lesson.title.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesType = filterType === "all" || lesson.type === filterType
     return matchesSearch && matchesType
   })
+
+  const formatDuration = (minutes: number | null) => {
+    if (!minutes) return "-"
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return hours > 0 ? `${hours}:${mins.toString().padStart(2, '0')}` : `${mins}m`
+  }
+
+  const handleCreateSuccess = () => {
+    setShowCreateDialog(false)
+    // Refetch lessons
+    window.location.reload()
+  }
+
+  const handleCreateCancel = () => {
+    setShowCreateDialog(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Lessons Management</h1>
+            <p className="text-muted-foreground mt-1">Loading lessons...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Lessons Management</h1>
+            <p className="text-red-500 mt-1">{error}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -103,7 +115,10 @@ export default function LessonsPage() {
           <h1 className="text-3xl font-bold text-foreground">Lessons Management</h1>
           <p className="text-muted-foreground mt-1">Manage photos, videos, and PDF lessons</p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={() => setShowCreateDialog(true)}
+        >
           <Plus size={18} className="mr-2" />
           Create Lesson
         </Button>
@@ -124,7 +139,7 @@ export default function LessonsPage() {
         </div>
 
         <div className="flex gap-2">
-          {["all", "video", "pdf", "photo"].map((type) => (
+          {["all", "VIDEO", "TEXT", "AUDIO", "INTERACTIVE", "QUIZ"].map((type) => (
             <Button
               key={type}
               variant={filterType === type ? "default" : "outline"}
@@ -164,7 +179,7 @@ export default function LessonsPage() {
                 return (
                   <tr key={lesson.id} className="border-b border-border hover:bg-muted/20 transition-colors">
                     <td className="p-4 text-foreground font-medium">{lesson.title}</td>
-                    <td className="p-4 text-foreground text-sm">{lesson.course}</td>
+                    <td className="p-4 text-foreground text-sm">{lesson.course.title}</td>
                     <td className="p-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit ${type.color}`}
@@ -174,21 +189,12 @@ export default function LessonsPage() {
                       </span>
                     </td>
                     <td className="p-4 text-foreground text-sm">
-                      <div className="space-y-1">
-                        <div>{lesson.duration !== "-" ? lesson.duration : lesson.fileSize}</div>
-                        <div className="text-muted-foreground text-xs">{lesson.fileSize}</div>
-                      </div>
+                      {formatDuration(lesson.duration)}
                     </td>
-                    <td className="p-4 text-foreground">{lesson.students.toLocaleString()}</td>
+                    <td className="p-4 text-foreground">{lesson._count.progress.toLocaleString()}</td>
                     <td className="p-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          lesson.status === "Published"
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-yellow-500/20 text-yellow-400"
-                        }`}
-                      >
-                        {lesson.status}
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                        Active
                       </span>
                     </td>
                     <td className="p-4">
@@ -231,6 +237,16 @@ export default function LessonsPage() {
       <div className="text-sm text-muted-foreground">
         Showing {filteredLessons.length} of {lessons.length} lessons
       </div>
+
+      {/* Create Lesson Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New Lesson</DialogTitle>
+          </DialogHeader>
+          <CreateLessonForm onSuccess={handleCreateSuccess} onCancel={handleCreateCancel} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

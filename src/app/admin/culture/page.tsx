@@ -3,8 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Plus, Edit2, Eye, Trash2, Search, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
+import CreateArticleForm from "@/components/admin/CreateArticleForm"
 
 interface Article {
   id: string
@@ -24,27 +26,38 @@ export default function CulturePage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [editingArticle, setEditingArticle] = useState<Article | null>(null)
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
+
+  const fetchArticles = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/admin/articles')
+      const result = await response.json()
+
+      if (result.success) {
+        setArticles(result.data)
+      } else {
+        setError(result.message || 'Failed to fetch articles')
+      }
+    } catch (err) {
+      setError('Failed to fetch articles')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await fetch('/api/admin/articles')
-        const result = await response.json()
-
-        if (result.success) {
-          setArticles(result.data)
-        } else {
-          setError(result.message || 'Failed to fetch articles')
-        }
-      } catch (err) {
-        setError('Failed to fetch articles')
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchArticles()
   }, [])
+
+  const handleCreateSuccess = () => {
+    setShowCreateDialog(false)
+    fetchArticles() // Refresh the articles list
+  }
+
+  const handleCreateCancel = () => {
+    setShowCreateDialog(false)
+  }
 
   const filteredArticles = articles.filter((article) => article.title.toLowerCase().includes(searchTerm.toLowerCase()))
 
@@ -109,7 +122,10 @@ export default function CulturePage() {
           <h1 className="text-3xl font-bold text-foreground">Culture Content Management</h1>
           <p className="text-muted-foreground mt-1">Create and manage culture articles</p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={() => setShowCreateDialog(true)}
+        >
           <Plus size={18} className="mr-2" />
           Create Article
         </Button>
@@ -188,6 +204,16 @@ export default function CulturePage() {
           </Card>
         ))}
       </div>
+
+      {/* Create Article Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Article</DialogTitle>
+          </DialogHeader>
+          <CreateArticleForm onSuccess={handleCreateSuccess} onCancel={handleCreateCancel} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
+import { ImageUpload } from "@/components/upload/ImageUpload"
 
 interface CreateCourseFormProps {
   onSuccess: () => void
@@ -22,6 +23,7 @@ export default function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFo
     language: "",
     level: "BEGINNER" as "BEGINNER" | "ELEMENTARY" | "INTERMEDIATE" | "UPPER_INTERMEDIATE" | "ADVANCED" | "PROFICIENT",
     status: "DRAFT" as "DRAFT" | "PUBLISHED",
+    thumbnail: "",
     metaTitle: "",
     metaDescription: "",
   })
@@ -153,6 +155,17 @@ export default function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFo
           onChange={(e) => handleInputChange('description', e.target.value)}
           placeholder="Enter course description (optional)"
           rows={3}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Course Thumbnail</Label>
+        <ImageUpload
+          folder="courses"
+          onUploadComplete={(url, publicId) => {
+            handleInputChange('thumbnail', url);
+          }}
+          currentImage={formData.thumbnail}
         />
       </div>
 

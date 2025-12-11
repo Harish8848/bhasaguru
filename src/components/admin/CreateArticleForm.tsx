@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
+import { ImageUpload } from "@/components/upload/ImageUpload"
 
 interface CreateArticleFormProps {
   onSuccess: () => void
@@ -201,12 +202,13 @@ export default function CreateArticleForm({ onSuccess, onCancel }: CreateArticle
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="featuredImage">Featured Image URL</Label>
-        <Input
-          id="featuredImage"
-          value={formData.featuredImage}
-          onChange={(e) => handleInputChange('featuredImage', e.target.value)}
-          placeholder="URL of the featured image (optional)"
+        <Label>Featured Image</Label>
+        <ImageUpload
+          folder="articles"
+          onUploadComplete={(url, publicId) => {
+            handleInputChange('featuredImage', url);
+          }}
+          currentImage={formData.featuredImage}
         />
       </div>
 

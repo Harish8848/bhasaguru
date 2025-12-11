@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
+import { VideoUpload } from "@/components/upload/VideoUpload"
+import { FileUpload } from "@/components/upload/FileUpload"
 
 interface Course {
   id: string
@@ -205,22 +207,24 @@ export default function CreateLessonForm({ onSuccess, onCancel }: CreateLessonFo
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="videoUrl">Video URL</Label>
-          <Input
-            id="videoUrl"
-            value={formData.videoUrl}
-            onChange={(e) => handleInputChange('videoUrl', e.target.value)}
-            placeholder="YouTube or Vimeo URL (optional)"
+          <Label>Video Upload</Label>
+          <VideoUpload
+            folder="lessons"
+            onUploadComplete={(url, publicId) => {
+              handleInputChange('videoUrl', url);
+            }}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="audioUrl">Audio URL</Label>
-          <Input
-            id="audioUrl"
-            value={formData.audioUrl}
-            onChange={(e) => handleInputChange('audioUrl', e.target.value)}
-            placeholder="Audio file URL (optional)"
+          <Label>Audio Upload</Label>
+          <FileUpload
+            folder="lessons"
+            accept={["audio/*"]}
+            onUploadComplete={(url, publicId) => {
+              handleInputChange('audioUrl', url);
+            }}
+            label="Upload Audio File"
           />
         </div>
       </div>

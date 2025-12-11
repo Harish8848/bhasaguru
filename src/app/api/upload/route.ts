@@ -30,11 +30,12 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Upload to Cloudinary
+    // Upload to Cloudinary with MIME type for better auto-detection
     const result = await uploadToCloudinary(buffer, {
       folder,
       resourceType: type,
       tags: [session.user.id, folder],
+      mimeType: file.type, // Pass the MIME type from the uploaded file
     });
 
     return NextResponse.json({

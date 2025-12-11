@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, User, Mail, Phone, MapPin, Edit } from "lucide-react"
+import { Loader2, User, Mail, Phone, MapPin, Edit, Camera, Upload } from "lucide-react"
 
 
 interface UserProfile {
@@ -19,6 +19,7 @@ interface UserProfile {
   nativeLanguage: string | null
   learningLanguages: string[]
   timezone: string | null
+  profilePicture: string | null
 }
 
 export default function ProfilePage() {
@@ -27,6 +28,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [uploadingPicture, setUploadingPicture] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -35,6 +37,7 @@ export default function ProfilePage() {
     learningLanguages: [] as string[],
     timezone: "",
   })
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Fetch user profile
   useEffect(() => {
@@ -116,6 +119,72 @@ export default function ProfilePage() {
     setIsEditing(false)
   }
 
+  const handleProfilePictureUpload = async (file: File) => {
+    if (!session?.user?.id) return
+
+    try {
+      setUploadingPicture(true)
+
+      const formDataUpload = new FormData()
+      formDataUpload.append('file', file)
+      formDataUpload.append('folder', 'profile-pictures')
+      formDataUpload.append('type', 'image')
+
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+      })
+
+      const uploadData = await uploadResponse.json()
+
+      if (!uploadResponse.ok) {
+        throw new Error(uploadData.error || 'Failed to upload image')
+      }
+
+      // Update user profile with new picture URL
+      const updateResponse = await fetch(`/api/users/${session.user.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ profilePicture: uploadData.data.secureUrl }),
+      })
+
+      const updateData = await updateResponse.json()
+
+      if (!updateResponse.ok) {
+        throw new Error(updateData.error || 'Failed to update profile picture')
+      }
+
+      setUser(updateData)
+      alert('Profile picture updated successfully!')
+    } catch (error) {
+      alert('Failed to upload profile picture')
+      console.error(error)
+    } finally {
+      setUploadingPicture(false)
+    }
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file')
+        return
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB')
+        return
+      }
+
+      handleProfilePictureUpload(file)
+    }
+  }
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -138,7 +207,53 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-     
+      <div className="bg-linear-to-r from-primary/10 to-secondary/10 border-b">
+        <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-12">
+          <div className="flex flex-col items-center space-y-4">
+            {/* Profile Picture */}
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-4 border-background">
+                {user?.profilePicture ? (
+                  <img
+                    src={user.profilePicture}
+                    alt="Profile"
+                    className="w-10 h-10 object-cover"
+                  />
+                ) : (
+                  <User className="w-12 h-12 text-muted-foreground" />
+                )}
+              </div>
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingPicture}
+                  className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full hover:bg-primary/90 disabled:opacity-50"
+                >
+                  {uploadingPicture ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4" />
+                  )}
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </div>
+
+            {/* User Info */}
+            <div className="text-center">
+              <h1 className="text-2xl font-bold">{user?.name || "User"}</h1>
+              <p className="text-muted-foreground">{user?.email}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <main className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-12">
         <Card className="bg-card border-border">

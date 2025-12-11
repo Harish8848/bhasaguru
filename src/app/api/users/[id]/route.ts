@@ -59,7 +59,7 @@ export async function GET(
       }
 
       const body = await request.json();
-      const { name, phone, address, nativeLanguage, learningLanguages, timezone } = body;
+      const { name, phone, address, nativeLanguage, learningLanguages, timezone, profilePicture } = body;
 
       const user = await prisma.user.update({
         where: { id },
@@ -70,6 +70,7 @@ export async function GET(
           nativeLanguage,
           learningLanguages,
           timezone,
+          profilePicture,
         },
       });
   

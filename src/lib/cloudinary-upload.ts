@@ -5,6 +5,7 @@ export interface UploadOptions {
   resourceType?: 'image' | 'video' | 'raw' | 'auto';
   transformation?: any[];
   tags?: string[];
+  mimeType?: string;
 }
 
 export interface UploadResult {
@@ -33,10 +34,23 @@ export async function uploadToCloudinary(
     resourceType = 'auto',
     transformation = [],
     tags = [],
+    mimeType,
   } = options;
 
   try {
-    const result = await cloudinary.uploader.upload(file.toString('base64'), {
+    // Handle both Buffer and string inputs
+    let uploadData: string;
+    if (Buffer.isBuffer(file)) {
+      // Convert Buffer to base64 data URI
+      const base64 = file.toString('base64');
+      // Use the provided MIME type or default to octet-stream for auto-detection
+      const mime = mimeType || 'application/octet-stream';
+      uploadData = `data:${mime};base64,${base64}`;
+    } else {
+      uploadData = file;
+    }
+
+    const result = await cloudinary.uploader.upload(uploadData, {
       folder,
       resource_type: resourceType,
       transformation,

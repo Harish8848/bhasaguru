@@ -5,16 +5,24 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const language = searchParams.get("language");
+    const level = searchParams.get("level");
     const search = searchParams.get("search");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
     const where: any = {};
 
-    // Filter by language if provided
+    // Filter by language and/or level if provided
     if (language && language !== "all") {
       where.course = {
         language: language,
+      };
+    }
+
+    if (level) {
+      where.course = {
+        ...where.course,
+        level: level,
       };
     }
 

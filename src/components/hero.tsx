@@ -30,21 +30,6 @@ export default function HeroSection() {
               </p>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button size="lg" className=" hover:opacity-90 text-accent-foreground font-semibold">
-                Start Learning Free
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-accent text-accent hover:bg-accent/10 font-semibold bg-transparent"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Watch Demo
-              </Button>
-            </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 pt-8">

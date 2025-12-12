@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 interface Course {
   id: string
@@ -22,12 +23,17 @@ interface Course {
 }
 
 export default function CoursesSection() {
+  const router = useRouter()
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [languages, setLanguages] = useState<{code: string, label: string, icon: string}[]>([])
   const [languageStats, setLanguageStats] = useState<{[key: string]: {courses: number, learners: number}}>({})
   const [selectedLanguage, setSelectedLanguage] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
+
+  const handleStartLearning = (course: Course) => {
+    router.push(`/lessons?language=${course.language}&level=${course.level}`)
+  }
 
   // CEFR Levels based on database enum
   const levels = [
@@ -101,7 +107,7 @@ export default function CoursesSection() {
   }, [selectedLanguage, searchQuery])
 
   return (
-    <section className="py-20 md:py-32 bg-background border-t border-border">
+    <section className="py-12 md:py-12 bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Featured Courses */}
         <div className="space-y-8">
@@ -201,7 +207,10 @@ export default function CoursesSection() {
                       )}
                     </div>
 
-                    <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                    <Button
+                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                      onClick={() => handleStartLearning(course)}
+                    >
                       Start Learning
                     </Button>
                   </CardContent>

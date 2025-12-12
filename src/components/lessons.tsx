@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Video, FileText, ImageIcon, Play, Search, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 
 const languages = [
   { id: "Japanese", name: "Japanese", flag: "🇯🇵" },
@@ -36,12 +37,27 @@ interface Lesson {
 }
 
 export default function LessonsPage() {
+  const searchParams = useSearchParams()
   const [selectedLanguage, setSelectedLanguage] = useState("Japanese")
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Initialize state from URL parameters
+  useEffect(() => {
+    const language = searchParams.get("language")
+    const level = searchParams.get("level")
+
+    if (language) {
+      setSelectedLanguage(language)
+    }
+    if (level) {
+      setSelectedLevel(level)
+    }
+  }, [searchParams])
 
   // Fetch lessons from API
   useEffect(() => {
@@ -52,6 +68,7 @@ export default function LessonsPage() {
 
         const params = new URLSearchParams({
           language: selectedLanguage,
+          ...(selectedLevel && { level: selectedLevel }),
           ...(searchTerm && { search: searchTerm }),
         })
 
@@ -72,7 +89,7 @@ export default function LessonsPage() {
     }
 
     fetchLessons()
-  }, [selectedLanguage, searchTerm])
+  }, [selectedLanguage, selectedLevel, searchTerm])
 
   const selectedLanguageData = languages.find((l) => l.id === selectedLanguage)
 
@@ -88,6 +105,7 @@ export default function LessonsPage() {
 
   const handleLanguageChange = (languageId: string) => {
     setSelectedLanguage(languageId)
+    setSelectedLevel(null) // Reset level when language changes
     setSearchTerm("")
   }
 
@@ -153,7 +171,10 @@ export default function LessonsPage() {
         {/* Results Info */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">{selectedLanguageData?.name} Lessons</h2>
+            <h2 className="text-2xl font-bold text-foreground">
+              {selectedLanguageData?.name} Lessons
+              {selectedLevel && <span className="text-primary ml-2">({selectedLevel})</span>}
+            </h2>
             <p className="text-sm text-muted-foreground mt-1">
               {loading ? "Loading..." : `${lessons.length} lesson${lessons.length !== 1 ? "s" : ""} available`}
             </p>

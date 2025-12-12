@@ -82,11 +82,7 @@ export default function CultureSection() {
               Discover cultural insights and stories from around the world.
             </p>
           </div>
-          <Button variant="outline" className="border-accent text-accent hover:bg-accent/10 bg-transparent w-fit">
-            Explore More
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
+          </div>
 
         {/* Country Filter */}
         <div className="flex flex-wrap gap-2 justify-center">

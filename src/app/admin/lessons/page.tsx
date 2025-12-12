@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, Edit2, Trash2, Eye, Search, FileText, ImageIcon, Video } from "lucide-react"
 import { useState, useEffect } from "react"
 import CreateLessonForm from "@/components/admin/CreateLessonForm"
+import EditLessonForm from "@/components/admin/EditLessonForm"
 
 interface Lesson {
   id: string
@@ -36,6 +37,8 @@ export default function LessonsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [editingLessonId, setEditingLessonId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchLessons = async () => {
@@ -79,6 +82,23 @@ export default function LessonsPage() {
 
   const handleCreateCancel = () => {
     setShowCreateDialog(false)
+  }
+
+  const handleEditLesson = (lessonId: string) => {
+    setEditingLessonId(lessonId)
+    setShowEditDialog(true)
+  }
+
+  const handleEditSuccess = () => {
+    setShowEditDialog(false)
+    setEditingLessonId(null)
+    // Refetch lessons
+    window.location.reload()
+  }
+
+  const handleEditCancel = () => {
+    setShowEditDialog(false)
+    setEditingLessonId(null)
   }
 
   if (loading) {
@@ -212,6 +232,7 @@ export default function LessonsPage() {
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-foreground"
                           title="Edit"
+                          onClick={() => handleEditLesson(lesson.id)}
                         >
                           <Edit2 size={16} />
                         </Button>
@@ -245,6 +266,22 @@ export default function LessonsPage() {
             <DialogTitle>Create New Lesson</DialogTitle>
           </DialogHeader>
           <CreateLessonForm onSuccess={handleCreateSuccess} onCancel={handleCreateCancel} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Lesson Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Lesson</DialogTitle>
+          </DialogHeader>
+          {editingLessonId && (
+            <EditLessonForm
+              lessonId={editingLessonId}
+              onSuccess={handleEditSuccess}
+              onCancel={handleEditCancel}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -36,14 +36,7 @@ export default function CoursesSection() {
   }
 
   // CEFR Levels based on database enum
-  const levels = [
-    { level: "BEGINNER", label: "A1", description: "Start your journey" },
-    { level: "ELEMENTARY", label: "A2", description: "Build foundation" },
-    { level: "INTERMEDIATE", label: "B1", description: "Speak with confidence" },
-    { level: "UPPER_INTERMEDIATE", label: "B2", description: "Advanced fluency" },
-    { level: "ADVANCED", label: "C1", description: "Near native level" },
-    { level: "PROFICIENT", label: "C2", description: "Mastery achieved" },
-  ]
+  
 
   useEffect(() => {
     const fetchCourses = async () => {

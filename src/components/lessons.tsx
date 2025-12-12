@@ -7,10 +7,10 @@ import { Video, FileText, ImageIcon, Play, Search, ChevronLeft, ChevronRight, Lo
 import { useState, useRef, useEffect } from "react"
 
 const languages = [
-  { id: "japanese", name: "Japanese", flag: "🇯🇵" },
-  { id: "korean", name: "Korean", flag: "🇰🇷" },
-  { id: "english", name: "English", flag: "🇬🇧" },
- 
+  { id: "Japanese", name: "Japanese", flag: "🇯🇵" },
+  { id: "Korean", name: "Korean", flag: "🇰🇷" },
+  { id: "English", name: "English", flag: "🇬🇧" },
+
 ]
 
 const typeConfig = {
@@ -36,7 +36,7 @@ interface Lesson {
 }
 
 export default function LessonsPage() {
-  const [selectedLanguage, setSelectedLanguage] = useState("japanese")
+  const [selectedLanguage, setSelectedLanguage] = useState("Japanese")
   const [searchTerm, setSearchTerm] = useState("")
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [loading, setLoading] = useState(true)

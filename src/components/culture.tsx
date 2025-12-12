@@ -71,7 +71,7 @@ export default function CultureSection() {
   }
 
   return (
-    <section className="py-20 md:py-32  border-t border-border bg-background">
+    <section className="py-8 md:py-8  border-t border-border bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-4">

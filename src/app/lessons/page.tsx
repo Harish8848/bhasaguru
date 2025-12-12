@@ -1,12 +1,12 @@
-import LessonsPage from "@/components/lessons"
+import LessonsComponent from "@/components/lessons"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 
-export default function MockTestsPage() {
+export default function LessonsPage() {
   return (
     <main>
         <Navbar/>
-      <LessonsPage/>
+      <LessonsComponent/>
       <Footer/>
     </main>
   )

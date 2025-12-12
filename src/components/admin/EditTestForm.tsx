@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -16,29 +15,44 @@ interface Course {
   language: string
 }
 
-interface CreateTestFormProps {
+interface MockTest {
+  id: string
+  title: string
+  description?: string
+  courseId?: string
+  type: "PRACTICE" | "FINAL" | "CERTIFICATION"
+  duration: number
+  passingScore: number
+  questionsCount: number
+  shuffleQuestions: boolean
+  shuffleOptions: boolean
+  showResults: boolean
+  allowRetake: boolean
+}
+
+interface EditTestFormProps {
+  test?: MockTest
   onSuccess: () => void
   onCancel: () => void
 }
 
-export default function CreateTestForm({ onSuccess, onCancel }: CreateTestFormProps) {
-  const router = useRouter()
+export default function EditTestForm({ test, onSuccess, onCancel }: EditTestFormProps) {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(false)
   const [coursesLoading, setCoursesLoading] = useState(true)
 
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    courseId: "",
-    type: "PRACTICE" as "PRACTICE" | "FINAL" | "CERTIFICATION",
-    duration: 30,
-    passingScore: 60,
-    questionsCount: 10,
-    shuffleQuestions: true,
-    shuffleOptions: true,
-    showResults: true,
-    allowRetake: true,
+    title: test?.title || "",
+    description: test?.description || "",
+    courseId: test?.courseId || "",
+    type: test?.type || "PRACTICE" as "PRACTICE" | "FINAL" | "CERTIFICATION",
+    duration: test?.duration || 30,
+    passingScore: test?.passingScore || 60,
+    questionsCount: test?.questionsCount || 10,
+    shuffleQuestions: test?.shuffleQuestions ?? true,
+    shuffleOptions: test?.shuffleOptions ?? true,
+    showResults: test?.showResults ?? true,
+    allowRetake: test?.allowRetake ?? true,
   })
 
   // Fetch courses for selection
@@ -81,8 +95,11 @@ export default function CreateTestForm({ onSuccess, onCancel }: CreateTestFormPr
     setLoading(true)
 
     try {
-      const response = await fetch('/api/admin/mock-test/create', {
-        method: 'POST',
+      const url = test ? `/api/admin/mock-tests/${test.id}` : '/api/admin/mock-test/create'
+      const method = test ? 'PUT' : 'POST'
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -93,15 +110,14 @@ export default function CreateTestForm({ onSuccess, onCancel }: CreateTestFormPr
       })
 
       if (response.ok) {
-        const data = await response.json()
-        router.push(`/admin/mock-tests/${data.data.id}/questions`)
+        onSuccess()
       } else {
         const error = await response.json()
-        alert(error.message || 'Failed to create test')
+        alert(error.message || `Failed to ${test ? 'update' : 'create'} test`)
       }
     } catch (error) {
-      console.error('Error creating test:', error)
-      alert('Failed to create test')
+      console.error(`Error ${test ? 'updating' : 'creating'} test:`, error)
+      alert(`Failed to ${test ? 'update' : 'create'} test`)
     } finally {
       setLoading(false)
     }
@@ -264,7 +280,7 @@ export default function CreateTestForm({ onSuccess, onCancel }: CreateTestFormPr
         </Button>
         <Button type="submit" disabled={loading}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create Test
+          {test ? 'Update Test' : 'Create Test'}
         </Button>
       </div>
     </form>

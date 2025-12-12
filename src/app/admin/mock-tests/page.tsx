@@ -4,17 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Plus, Edit2, Copy, Trash2, Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Plus, Edit2, Copy, Trash2, Search, Loader2, ChevronLeft, ChevronRight, FileText } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import CreateTestForm from "@/components/admin/CreateTestForm"
+import EditTestForm from "@/components/admin/EditTestForm"
 
 interface MockTest {
   id: string
   title: string
   description?: string
-  type: string
+  courseId?: string
+  type: "PRACTICE" | "FINAL" | "CERTIFICATION"
   duration: number
+  passingScore: number
   questionsCount: number
+  shuffleQuestions: boolean
+  shuffleOptions: boolean
+  showResults: boolean
+  allowRetake: boolean
   course?: {
     title: string
   }
@@ -36,6 +44,7 @@ interface PaginatedResponse {
 }
 
 export default function MockTestsPage() {
+  const router = useRouter()
   const [tests, setTests] = useState<MockTest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -44,6 +53,8 @@ export default function MockTestsPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [totalTests, setTotalTests] = useState(0)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [selectedTest, setSelectedTest] = useState<MockTest | null>(null)
 
   const fetchTests = async (page = 1) => {
     try {
@@ -79,9 +90,46 @@ export default function MockTestsPage() {
     fetchTests(currentPage) // Refresh the tests list
   }
 
+  const handleEditTest = (test: MockTest) => {
+    setSelectedTest(test)
+    setEditDialogOpen(true)
+  }
+
+  const handleEditSuccess = () => {
+    setEditDialogOpen(false)
+    setSelectedTest(null)
+    fetchTests(currentPage) // Refresh the tests list
+  }
+
+  const handleDeleteTest = async (test: MockTest) => {
+    if (!confirm(`Are you sure you want to delete "${test.title}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/mock-tests/${test.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        fetchTests(currentPage) // Refresh the tests list
+      } else {
+        const error = await response.json()
+        alert(error.message || 'Failed to delete test')
+      }
+    } catch (error) {
+      console.error('Error deleting test:', error)
+      alert('Failed to delete test')
+    }
+  }
+
+  const handleManageQuestions = (testId: string) => {
+    router.push(`/admin/mock-tests/${testId}/questions`)
+  }
+
   if (loading && tests.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     )
@@ -162,11 +210,21 @@ export default function MockTestsPage() {
                   <p className="text-lg font-bold text-foreground">{test._count.attempts}</p>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-border text-foreground hover:bg-secondary bg-transparent"
+                  onClick={() => handleManageQuestions(test.id)}
+                  className="border-border text-foreground hover:bg-secondary bg-transparent"
+                >
+                  <FileText size={16} className="mr-1" />
+                  Questions
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEditTest(test)}
+                  className="border-border text-foreground hover:bg-secondary bg-transparent"
                 >
                   <Edit2 size={16} className="mr-1" />
                   Edit
@@ -174,7 +232,7 @@ export default function MockTestsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-border text-foreground hover:bg-secondary bg-transparent"
+                  className="border-border text-foreground hover:bg-secondary bg-transparent"
                 >
                   <Copy size={16} className="mr-1" />
                   Duplicate
@@ -182,7 +240,8 @@ export default function MockTestsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-border text-destructive hover:bg-destructive/10 bg-transparent"
+                  onClick={() => handleDeleteTest(test)}
+                  className="border-border text-destructive hover:bg-destructive/10 bg-transparent"
                 >
                   <Trash2 size={16} />
                 </Button>
@@ -237,6 +296,25 @@ export default function MockTestsPage() {
             onSuccess={handleCreateSuccess}
             onCancel={() => setCreateDialogOpen(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Test Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Test</DialogTitle>
+          </DialogHeader>
+          {selectedTest && (
+            <EditTestForm
+              test={selectedTest}
+              onSuccess={handleEditSuccess}
+              onCancel={() => {
+                setEditDialogOpen(false)
+                setSelectedTest(null)
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

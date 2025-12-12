@@ -6,12 +6,14 @@ import { withErrorHandler } from '@/lib/api-wrapper';
 
 export const GET = withErrorHandler(async (
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   await requireAdmin();
 
+  const { id } = await params;
+
   const test = await prisma.mockTest.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       _count: {
         select: {
@@ -31,14 +33,15 @@ export const GET = withErrorHandler(async (
 
 export const PUT = withErrorHandler(async (
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   await requireAdmin();
 
   const body = await request.json();
+  const { id } = await params;
 
   const test = await prisma.mockTest.update({
-    where: { id: params.id },
+    where: { id },
     data: body,
     include: {
       _count: {
@@ -55,12 +58,14 @@ export const PUT = withErrorHandler(async (
 
 export const DELETE = withErrorHandler(async (
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   await requireAdmin();
 
+  const { id } = await params;
+
   await prisma.mockTest.delete({
-    where: { id: params.id },
+    where: { id },
   });
 
   return ApiResponse.success(null, 'Test deleted successfully');

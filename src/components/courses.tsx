@@ -162,7 +162,7 @@ export default function CoursesSection() {
                     <img
                       src={course.thumbnail || "/placeholder.svg"}
                       alt={course.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      className="w-full h-full bg-center bg-cover object-cover group-hover:scale-105 transition-transform"
                     />
                     <div className="absolute top-3 left-3">
                       <Badge variant="secondary" className="text-xs">

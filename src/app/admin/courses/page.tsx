@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, Edit2, Trash2, Eye, Search } from "lucide-react"
 import { useState, useEffect } from "react"
 import CreateCourseForm from "@/components/admin/CreateCourseForm"
+import EditCourseForm from "@/components/admin/EditCourseForm"
 
 interface Course {
   id: string
@@ -24,6 +25,8 @@ export default function CoursesPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -65,6 +68,42 @@ export default function CoursesPage() {
 
   const handleCreateCancel = () => {
     setShowCreateDialog(false)
+  }
+
+  const handleEdit = (courseId: string) => {
+    setEditingCourseId(courseId)
+    setShowEditDialog(true)
+  }
+
+  const handleEditSuccess = () => {
+    setShowEditDialog(false)
+    setEditingCourseId(null)
+    // Refetch courses
+    window.location.reload()
+  }
+
+  const handleEditCancel = () => {
+    setShowEditDialog(false)
+    setEditingCourseId(null)
+  }
+
+  const handleDelete = async (courseId: string) => {
+    if (!confirm('Are you sure you want to delete this course?')) return
+
+    try {
+      const response = await fetch(`/api/admin/courses/${courseId}`, {
+        method: 'DELETE',
+      })
+      const result = await response.json()
+
+      if (result.success) {
+        setCourses(courses.filter(course => course.id !== courseId))
+      } else {
+        alert(result.message || 'Failed to delete course')
+      }
+    } catch (err) {
+      alert('Failed to delete course')
+    }
   }
 
   if (loading) {
@@ -163,6 +202,7 @@ export default function CoursesPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        onClick={() => {/* TODO: View course */}}
                       >
                         <Eye size={16} />
                       </Button>
@@ -170,6 +210,7 @@ export default function CoursesPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        onClick={() => handleEdit(course.id)}
                       >
                         <Edit2 size={16} />
                       </Button>
@@ -177,6 +218,7 @@ export default function CoursesPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive/80"
+                        onClick={() => handleDelete(course.id)}
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -196,6 +238,22 @@ export default function CoursesPage() {
             <DialogTitle>Create New Course</DialogTitle>
           </DialogHeader>
           <CreateCourseForm onSuccess={handleCreateSuccess} onCancel={handleCreateCancel} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Course Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Course</DialogTitle>
+          </DialogHeader>
+          {editingCourseId && (
+            <EditCourseForm
+              courseId={editingCourseId}
+              onSuccess={handleEditSuccess}
+              onCancel={handleEditCancel}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

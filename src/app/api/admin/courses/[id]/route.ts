@@ -1,11 +1,11 @@
-import { ArticleStatus } from '@/generated/prisma/client';
+import { CourseStatus } from '@/generated/prisma/client';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
 
-// GET - Get single article
+// GET - Get single course
 export const GET = withErrorHandler(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -14,25 +14,27 @@ export const GET = withErrorHandler(async (
 
   const { id } = await params;
 
-  const article = await prisma.article.findUnique({
+  const course = await prisma.course.findUnique({
     where: { id },
     include: {
       _count: {
         select: {
-          comments: true,
+          lessons: true,
+          enrollments: true,
+          mockTests: true,
         },
       },
     },
   });
 
-  if (!article) {
-    return ApiResponse.notFound('Article not found');
+  if (!course) {
+    return ApiResponse.notFound('Course not found');
   }
 
-  return ApiResponse.success(article);
+  return ApiResponse.success(course);
 });
 
-// PATCH - Update article
+// PATCH - Update course
 export const PATCH = withErrorHandler(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -55,15 +57,15 @@ export const PATCH = withErrorHandler(async (
     updateData.publishedAt = null;
   }
 
-  const article = await prisma.article.update({
+  const course = await prisma.course.update({
     where: { id },
     data: updateData,
   });
 
-  return ApiResponse.success(article, 'Article updated successfully');
+  return ApiResponse.success(course, 'Course updated successfully');
 });
 
-// DELETE - Delete article
+// DELETE - Delete course
 export const DELETE = withErrorHandler(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -72,17 +74,17 @@ export const DELETE = withErrorHandler(async (
 
   const { id } = await params;
 
-  const article = await prisma.article.findUnique({
+  const course = await prisma.course.findUnique({
     where: { id },
   });
 
-  if (!article) {
-    return ApiResponse.notFound('Article not found');
+  if (!course) {
+    return ApiResponse.notFound('Course not found');
   }
 
-  await prisma.article.delete({
+  await prisma.course.delete({
     where: { id },
   });
 
-  return ApiResponse.success(null, 'Article deleted successfully');
+  return ApiResponse.success(null, 'Course deleted successfully');
 });

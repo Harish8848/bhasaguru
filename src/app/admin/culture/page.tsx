@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, Edit2, Eye, Trash2, Search, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import CreateArticleForm from "@/components/admin/CreateArticleForm"
+import EditArticleForm from "@/components/admin/EditArticleForm"
 
 interface Article {
   id: string
@@ -25,8 +26,9 @@ export default function CulturePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [editingArticle, setEditingArticle] = useState<Article | null>(null)
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(null)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
 
   const fetchArticles = async () => {
     try {
@@ -61,9 +63,20 @@ export default function CulturePage() {
 
   const filteredArticles = articles.filter((article) => article.title.toLowerCase().includes(searchTerm.toLowerCase()))
 
-  const handleEdit = (article: Article) => {
-    setEditingArticle(article)
-    // TODO: Open edit dialog/form
+  const handleEdit = (articleId: string) => {
+    setEditingArticleId(articleId)
+    setShowEditDialog(true)
+  }
+
+  const handleEditSuccess = () => {
+    setShowEditDialog(false)
+    setEditingArticleId(null)
+    fetchArticles()
+  }
+
+  const handleEditCancel = () => {
+    setShowEditDialog(false)
+    setEditingArticleId(null)
   }
 
   const handleDelete = async (articleId: string) => {
@@ -186,7 +199,7 @@ export default function CulturePage() {
                   variant="outline"
                   size="sm"
                   className="flex-1 border-border text-foreground hover:bg-secondary bg-transparent"
-                  onClick={() => handleEdit(article)}
+                  onClick={() => handleEdit(article.id)}
                 >
                   <Edit2 size={14} className="mr-1" />
                   Edit
@@ -212,6 +225,22 @@ export default function CulturePage() {
             <DialogTitle>Create New Article</DialogTitle>
           </DialogHeader>
           <CreateArticleForm onSuccess={handleCreateSuccess} onCancel={handleCreateCancel} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Article Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Article</DialogTitle>
+          </DialogHeader>
+          {editingArticleId && (
+            <EditArticleForm
+              articleId={editingArticleId}
+              onSuccess={handleEditSuccess}
+              onCancel={handleEditCancel}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

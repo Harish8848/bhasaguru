@@ -30,9 +30,9 @@ export default function JobsSection() {
   const [isSearching, setIsSearching] = useState(false)
 
   const [jobStats, setJobStats] = useState([
-    { label: "Active Listings", value: "0", icon: Briefcase },
-    { label: "Average Salary", value: "N/A", icon: TrendingUp },
-    { label: "Successful Placements", value: "1000+", icon: Globe },
+    { label: "Active Listings", value: "...", icon: Briefcase },
+    { label: "Average Salary", value: "...", icon: TrendingUp },
+    { label: "Successful Placements", value: "...", icon: Globe },
   ])
 
   useEffect(() => {
@@ -102,28 +102,10 @@ export default function JobsSection() {
           </p>
         </div>
 
-        {/* Job Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-5 p-">
-          {jobStats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
-              <Card key={index} className="border-border">
-                <CardContent className="pt-2">
-                  <div className="space-y-1 text-center">
-                    <Icon className="w-8 h-8 text-accent mx-auto" />
-                    <div className="text-3xl font-bold text-foreground">{stat.value}</div>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-
         {/* Search and Filters */}
         <div className="space-y-4">
           {/* Search Input */}
-          <div className="flex gap-2  max-w-md mx-auto">
+          <div className="flex gap-2   mx-auto w-full">
             <Input
               type="text"
               placeholder="Search jobs by title, company, or keywords..."

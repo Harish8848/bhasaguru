@@ -143,7 +143,7 @@ export default function MockTestsPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="py-20 md:py-32 bg-linear-to-br from-primary/10 via-background to-secondary/10">
+      <section className="py-5 md:py-5 bg-linear-to-br from-primary/10 via-background to-secondary/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">

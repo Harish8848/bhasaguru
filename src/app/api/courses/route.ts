@@ -8,12 +8,21 @@ export async function GET(request: NextRequest) {
       const { searchParams } = new URL(request.url);
       const language = searchParams.get("language");
       const level = searchParams.get("level");
+      const search = searchParams.get("search");
       const page = parseInt(searchParams.get("page") || "1");
       const limit = parseInt(searchParams.get("limit") || "12");
-  
+
       const where: any = { status: "PUBLISHED" };
-      if (language) where.language = language;
+      if (language && language !== "all") where.language = language;
       if (level) where.level = level;
+
+      // Filter by search term if provided
+      if (search) {
+        where.OR = [
+          { title: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+        ];
+      }
   
       const [courses, total] = await Promise.all([
         prisma.course.findMany({
@@ -81,4 +90,3 @@ export async function GET(request: NextRequest) {
       );
     }
   }
-  

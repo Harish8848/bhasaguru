@@ -1,8 +1,9 @@
 "use client"
-import { BookOpen, Users, Globe, Clock, Loader2 } from "lucide-react"
+import { BookOpen, Users, Globe, Clock, Loader2, Search } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 import { useState, useEffect } from "react"
 
@@ -25,6 +26,8 @@ export default function CoursesSection() {
   const [loading, setLoading] = useState(true)
   const [languages, setLanguages] = useState<{code: string, label: string, icon: string}[]>([])
   const [languageStats, setLanguageStats] = useState<{[key: string]: {courses: number, learners: number}}>({})
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("all")
+  const [searchQuery, setSearchQuery] = useState("")
 
   // CEFR Levels based on database enum
   const levels = [
@@ -39,7 +42,17 @@ export default function CoursesSection() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch('/api/courses')
+        setLoading(true)
+        const params = new URLSearchParams()
+        if (selectedLanguage && selectedLanguage !== "all") {
+          params.append("language", selectedLanguage)
+        }
+        if (searchQuery) {
+          params.append("search", searchQuery)
+        }
+
+        const url = `/api/courses${params.toString() ? `?${params.toString()}` : ''}`
+        const response = await fetch(url)
         const result = await response.json()
 
         if (result.courses) {
@@ -85,98 +98,11 @@ export default function CoursesSection() {
     }
 
     fetchCourses()
-  }, [])
+  }, [selectedLanguage, searchQuery])
 
   return (
     <section className="py-20 md:py-32 bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        {/* Languages Offered */}
-        <div className="space-y-8">
-          <div className="text-center space-y-3">
-            <h2 className="text-3xl md:text-5xl font-bold leading-tight">
-              <span className="text-accent">Master</span> Global Languages
-            </h2>
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Choose from Japanese, Korean, English, and more. Each with expert-curated curriculum
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {languages.map((lang) => {
-              const stats = languageStats[lang.code] || { courses: 0, learners: 0 }
-              return (
-                <Card key={lang.code} className="hover:shadow-lg transition-shadow border-border group cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-4">
-                      <span className="text-4xl">{lang.icon}</span>
-                      <Globe className="w-5 h-5 text-accent/60 group-hover:text-accent transition-colors" />
-                    </div>
-                    <CardTitle className="text-2xl">{lang.label}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <BookOpen className="w-4 h-4 text-accent" />
-                        <span>{stats.courses} Courses Available</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Users className="w-4 h-4 text-accent" />
-                        <span>{stats.learners.toLocaleString()} Active Learners</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      <Badge variant="secondary" className="text-xs">
-                        Beginner
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        Advanced
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Language Levels - CEFR Framework */}
-        <div className="space-y-8">
-          <div className="text-center space-y-3">
-            <h2 className="text-3xl md:text-5xl font-bold leading-tight">
-              Learn at <span className="text-accent">Your Level</span>
-            </h2>
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-              CEFR framework ensures structured progression from A1 to C2 proficiency
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {levels.map((item, index) => (
-              <Card key={item.level} className="border-border hover:border-accent/50 transition-colors">
-                <CardContent className="pt-6">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-sm font-bold text-accent">{item.label}</span>
-                      <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
-                        {index + 1}
-                      </div>
-                    </div>
-                    <h3 className="font-semibold text-base">{item.description}</h3>
-                    <div className="flex gap-1 pt-2">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`h-1 flex-1 rounded-full ${i < index + 1 ? "bg-accent" : "bg-border"}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
         {/* Featured Courses */}
         <div className="space-y-8">
           <div className="text-center space-y-3">
@@ -186,6 +112,43 @@ export default function CoursesSection() {
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
               Start your language learning journey with our most popular courses
             </p>
+          </div>
+
+          {/* Search and Language Selection */}
+          <div className="space-y-6">
+            {/* Search Bar */}
+            <div className="max-w-xl mx-auto">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <Input
+                  placeholder="Search courses..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-11 bg-input border-border text-foreground placeholder:text-muted-foreground text-base"
+                />
+              </div>
+            </div>
+
+            {/* Language Selection */}
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Button
+                onClick={() => setSelectedLanguage("all")}
+                variant={selectedLanguage === "all" ? "default" : "outline"}
+                className={selectedLanguage === "all" ? "bg-accent text-accent-foreground" : ""}
+              >
+                🌍 All Languages
+              </Button>
+              {languages.map((lang) => (
+                <Button
+                  key={lang.code}
+                  onClick={() => setSelectedLanguage(lang.code)}
+                  variant={selectedLanguage === lang.code ? "default" : "outline"}
+                  className={selectedLanguage === lang.code ? "bg-accent text-accent-foreground" : ""}
+                >
+                  {lang.icon} {lang.label}
+                </Button>
+              ))}
+            </div>
           </div>
 
           {loading ? (

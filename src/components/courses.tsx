@@ -64,7 +64,7 @@ export default function CoursesSection() {
 
           result.courses.forEach((course: Course) => {
             languageSet.add(course.language)
-            const langCode = course.language.toLowerCase()
+            const langCode = course.language  // Use original case to match codes
             if (!languageStats[langCode]) {
               languageStats[langCode] = { courses: 0, learners: 0 }
             }
@@ -74,15 +74,15 @@ export default function CoursesSection() {
 
           // Create language objects with icons
           const languageIcons: {[key: string]: string} = {
-            'japanese': '🇯🇵',
-            'korean': '🇰🇷',
-            'english': '🇺🇸'
+            'Japanese': '🇯🇵',
+            'Korean': '🇰🇷',
+            'English': '🇺🇸'
           }
 
           const dynamicLanguages = Array.from(languageSet).map(lang => ({
-            code: lang.toLowerCase(),
+            code: lang,  // Use the original case to match database
             label: lang,
-            icon: languageIcons[lang.toLowerCase()] || '🌍'
+            icon: languageIcons[lang] || '🌍'
           }))
 
           setLanguages(dynamicLanguages)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Menu, X, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signIn, signOut, useSession } from "next-auth/react"
@@ -15,9 +15,36 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+interface UserProfile {
+  profilePicture: string | null
+}
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { data: session } = useSession()
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+
+  // Fetch user profile data to get uploaded profile picture
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchUserProfile()
+    } else {
+      setUserProfile(null)
+    }
+  }, [session])
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch(`/api/users/${session!.user.id}`)
+      const data = await response.json()
+
+      if (response.ok) {
+        setUserProfile(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error)
+    }
+  }
 
   const toggleMenu = () => setIsOpen(!isOpen)
 
@@ -63,7 +90,7 @@ export default function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar className="cursor-pointer">
-                    <AvatarImage src={session.user?.image || undefined} />
+                    <AvatarImage src={userProfile?.profilePicture || session.user?.image || undefined} className="object-cover"/>
                     <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>

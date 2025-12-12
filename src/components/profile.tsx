@@ -207,17 +207,17 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-linear-to-r from-primary/10 to-secondary/10 border-b">
+      <div className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-12">
           <div className="flex flex-col items-center space-y-4">
             {/* Profile Picture */}
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-4 border-background">
+              <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-4 border-background hover:h-full ">
                 {user?.profilePicture ? (
                   <img
                     src={user.profilePicture}
                     alt="Profile"
-                    className="w-10 h-10 object-cover"
+                    className="object-cover w-full h-full hover:scale-105 transition-transform"
                   />
                 ) : (
                   <User className="w-12 h-12 text-muted-foreground" />

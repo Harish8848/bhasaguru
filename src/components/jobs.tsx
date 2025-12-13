@@ -46,7 +46,7 @@ export default function JobsSection() {
         const result = await response.json()
 
         if (result.success) {
-          setJobs(result.jobs)
+          setJobs(Array.isArray(result.jobs) ? result.jobs : [])
           setError(null)
         } else {
           throw new Error(result.error || "Failed to fetch jobs")
@@ -63,7 +63,7 @@ export default function JobsSection() {
   }, [selectedCountry, searchQuery])
 
   useEffect(() => {
-    if (jobs.length > 0) {
+    if (jobs && jobs.length > 0) {
       const activeListings = jobs.length.toString()
 
       const calculateAverageSalary = () => {

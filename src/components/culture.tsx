@@ -74,8 +74,8 @@ export default function CultureSection() {
     <section className="py-8 md:py-8  border-t border-border bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="space-y-4">
-            <h2 className="text-3xl md:text-5xl font-bold leading-tight">
+          <div className="space-y-4 mx-auto">
+            <h2 className="text-3xl md:text-5xl font-bold leading-tight  ">
               Explore Global <span className="text-accent">Cultures</span>
             </h2>
             <p className="text-base md:text-lg text-muted-foreground max-w-xl text-pretty">

@@ -6,6 +6,7 @@ import favicon from "@/public/favicon.ico";
 import Providers from "@/components/providers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
+import PerformanceMonitor from "@/components/performance-monitor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default async function RootLayout({
         <Providers session={session}>
           {children}
         </Providers>
+        <PerformanceMonitor />
         {/* <Analytics /> */}
       </body>
     </html>

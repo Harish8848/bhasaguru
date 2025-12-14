@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 import { ArrowRight, Calendar, User, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import Image from "next/image"
 
 interface Article {
   id: string
@@ -112,10 +113,14 @@ export default function CultureSection() {
               className="border-border overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer"
             >
               <div className="aspect-video bg-muted overflow-hidden relative">
-                <img
+                <Image
                   src={post.featuredImage || "/placeholder.svg"}
                   alt={post.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority={false}
+                  loading="lazy"
                 />
               </div>
 

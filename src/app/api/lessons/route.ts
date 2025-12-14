@@ -35,26 +35,26 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Get lessons with course information
-    const lessons = await prisma.lesson.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      include: {
-        course: {
-          select: {
-            id: true,
-            title: true,
-            language: true,
-            level: true,
+    // Optimize query: Get lessons with course information and count in a single transaction
+    const [lessons, total] = await Promise.all([
+      prisma.lesson.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          course: {
+            select: {
+              id: true,
+              title: true,
+              language: true,
+              level: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    // Get total count
-    const total = await prisma.lesson.count({ where });
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.lesson.count({ where })
+    ]);
 
     // Transform the data to match the component's expected format
     const transformedLessons = lessons.map((lesson) => ({

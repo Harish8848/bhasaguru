@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Video, FileText, ImageIcon, Play, Search, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo, useCallback, memo } from "react"
 import { useSearchParams } from "next/navigation"
 
 const languages = [
@@ -36,6 +36,65 @@ interface Lesson {
   slug: string
 }
 
+// Memoized Lesson Card Component
+const LessonCard = memo(({ lesson }: { lesson: Lesson }) => {
+  const typeInfo = typeConfig[lesson.type as keyof typeof typeConfig] || typeConfig.text
+  const TypeIcon = typeInfo.icon
+
+  return (
+    <Card
+      className={`bg-card border-border hover:border-primary/50 transition-all cursor-pointer group overflow-hidden ${typeInfo.bgHover}`}
+    >
+      {/* Type Badge */}
+      <div className="relative h-32 bg-linear-to-br from-muted/50 to-muted flex items-center justify-center">
+        <div className={`p-4 rounded-lg ${typeInfo.color}`}>
+          <TypeIcon size={32} />
+        </div>
+        {lesson.type === "video" && (
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80">
+            <Play size={40} className="text-primary fill-primary" />
+          </div>
+        )}
+      </div>
+
+      <CardHeader>
+        <div className="space-y-2">
+          <CardTitle className="text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+            {lesson.title}
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">{lesson.course}</p>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-3">
+        {/* Metadata */}
+        <div className="flex flex-wrap gap-2">
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}>
+            <TypeIcon size={12} className="inline mr-1" />
+            {typeInfo.label}
+          </span>
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground">
+            {lesson.level}
+          </span>
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>{lesson.views.toLocaleString()} views</span>
+          {lesson.duration && <span>{lesson.duration}</span>}
+        </div>
+
+        {/* CTA Button */}
+        <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 mt-2">
+          Start Lesson
+        </Button>
+      </CardContent>
+    </Card>
+  )
+})
+
+LessonCard.displayName = 'LessonCard'
+
 export default function LessonsPage() {
   const searchParams = useSearchParams()
   const [selectedLanguage, setSelectedLanguage] = useState("Japanese")
@@ -59,7 +118,19 @@ export default function LessonsPage() {
     }
   }, [searchParams])
 
-  // Fetch lessons from API
+  // Debounced search term
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  // Fetch lessons from API with debounced search
   useEffect(() => {
     const fetchLessons = async () => {
       try {
@@ -69,10 +140,12 @@ export default function LessonsPage() {
         const params = new URLSearchParams({
           language: selectedLanguage,
           ...(selectedLevel && { level: selectedLevel }),
-          ...(searchTerm && { search: searchTerm }),
+          ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
         })
 
-        const response = await fetch(`/api/lessons?${params}`)
+        const response = await fetch(`/api/lessons?${params}`, {
+          next: { revalidate: 300 } // Cache for 5 minutes
+        })
         const data = await response.json()
 
         if (!response.ok) {
@@ -89,7 +162,7 @@ export default function LessonsPage() {
     }
 
     fetchLessons()
-  }, [selectedLanguage, selectedLevel, searchTerm])
+  }, [selectedLanguage, selectedLevel, debouncedSearchTerm])
 
   const selectedLanguageData = languages.find((l) => l.id === selectedLanguage)
 
@@ -202,61 +275,9 @@ export default function LessonsPage() {
         {/* Lessons Grid */}
         {!loading && !error && lessons.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {lessons.map((lesson) => {
-              const typeInfo = typeConfig[lesson.type as keyof typeof typeConfig] || typeConfig.text
-              const TypeIcon = typeInfo.icon
-              return (
-                <Card
-                  key={lesson.id}
-                  className={`bg-card border-border hover:border-primary/50 transition-all cursor-pointer group overflow-hidden ${typeInfo.bgHover}`}
-                >
-                  {/* Type Badge */}
-                  <div className="relative h-32 bg-linear-to-br from-muted/50 to-muted flex items-center justify-center">
-                    <div className={`p-4 rounded-lg ${typeInfo.color}`}>
-                      <TypeIcon size={32} />
-                    </div>
-                    {lesson.type === "video" && (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80">
-                        <Play size={40} className="text-primary fill-primary" />
-                      </div>
-                    )}
-                  </div>
-
-                  <CardHeader>
-                    <div className="space-y-2">
-                      <CardTitle className="text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                        {lesson.title}
-                      </CardTitle>
-                      <p className="text-xs text-muted-foreground">{lesson.course}</p>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="space-y-3">
-                    {/* Metadata */}
-                    <div className="flex flex-wrap gap-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}>
-                        <TypeIcon size={12} className="inline mr-1" />
-                        {typeInfo.label}
-                      </span>
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground">
-                        {lesson.level}
-                      </span>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{lesson.views.toLocaleString()} views</span>
-                      {lesson.duration && <span>{lesson.duration}</span>}
-                    </div>
-
-                    {/* CTA Button */}
-                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 mt-2">
-                      Start Lesson
-                    </Button>
-                  </CardContent>
-                </Card>
-              )
-            })}
+            {lessons.map((lesson) => (
+              <LessonCard key={lesson.id} lesson={lesson} />
+            ))}
           </div>
         ) : !loading && !error && (
           <div className="flex flex-col items-center justify-center py-12 rounded-lg border-2 border-dashed border-border">

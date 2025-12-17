@@ -7,8 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
-import { VideoUpload } from "@/components/upload/VideoUpload"
-import { FileUpload } from "@/components/upload/FileUpload"
+import { UnifiedFileUpload } from "@/components/upload/UnifiedFileUpload"
 
 interface Course {
   id: string
@@ -33,8 +32,7 @@ export default function CreateLessonForm({ onSuccess, onCancel }: CreateLessonFo
     courseId: "",
     type: "VIDEO" as "VIDEO" | "TEXT" | "AUDIO" | "INTERACTIVE" | "QUIZ",
     content: "",
-    videoUrl: "",
-    audioUrl: "",
+    attachments: [] as any[],
     duration: "",
     order: 1,
     isFree: false,
@@ -205,28 +203,14 @@ export default function CreateLessonForm({ onSuccess, onCancel }: CreateLessonFo
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Video Upload</Label>
-          <VideoUpload
-            folder="lessons"
-            onUploadComplete={(url, publicId) => {
-              handleInputChange('videoUrl', url);
-            }}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Audio Upload</Label>
-          <FileUpload
-            folder="lessons"
-            accept={["audio/*"]}
-            onUploadComplete={(url, publicId) => {
-              handleInputChange('audioUrl', url);
-            }}
-            label="Upload Audio File"
-          />
-        </div>
+      <div className="space-y-2">
+        <Label>Attachments</Label>
+        <UnifiedFileUpload
+          onAttachmentsChange={(attachments) => {
+            handleInputChange('attachments', attachments);
+          }}
+          folder="lessons"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

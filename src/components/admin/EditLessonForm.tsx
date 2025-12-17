@@ -7,8 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
-import { VideoUpload } from "@/components/upload/VideoUpload"
-import { FileUpload } from "@/components/upload/FileUpload"
+import { UnifiedFileUpload } from "@/components/upload/UnifiedFileUpload"
 
 interface Course {
   id: string
@@ -24,8 +23,7 @@ interface Lesson {
   courseId: string
   type: "VIDEO" | "TEXT" | "AUDIO" | "INTERACTIVE" | "QUIZ"
   content: string
-  videoUrl: string | null
-  audioUrl: string | null
+  attachments: any[]
   duration: number | null
   order: number
   isFree: boolean
@@ -49,8 +47,7 @@ export default function EditLessonForm({ lessonId, onSuccess, onCancel }: EditLe
     courseId: "",
     type: "VIDEO" as "VIDEO" | "TEXT" | "AUDIO" | "INTERACTIVE" | "QUIZ",
     content: "",
-    videoUrl: "",
-    audioUrl: "",
+    attachments: [] as any[],
     duration: "",
     order: 1,
     isFree: false,
@@ -89,8 +86,7 @@ export default function EditLessonForm({ lessonId, onSuccess, onCancel }: EditLe
             courseId: lesson.courseId || "",
             type: lesson.type || "VIDEO",
             content: lesson.content || "",
-            videoUrl: lesson.videoUrl || "",
-            audioUrl: lesson.audioUrl || "",
+            attachments: lesson.attachments || [],
             duration: lesson.duration?.toString() || "",
             order: lesson.order || 1,
             isFree: lesson.isFree || false,
@@ -263,33 +259,15 @@ export default function EditLessonForm({ lessonId, onSuccess, onCancel }: EditLe
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Video Upload</Label>
-          <VideoUpload
-            folder="lessons"
-            onUploadComplete={(url, publicId) => {
-              handleInputChange('videoUrl', url);
-            }}
-          />
-          {formData.videoUrl && (
-            <div className="text-sm text-muted-foreground">
-              Current video: <a href={formData.videoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View Video</a>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Audio Upload</Label>
-          <FileUpload
-            folder="lessons"
-            accept={["audio/*"]}
-            onUploadComplete={(url, publicId) => {
-              handleInputChange('audioUrl', url);
-            }}
-            label="Upload Audio File"
-          />
-        </div>
+      <div className="space-y-2">
+        <Label>Attachments</Label>
+        <UnifiedFileUpload
+          onAttachmentsChange={(attachments) => {
+            handleInputChange('attachments', attachments);
+          }}
+          existingAttachments={formData.attachments}
+          folder="lessons"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

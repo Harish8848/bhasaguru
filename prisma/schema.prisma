@@ -117,8 +117,6 @@ model Lesson {
   description String?
   type        LessonType
   content     String
-  videoUrl    String?
-  audioUrl    String?
   attachments Json?
   duration    Int?
   order       Int

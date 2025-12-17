@@ -31,6 +31,7 @@ export const authOptions: NextAuthOptions = {
         if (dbUser) {
           session.user.role = dbUser.role;
           session.user.status = dbUser.status;
+          (session.user as any).profilePicture = dbUser.profilePicture;
         }
       }
       return session;

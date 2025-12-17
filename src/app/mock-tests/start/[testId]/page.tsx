@@ -63,7 +63,7 @@ interface TestResult {
 export default function TakeTestPage() {
   const params = useParams()
   const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [questions, setQuestions] = useState<Question[]>([])
   const [answers, setAnswers] = useState<Record<string, Answer>>({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)

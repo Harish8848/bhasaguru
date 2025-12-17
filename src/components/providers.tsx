@@ -10,5 +10,15 @@ export default function Providers({
   children: React.ReactNode
   session: Session | null
 }) {
-  return <SessionProvider session={session}>{children}</SessionProvider>
+  return (
+    <SessionProvider
+      session={session}
+      // Prevent session refetch on window focus to avoid flickering
+      refetchOnWindowFocus={false}
+      // Disable automatic session refresh to prevent UI flickering
+      refetchInterval={0}
+    >
+      {children}
+    </SessionProvider>
+  )
 }

@@ -101,6 +101,31 @@ export default function LessonsPage() {
     setEditingLessonId(null)
   }
 
+  const handleDeleteLesson = async (lessonId: string) => {
+    if (!confirm('Are you sure you want to delete this lesson? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/lessons/${lessonId}`, {
+        method: 'DELETE',
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Remove lesson from state
+        setLessons(lessons.filter(lesson => lesson.id !== lessonId))
+        alert('Lesson deleted successfully')
+      } else {
+        alert(result.message || 'Failed to delete lesson')
+      }
+    } catch (err) {
+      console.error('Delete error:', err)
+      alert('Failed to delete lesson')
+    }
+  }
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -241,6 +266,7 @@ export default function LessonsPage() {
                           size="icon"
                           className="h-8 w-8 text-destructive hover:text-destructive/80"
                           title="Delete"
+                          onClick={() => handleDeleteLesson(lesson.id)}
                         >
                           <Trash2 size={16} />
                         </Button>

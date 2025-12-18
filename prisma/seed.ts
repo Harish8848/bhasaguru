@@ -229,7 +229,13 @@ function generateLesson(course: any, idx: number) {
   return extras;
 }
 
+
 function generateQuestionsForTest(course: any, testIndex: number) {
+  // For IELTS speaking tests, generate speaking questions instead
+  if (course.slug === "ielts-prep" && testIndex === 3) {
+    return generateIELTSSpeakingQuestions()
+  }
+
   const qs = [];
   for (let q = 1; q <= QUESTIONS_PER_TEST; q++) {
     const qIdx = (testIndex - 1) * 100 + q;
@@ -262,6 +268,97 @@ function generateQuestionsForTest(course: any, testIndex: number) {
     }
   }
   return qs;
+}
+
+function generateIELTSSpeakingQuestions() {
+  const questions = [];
+  
+  // Part 1: Introduction & Interview (Personal questions)
+  const part1Questions = [
+    {
+      type: "SPEAKING_PART1" as any,
+      questionText: "Tell me about your hometown. What do you like most about it?",
+      order: 1,
+      speakingTime: 45,
+      explanation: "Part 1 - Personal questions about your hometown"
+    },
+    {
+      type: "SPEAKING_PART1" as any,
+      questionText: "What kind of food do you enjoy eating? Has this always been the case?",
+      order: 2,
+      speakingTime: 45,
+      explanation: "Part 1 - Personal questions about food preferences"
+    },
+    {
+      type: "SPEAKING_PART1" as any,
+      questionText: "Do you enjoy reading? What kind of books do you read?",
+      order: 3,
+      speakingTime: 45,
+      explanation: "Part 1 - Personal questions about hobbies and reading"
+    }
+  ];
+
+  // Part 2: Long Turn (Cue Card)
+  const part2Questions = [
+    {
+      type: "SPEAKING_PART2" as any,
+      questionText: "Describe a memorable journey you have taken.",
+      cueCardContent: `You should say:
+• Where you went
+• When you took this journey
+• Who you went with
+• And explain why this journey was memorable for you`,
+      preparationTime: 60, // 1 minute preparation
+      speakingTime: 120,   // 2 minutes speaking
+      order: 4,
+      explanation: "Part 2 - Cue card about a memorable journey"
+    },
+    {
+      type: "SPEAKING_PART2" as any,
+      questionText: "Describe a person who has influenced you.",
+      cueCardContent: `You should say:
+• Who this person is
+• How you know them
+• What they did to influence you
+• And explain how their influence has affected your life`,
+      preparationTime: 60,
+      speakingTime: 120,
+      order: 5,
+      explanation: "Part 2 - Cue card about an influential person"
+    }
+  ];
+
+  // Part 3: Discussion (Follow-up questions)
+  const part3Questions = [
+    {
+      type: "SPEAKING_PART3" as any,
+      questionText: "What are the benefits and drawbacks of international travel?",
+      followUpQuestions: [
+        "How has travel changed in recent years?",
+        "Do you think everyone should travel abroad?",
+        "How can countries promote domestic tourism?"
+      ],
+      speakingTime: 180, // 3 minutes discussion
+      order: 6,
+      explanation: "Part 3 - Discussion about international travel"
+    },
+    {
+      type: "SPEAKING_PART3" as any,
+      questionText: "How important are role models in society?",
+      followUpQuestions: [
+        "Do you think social media influencers can be role models?",
+        "What qualities should a good role model have?",
+        "How do role models differ across cultures?"
+      ],
+      speakingTime: 180,
+      order: 7,
+
+      explanation: "Part 3 - Discussion about role models"
+    }
+  ];
+
+
+  return [...part1Questions, ...part2Questions, ...part3Questions];
 }
 
 async function seedLessons(courses: any[]) {

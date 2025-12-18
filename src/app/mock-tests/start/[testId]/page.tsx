@@ -1,5 +1,6 @@
 "use client"
 
+
 import { useState, useEffect, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -12,6 +13,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
+
+import SpeakingTestInterface from "@/components/speaking/SpeakingTestInterface"
+import { QuestionType } from "@/lib/types/test"
 import {
   ArrowLeft,
   Clock,
@@ -49,6 +53,21 @@ interface Answer {
   textAnswer?: string
 }
 
+
+interface MockTest {
+  id: string
+  title: string
+  description?: string
+  language?: string
+  module?: string
+  section?: string
+  standardSection?: string
+  type: string
+  duration: number
+  questionsCount: number
+  passingScore: number
+}
+
 interface TestResult {
   attemptId: string
   score: number
@@ -64,6 +83,7 @@ export default function TakeTestPage() {
   const params = useParams()
   const router = useRouter()
   const { data: session, status } = useSession()
+  const [test, setTest] = useState<MockTest | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
   const [answers, setAnswers] = useState<Record<string, Answer>>({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -94,26 +114,77 @@ export default function TakeTestPage() {
     }
   }, [session, testId])
 
+
+
+
+
   const fetchQuestions = async () => {
     try {
       setLoading(true)
-      // For now, we'll fetch questions based on the test ID
-      // In a real implementation, you might want to get test metadata first
-      // and then fetch appropriate questions based on the test's filters
-      const response = await fetch(`/api/mock-test/start?language=Japanese&difficulty=N5&limit=20`)
 
-      if (response.ok) {
-        const data = await response.json()
-        setQuestions(data.questions || [])
-        setTimeLeft(60 * 60) // 60 minutes default
+
+      // First, fetch the test metadata
+      const testResponse = await fetch(`/api/mock-tests/${testId}`)
+      if (!testResponse.ok) {
+        if (testResponse.status === 401) {
+          throw new Error('Authentication required')
+        }
+        throw new Error('Test not found')
+      }
+      
+      const testData = await testResponse.json()
+      const testInfo = testData.data
+      setTest(testInfo)
+      
+      // Set timer based on test duration
+      setTimeLeft(testInfo.duration * 60) // Convert minutes to seconds
+
+      // Then fetch questions for this specific test
+      const questionsResponse = await fetch(`/api/mock-test/start?testId=${testId}`)
+      
+      if (questionsResponse.ok) {
+        const questionsData = await questionsResponse.json()
+        const fetchedQuestions = questionsData.data?.questions || []
+        setQuestions(fetchedQuestions)
+        
+        if (fetchedQuestions.length === 0) {
+          toast.error('No questions found for this test')
+          router.push('/mock-tests')
+        } else {
+          // Check if this is a speaking test
+          const hasSpeakingQuestions = fetchedQuestions.some((q: any) => 
+            q.type === QuestionType.SPEAKING_PART1 || 
+            q.type === QuestionType.SPEAKING_PART2 || 
+            q.type === QuestionType.SPEAKING_PART3
+          )
+          
+          if (hasSpeakingQuestions) {
+            // Redirect to speaking test interface
+            toast.success('Speaking test detected! Loading speaking interface...')
+            router.push(`/mock-tests/speaking/${testId}`)
+          }
+        }
+      } else if (questionsResponse.status === 401) {
+        // Authentication required - redirect to auth page
+        toast.error('Please sign in to take this test')
+        router.push('/auth')
+        return
       } else {
-        toast.error('Failed to load questions')
-        router.push('/mock-tests')
+        const errorData = await questionsResponse.json()
+        throw new Error(errorData.message || 'Failed to load questions')
       }
     } catch (error) {
-      console.error('Failed to fetch questions:', error)
-      toast.error('Failed to load questions')
-      router.push('/mock-tests')
+      console.error('Failed to fetch test data:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load test'
+      
+      if (errorMessage === 'Authentication required') {
+        toast.error('Please sign in to take this test')
+        router.push('/auth')
+        return
+      }
+      
+      // Don't navigate away on error, let user see the error and decide
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -166,7 +237,15 @@ export default function TakeTestPage() {
       setSubmitting(true)
       const timeSpent = Math.floor((Date.now() - startTime) / 1000)
 
-      const answersArray = Object.values(answers)
+      // Create answers for all questions, even if not answered
+      const answersArray = questions.map(question => {
+        const existingAnswer = answers[question.id]
+        return {
+          questionId: question.id,
+          selectedOption: existingAnswer?.selectedOption || undefined,
+          textAnswer: existingAnswer?.textAnswer || undefined,
+        }
+      })
 
       const response = await fetch('/api/mock-test/submit', {
         method: 'POST',
@@ -176,7 +255,13 @@ export default function TakeTestPage() {
         body: JSON.stringify({
           answers: answersArray,
           timeSpent,
-          sessionFilters: { language: 'Japanese', difficulty: 'N5' }
+          testId,
+          sessionFilters: test ? {
+            language: test.language,
+            module: test.module,
+            section: test.section,
+            standardSection: test.standardSection
+          } : undefined
         }),
       })
 
@@ -377,10 +462,15 @@ export default function TakeTestPage() {
                 <ArrowLeft size={16} className="mr-2" />
                 Exit Test
               </Button>
+
               <div>
-                <h1 className="text-lg font-medium text-foreground">Mock Test</h1>
+                <h1 className="text-lg font-medium text-foreground">
+                  {test?.title || 'Mock Test'}
+                </h1>
                 <p className="text-sm text-muted-foreground">
                   Question {currentQuestionIndex + 1} of {questions.length}
+                  {test?.language && ` • ${test.language}`}
+                  {test?.module && ` • ${test.module}`}
                 </p>
               </div>
             </div>
@@ -519,7 +609,7 @@ export default function TakeTestPage() {
 
               {/* Answer Options */}
               <div className="space-y-4">
-                {currentQuestion.type === 'MULTIPLE_CHOICE' && currentQuestion.options && (
+                {currentQuestion.type === 'MULTIPLE_CHOICE' && Array.isArray(currentQuestion.options) && currentQuestion.options.length > 0 && (
                   <RadioGroup
                     value={currentAnswer?.selectedOption || ""}
                     onValueChange={(value) => handleAnswerChange(currentQuestion.id, {

@@ -18,10 +18,12 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     return ApiResponse.error('Unauthorized', 401);
   }
 
+
   const body = await request.json();
-  const { answers, timeSpent, sessionFilters }: {
+  const { answers, timeSpent, testId, sessionFilters }: {
     answers: AnswerSubmission[];
     timeSpent: number;
+    testId?: string;
     sessionFilters?: {
       language?: string;
       difficulty?: string;
@@ -39,13 +41,35 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     return ApiResponse.error('Valid timeSpent is required', 400);
   }
 
+
   try {
+    let testInfo = null;
+    let passingScore = 60; // Default for practice sessions
+
+    // If testId is provided, get test info and validate
+    if (testId) {
+      testInfo = await prisma.mockTest.findUnique({
+        where: { id: testId },
+        select: {
+          id: true,
+          title: true,
+          passingScore: true,
+        },
+      });
+
+      if (!testInfo) {
+        return ApiResponse.error('Test not found', 404);
+      }
+
+      passingScore = testInfo.passingScore;
+    }
+
     // Fetch all questions that were answered to validate and grade them
     const questionIds = answers.map(a => a.questionId);
+    const whereClause = testId ? { id: { in: questionIds }, testId } : { id: { in: questionIds } };
+    
     const questions = await prisma.question.findMany({
-      where: {
-        id: { in: questionIds },
-      },
+      where: whereClause,
       select: {
         id: true,
         type: true,
@@ -97,15 +121,16 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       };
     });
 
+
     // Calculate score percentage
     const score = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
-    const passed = score >= 60; // Default passing score for practice sessions
+    const passed = score >= passingScore;
 
-    // Create test attempt (practice session)
+    // Create test attempt
     const attempt = await prisma.testAttempt.create({
       data: {
         userId: session.user.id,
-        testId: null, // Practice session
+        testId: testId || null, // Use testId if provided, null for practice session
         score,
         correctAnswers,
         totalQuestions: questions.length,

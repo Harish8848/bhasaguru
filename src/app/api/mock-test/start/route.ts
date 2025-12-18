@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
 
+
 export const GET = withErrorHandler(async (request: NextRequest) => {
   const session = await getServerSession(authOptions);
 
@@ -13,6 +14,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   }
 
   const { searchParams } = new URL(request.url);
+  const testId = searchParams.get('testId');
   const language = searchParams.get('language');
   const difficulty = searchParams.get('difficulty');
   const module = searchParams.get('module');
@@ -20,6 +22,64 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const standardSection = searchParams.get('standardSection');
   const limit = parseInt(searchParams.get('limit') || '20');
 
+  // If testId is provided, fetch questions for that specific test
+  if (testId) {
+    try {
+      // First verify the test exists
+      const test = await prisma.mockTest.findUnique({
+        where: { id: testId },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          duration: true,
+          questionsCount: true,
+          passingScore: true,
+          language: true,
+          module: true,
+          section: true,
+          standardSection: true,
+          type: true,
+        }
+      });
+
+      if (!test) {
+        return ApiResponse.error('Test not found', 404);
+      }
+
+      // Get questions for this test
+      const questions = await prisma.question.findMany({
+        where: {
+          testId: testId,
+        },
+        select: {
+          id: true,
+          type: true,
+          questionText: true,
+          audioUrl: true,
+          imageUrl: true,
+          options: true,
+          points: true,
+          explanation: true,
+        },
+        orderBy: {
+          order: 'asc',
+        },
+      });
+
+      return ApiResponse.success({
+        questions,
+        test,
+        totalQuestions: questions.length,
+      });
+
+    } catch (error) {
+      console.error('Error fetching test questions:', error);
+      return ApiResponse.error('Failed to fetch test questions', 500);
+    }
+  }
+
+  // Original filtering logic for practice questions (when no testId)
   // Build where clause for filtering questions
   const where: any = {};
 
@@ -43,10 +103,10 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     where.standardSection = standardSection;
   }
 
-  // Validate that at least one filter is provided
+  // Validate that at least one filter is provided for practice questions
   if (!language && !difficulty && !module && !section && !standardSection) {
     return ApiResponse.error(
-      'At least one filter parameter (language, difficulty, module, section, or standardSection) is required',
+      'At least one filter parameter (language, difficulty, module, section, or standardSection) is required, or provide testId',
       400
     );
   }

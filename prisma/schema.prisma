@@ -195,6 +195,7 @@ model MockTest {
   @@map("mock_tests")
 }
 
+
 model Question {
   id               String       @id @default(cuid())
   testId           String
@@ -212,6 +213,11 @@ model Question {
   section          String?
   standardSection  String?
   difficulty       String?
+  // Speaking-specific fields
+  preparationTime  Int?         // Preparation time in seconds for Part 2
+  speakingTime     Int?         // Speaking time in seconds
+  cueCardContent   String?      // Cue card content for Part 2
+  followUpQuestions Json?       // Follow-up questions for Part 3
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   answers          Answer[]
@@ -221,6 +227,7 @@ model Question {
   @@index([language, module, difficulty])
   @@map("questions")
 }
+
 
 model TestAttempt {
   id             String     @id @default(cuid())
@@ -234,6 +241,7 @@ model TestAttempt {
   startedAt      DateTime   @default(now())
   completedAt    DateTime?
   answers        Answer[]
+  speakingScore  SpeakingScore? // One speaking score per attempt
   test           MockTest?  @relation(fields: [testId], references: [id], onDelete: Cascade)
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -242,12 +250,14 @@ model TestAttempt {
   @@map("test_attempts")
 }
 
+
 model Answer {
   id             String      @id @default(cuid())
   attemptId      String
   questionId     String
   selectedOption String?
   textAnswer     String?
+  audioUrl       String?     // For speaking responses
   isCorrect      Boolean
   answeredAt     DateTime    @default(now())
   attempt        TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
@@ -255,6 +265,22 @@ model Answer {
 
   @@index([attemptId])
   @@map("answers")
+}
+
+model SpeakingScore {
+  id                    String   @id @default(cuid())
+  attemptId             String   @unique
+  fluencyCoherence      Float    // 1-9 bands
+  lexicalResource       Float    // 1-9 bands
+  grammaticalRange      Float    // 1-9 bands
+  pronunciation         Float    // 1-9 bands
+  overallBand           Float    // Calculated average
+  notes                 String?  // Examiner notes
+  createdAt             DateTime @default(now())
+  attempt               TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@map("speaking_scores")
 }
 
 model JobListing {
@@ -415,12 +441,16 @@ enum EnrollmentStatus {
   DROPPED
 }
 
+
 enum QuestionType {
   MULTIPLE_CHOICE
   TRUE_FALSE
   FILL_BLANK
   MATCHING
   AUDIO_QUESTION
+  SPEAKING_PART1
+  SPEAKING_PART2
+  SPEAKING_PART3
 }
 
 enum JobType {

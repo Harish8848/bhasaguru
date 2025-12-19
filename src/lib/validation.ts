@@ -61,10 +61,11 @@ export const createTestSchema = z.object({
 
 export const createQuestionSchema = z.object({
   testId: z.string().cuid(),
-  type: z.enum(['MULTIPLE_CHOICE', 'TRUE_FALSE', 'FILL_BLANK', 'MATCHING', 'AUDIO_QUESTION']),
+  type: z.enum(['MULTIPLE_CHOICE', 'TRUE_FALSE', 'FILL_BLANK', 'MATCHING', 'AUDIO_QUESTION', 'SPEAKING_PART1', 'SPEAKING_PART2', 'SPEAKING_PART3']),
   questionText: z.string().min(1),
   audioUrl: z.string().url().optional(),
   imageUrl: z.string().url().optional(),
+  videoUrl: z.string().url().optional(),
   options: z.any().optional(),
   correctAnswer: z.string().optional(),
   points: z.number().positive().default(1),
@@ -75,6 +76,11 @@ export const createQuestionSchema = z.object({
   section: z.string().optional(),
   standardSection: z.string().optional(),
   difficulty: z.string().optional(),
+  // Speaking-specific fields
+  preparationTime: z.number().positive().optional(),
+  speakingTime: z.number().positive().optional(),
+  cueCardContent: z.string().optional(),
+  followUpQuestions: z.any().optional(),
 });
 
 export const updateQuestionSchema = createQuestionSchema.partial().omit({ testId: true });

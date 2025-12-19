@@ -5,17 +5,35 @@ import { useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Plus, Edit2, Trash2, ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import CreateQuestionForm from "@/components/admin/CreateQuestionForm"
+import EditQuestionForm from "@/components/admin/EditQuestionForm"
 
 interface Question {
   id: string
   questionText: string
-  type: string
+  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "FILL_BLANK" | "MATCHING" | "AUDIO_QUESTION" | "SPEAKING_PART1" | "SPEAKING_PART2" | "SPEAKING_PART3"
   points: number
   order: number
   difficulty?: string
+  audioUrl?: string
+  imageUrl?: string
+  videoUrl?: string
+  options?: any[]
+  correctAnswer?: string
+  explanation?: string
+  questionPassage?: string
+  questionSubSection?: string
+  language?: string
+  module?: string
+  section?: string
+  standardSection?: string
+  preparationTime?: number
+  speakingTime?: number
+  cueCardContent?: string
+  followUpQuestions?: any
 }
 
 interface MockTest {
@@ -35,6 +53,9 @@ export default function TestQuestionsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
 
   const fetchTestAndQuestions = async () => {
     try {
@@ -70,6 +91,44 @@ export default function TestQuestionsPage() {
   const handleCreateSuccess = () => {
     setCreateDialogOpen(false)
     fetchTestAndQuestions() // Refresh the questions list
+  }
+
+  const handleEditClick = (question: Question) => {
+    setSelectedQuestion(question)
+    setEditDialogOpen(true)
+  }
+
+  const handleEditSuccess = () => {
+    setEditDialogOpen(false)
+    setSelectedQuestion(null)
+    fetchTestAndQuestions() // Refresh the questions list
+  }
+
+  const handleDeleteClick = (question: Question) => {
+    setSelectedQuestion(question)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedQuestion) return
+
+    try {
+      const response = await fetch(`/api/admin/mock-test/questions?id=${selectedQuestion.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setDeleteDialogOpen(false)
+        setSelectedQuestion(null)
+        fetchTestAndQuestions() // Refresh the questions list
+      } else {
+        const error = await response.json()
+        alert(error.message || 'Failed to delete question')
+      }
+    } catch (error) {
+      console.error('Error deleting question:', error)
+      alert('Failed to delete question')
+    }
   }
 
   if (loading) {
@@ -166,11 +225,20 @@ export default function TestQuestionsPage() {
                       <p className="text-muted-foreground">{question.questionText}</p>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditClick(question)}
+                      >
                         <Edit2 size={16} className="mr-1" />
                         Edit
                       </Button>
-                      <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteClick(question)}
+                      >
                         <Trash2 size={16} />
                       </Button>
                     </div>
@@ -211,6 +279,50 @@ export default function TestQuestionsPage() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Edit Question Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Question</DialogTitle>
+          </DialogHeader>
+          {selectedQuestion && (
+            <EditQuestionForm
+              question={selectedQuestion}
+              testType={test.type}
+              onSuccess={handleEditSuccess}
+              onCancel={() => {
+                setEditDialogOpen(false)
+                setSelectedQuestion(null)
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the question
+              "{selectedQuestion?.questionText?.substring(0, 50)}..." and remove it from the test.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedQuestion(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

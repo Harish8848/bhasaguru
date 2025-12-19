@@ -11,60 +11,66 @@ import { Loader2 } from "lucide-react"
 import { ImageUpload } from "@/components/upload/ImageUpload"
 import { FileUpload } from "@/components/upload/FileUpload"
 
-interface CreateQuestionFormProps {
-  testId: string
+interface Question {
+  id: string
+  questionText: string
+  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "FILL_BLANK" | "MATCHING" | "AUDIO_QUESTION" | "SPEAKING_PART1" | "SPEAKING_PART2" | "SPEAKING_PART3"
+  difficulty?: string
+  order: number
+  points: number
+  audioUrl?: string
+  imageUrl?: string
+  videoUrl?: string
+  options?: string[]
+  correctAnswer?: string
+  explanation?: string
+  questionPassage?: string
+  questionSubSection?: string
+  language?: string
+  module?: string
+  section?: string
+  standardSection?: string
+  preparationTime?: number
+  speakingTime?: number
+  cueCardContent?: string
+  followUpQuestions?: any
+}
+
+interface EditQuestionFormProps {
+  question: Question
   testType: string
   onSuccess: () => void
   onCancel: () => void
 }
 
-export default function CreateQuestionForm({ testId, testType, onSuccess, onCancel }: CreateQuestionFormProps) {
+export default function EditQuestionForm({ question, testType, onSuccess, onCancel }: EditQuestionFormProps) {
   const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({
-    testId,
-    questionText: "",
-    type: "MULTIPLE_CHOICE" as "MULTIPLE_CHOICE" | "TRUE_FALSE" | "FILL_BLANK" | "MATCHING" | "AUDIO_QUESTION" | "SPEAKING_PART1" | "SPEAKING_PART2" | "SPEAKING_PART3",
-    difficulty: "",
-    order: 1,
-    points: 1,
-    audioUrl: "",
-    imageUrl: "",
-    videoUrl: "",
-    options: ["", "", "", ""],
-    correctAnswer: "",
-    explanation: "",
+    questionText: question.questionText || "",
+    type: question.type,
+    difficulty: question.difficulty || "",
+    order: question.order || 1,
+    points: question.points || 1,
+    audioUrl: question.audioUrl || "",
+    imageUrl: question.imageUrl || "",
+    videoUrl: question.videoUrl || "",
+    options: question.options || ["", "", "", ""],
+    correctAnswer: question.correctAnswer || "",
+    explanation: question.explanation || "",
     // Test-specific fields
-    questionPassage: "",
-    questionSubSection: "",
-    language: "",
-    module: "",
-    section: "",
-    standardSection: "",
+    questionPassage: question.questionPassage || "",
+    questionSubSection: question.questionSubSection || "",
+    language: question.language || "",
+    module: question.module || "",
+    section: question.section || "",
+    standardSection: question.standardSection || "",
     // Speaking-specific fields
-    preparationTime: 60,
-    speakingTime: 120,
-    cueCardContent: "",
-    followUpQuestions: [],
+    preparationTime: question.preparationTime || 60,
+    speakingTime: question.speakingTime || 120,
+    cueCardContent: question.cueCardContent || "",
+    followUpQuestions: question.followUpQuestions || [],
   })
-
-  // Get the next order number
-  useEffect(() => {
-    const fetchNextOrder = async () => {
-      try {
-        const response = await fetch(`/api/admin/mock-test/questions?testId=${testId}&limit=1`)
-        if (response.ok) {
-          const data = await response.json()
-          const nextOrder = data.data.length > 0 ? data.data[0].order + 1 : 1
-          setFormData(prev => ({ ...prev, order: nextOrder }))
-        }
-      } catch (error) {
-        console.error('Failed to fetch next order:', error)
-      }
-    }
-
-    fetchNextOrder()
-  }, [testId])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -101,8 +107,8 @@ export default function CreateQuestionForm({ testId, testType, onSuccess, onCanc
         }
       })
 
-      const response = await fetch('/api/admin/mock-test/questions', {
-        method: 'POST',
+      const response = await fetch(`/api/admin/mock-test/questions?id=${question.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -113,11 +119,11 @@ export default function CreateQuestionForm({ testId, testType, onSuccess, onCanc
         onSuccess()
       } else {
         const error = await response.json()
-        alert(error.message || 'Failed to create question')
+        alert(error.message || 'Failed to update question')
       }
     } catch (error) {
-      console.error('Error creating question:', error)
-      alert('Failed to create question')
+      console.error('Error updating question:', error)
+      alert('Failed to update question')
     } finally {
       setLoading(false)
     }
@@ -536,7 +542,7 @@ export default function CreateQuestionForm({ testId, testType, onSuccess, onCanc
         </Button>
         <Button type="submit" disabled={loading}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create Question
+          Update Question
         </Button>
       </div>
     </form>

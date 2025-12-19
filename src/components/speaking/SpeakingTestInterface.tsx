@@ -69,8 +69,13 @@ export default function SpeakingTestInterface({
 
   // Set current question when section or index changes
   useEffect(() => {
+    // Compute questions arrays inside useEffect to avoid dependency issues
+    const part1Questions = questions.filter(q => q.type === 'SPEAKING_PART1')
+    const part2Questions = questions.filter(q => q.type === 'SPEAKING_PART2')
+    const part3Questions = questions.filter(q => q.type === 'SPEAKING_PART3')
+
     let question: SpeakingQuestion | null = null
-    
+
     switch (state.currentSection) {
       case 'part1':
         question = part1Questions[state.currentQuestionIndex] || null
@@ -82,28 +87,28 @@ export default function SpeakingTestInterface({
         question = part3Questions[state.currentQuestionIndex] || null
         break
     }
-    
+
     setCurrentQuestion(question)
-    
+
     if (question) {
       // Reset timing for new question
       if (question.type === 'SPEAKING_PART2' && question.preparationTime) {
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           preparationTime: question!.preparationTime!,
           speakingTime: question!.speakingTime || 120,
           timeRemaining: question!.preparationTime!
         }))
       } else if (question.type === 'SPEAKING_PART3' || question.type === 'SPEAKING_PART1') {
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           preparationTime: 0,
           speakingTime: question!.speakingTime || 60,
           timeRemaining: question!.speakingTime || 60
         }))
       }
     }
-  }, [state.currentSection, state.currentQuestionIndex, part1Questions, part2Questions, part3Questions])
+  }, [state.currentSection, state.currentQuestionIndex, questions])
 
   // Timer effect
   useEffect(() => {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { UnifiedEvaluationService } from "@/lib/unified-evaluation-service";
+import { AnswerPayload } from "@/lib/types/evaluation";
 
 export async function POST(
     request: NextRequest,
@@ -32,42 +34,45 @@ export async function POST(
         return NextResponse.json({ error: "Invalid test attempt" }, { status: 400 });
       }
   
-      // Grade answers
-      let correctAnswers = 0;
-      const gradedAnswers = [];
-  
-      for (const answer of answers) {
-        const question = attempt.test.questions.find(q => q.id === answer.questionId);
-        if (!question) continue;
-  
-        let isCorrect = false;
-  
-        if (question.type === "MULTIPLE_CHOICE") {
-          const options: any = question.options;
-          const correctOption = options.find((o: any) => o.isCorrect);
-          isCorrect = answer.selectedOption === correctOption?.id;
-        } else if (question.type === "TRUE_FALSE" || question.type === "FILL_BLANK") {
-          isCorrect = answer.textAnswer?.toLowerCase() === question.correctAnswer?.toLowerCase();
-        }
-  
-        if (isCorrect) correctAnswers++;
-  
-        gradedAnswers.push({
-          attemptId,
-          questionId: answer.questionId,
-          selectedOption: answer.selectedOption,
-          textAnswer: answer.textAnswer,
-          isCorrect,
-        });
-      }
+      // Grade answers using the UnifiedEvaluationService
+      const evaluationService = new UnifiedEvaluationService();
+      const answerPayloads: AnswerPayload[] = answers.map((ans: any) => ({
+        ...ans,
+        questionType: attempt.test.questions.find(q => q.id === ans.questionId)?.type,
+      }));
+
+      const evaluationResult = await evaluationService.evaluateBatch(
+        attempt.test.questions,
+        answerPayloads,
+        {}
+      );
+
+      const correctAnswers = evaluationResult.results.filter(r => r.isCorrect).length;
+      
+      const gradedAnswers = evaluationResult.results.map(result => ({
+        attemptId,
+        questionId: result.questionId,
+        selectedOption: answers.find((a: any) => a.questionId === result.questionId)?.selectedOption,
+        textAnswer: answers.find((a: any) => a.questionId === result.questionId)?.textAnswer,
+        isCorrect: result.isCorrect,
+        score: result.score,
+      }));
   
       // Save answers
       await prisma.answer.createMany({
-        data: gradedAnswers,
+        data: gradedAnswers.map(a => ({
+          attemptId: a.attemptId,
+          questionId: a.questionId,
+          selectedOption: a.selectedOption,
+          textAnswer: a.textAnswer,
+          isCorrect: a.isCorrect,
+        })),
       });
   
       // Calculate score
-      const score = (correctAnswers / attempt.test.questions.length) * 100;
+      const totalScore = evaluationResult.results.reduce((sum, r) => sum + r.score, 0);
+      const maxScore = evaluationResult.results.reduce((sum, r) => sum + r.maxScore, 0);
+      const score = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
       const passed = score >= attempt.test.passingScore;
   
       // Update attempt

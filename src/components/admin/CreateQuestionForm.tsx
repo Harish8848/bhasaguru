@@ -14,12 +14,15 @@ import { FileUpload } from "@/components/upload/FileUpload"
 interface CreateQuestionFormProps {
   testId: string
   testType: string
+  testLanguage?: string
   onSuccess: () => void
   onCancel: () => void
 }
 
-export default function CreateQuestionForm({ testId, testType, onSuccess, onCancel }: CreateQuestionFormProps) {
+export default function CreateQuestionForm({ testId, testType, testLanguage, onSuccess, onCancel }: CreateQuestionFormProps) {
   const [loading, setLoading] = useState(false)
+
+
 
   const [formData, setFormData] = useState({
     testId,
@@ -52,10 +55,11 @@ export default function CreateQuestionForm({ testId, testType, onSuccess, onCanc
   useEffect(() => {
     const fetchNextOrder = async () => {
       try {
-        const response = await fetch(`/api/admin/mock-test/questions?testId=${testId}&limit=1`)
+        // Fetch questions ordered by order desc to get the highest order number
+        const response = await fetch(`/api/admin/mock-test/questions?testId=${testId}&limit=1000`)
         if (response.ok) {
           const data = await response.json()
-          const nextOrder = data.data.length > 0 ? data.data[0].order + 1 : 1
+          const nextOrder = data.data.length > 0 ? Math.max(...data.data.map((q: any) => q.order)) + 1 : 1
           setFormData(prev => ({ ...prev, order: nextOrder }))
         }
       } catch (error) {
@@ -88,9 +92,20 @@ export default function CreateQuestionForm({ testId, testType, onSuccess, onCanc
     setLoading(true)
 
     try {
+      // Format options properly for the database
+      let formattedOptions: any = undefined;
+      if (formData.type === 'MULTIPLE_CHOICE') {
+        // Convert array of strings to array of objects with id and text
+        formattedOptions = formData.options.map((text, index) => ({
+          id: String.fromCharCode(65 + index), // A, B, C, D
+          text: text,
+          isCorrect: formData.correctAnswer === String.fromCharCode(65 + index)
+        }));
+      }
+
       const submitData: any = {
         ...formData,
-        options: formData.type === 'MULTIPLE_CHOICE' ? formData.options : undefined,
+        options: formattedOptions,
         correctAnswer: formData.type === 'MULTIPLE_CHOICE' || formData.type === 'TRUE_FALSE' ? formData.correctAnswer : undefined,
       }
 
@@ -113,6 +128,7 @@ export default function CreateQuestionForm({ testId, testType, onSuccess, onCanc
         onSuccess()
       } else {
         const error = await response.json()
+        console.error('API Error:', error)
         alert(error.message || 'Failed to create question')
       }
     } catch (error) {
@@ -299,9 +315,13 @@ export default function CreateQuestionForm({ testId, testType, onSuccess, onCanc
               <SelectItem value="FILL_BLANK">Fill in the Blank</SelectItem>
               <SelectItem value="MATCHING">Matching</SelectItem>
               <SelectItem value="AUDIO_QUESTION">Audio Question</SelectItem>
-              <SelectItem value="SPEAKING_PART1">Speaking Part 1</SelectItem>
-              <SelectItem value="SPEAKING_PART2">Speaking Part 2</SelectItem>
-              <SelectItem value="SPEAKING_PART3">Speaking Part 3</SelectItem>
+              {(testLanguage?.toLowerCase() === 'english') && (
+                <>
+                  <SelectItem value="SPEAKING_PART1">Speaking Part 1</SelectItem>
+                  <SelectItem value="SPEAKING_PART2">Speaking Part 2</SelectItem>
+                  <SelectItem value="SPEAKING_PART3">Speaking Part 3</SelectItem>
+                </>
+              )}
             </SelectContent>
           </Select>
         </div>

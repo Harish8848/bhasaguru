@@ -112,9 +112,17 @@ export const DELETE = withErrorHandler(async (request: NextRequest) => {
     return ApiResponse.error('Question ID is required', 400);
   }
 
-  await prisma.question.delete({
-    where: { id },
-  });
+  try {
+    await prisma.question.delete({
+      where: { id },
+    });
 
-  return ApiResponse.success(null, 'Question deleted successfully');
+    return ApiResponse.success(null, 'Question deleted successfully');
+  } catch (error: any) {
+    // Handle case where question doesn't exist
+    if (error.code === 'P2025') {
+      return ApiResponse.error('Question not found or already deleted', 404);
+    }
+    throw error; // Re-throw other errors
+  }
 });

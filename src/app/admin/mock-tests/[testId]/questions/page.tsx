@@ -41,6 +41,7 @@ interface MockTest {
   title: string
   description?: string
   type: string
+  language?: string
   questionsCount: number
 }
 
@@ -69,10 +70,11 @@ export default function TestQuestionsPage() {
       const testData = await testResponse.json()
       setTest(testData.data)
 
-      // Fetch questions
-      const questionsResponse = await fetch(`/api/admin/mock-test/questions?testId=${testId}`)
+      // Fetch questions - get all questions for this test (no pagination in admin)
+      const questionsResponse = await fetch(`/api/admin/mock-test/questions?testId=${testId}&limit=1000`)
       if (questionsResponse.ok) {
         const questionsData = await questionsResponse.json()
+        console.log('Fetched questions:', questionsData.data) // Debug logging
         setQuestions(questionsData.data)
       }
     } catch (err) {
@@ -274,6 +276,7 @@ export default function TestQuestionsPage() {
           <CreateQuestionForm
             testId={testId}
             testType={test.type}
+            testLanguage={test.language}
             onSuccess={handleCreateSuccess}
             onCancel={() => setCreateDialogOpen(false)}
           />
@@ -290,6 +293,7 @@ export default function TestQuestionsPage() {
             <EditQuestionForm
               question={selectedQuestion}
               testType={test.type}
+              testLanguage={test.language}
               onSuccess={handleEditSuccess}
               onCancel={() => {
                 setEditDialogOpen(false)

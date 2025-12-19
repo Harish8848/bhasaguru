@@ -39,11 +39,12 @@ interface Question {
 interface EditQuestionFormProps {
   question: Question
   testType: string
+  testLanguage?: string
   onSuccess: () => void
   onCancel: () => void
 }
 
-export default function EditQuestionForm({ question, testType, onSuccess, onCancel }: EditQuestionFormProps) {
+export default function EditQuestionForm({ question, testType, testLanguage, onSuccess, onCancel }: EditQuestionFormProps) {
   const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({
@@ -299,6 +300,7 @@ export default function EditQuestionForm({ question, testType, onSuccess, onCanc
             <SelectTrigger>
               <SelectValue placeholder="Select question type" />
             </SelectTrigger>
+
             <SelectContent>
               <SelectItem value="MULTIPLE_CHOICE">Multiple Choice</SelectItem>
               <SelectItem value="TRUE_FALSE">True/False</SelectItem>

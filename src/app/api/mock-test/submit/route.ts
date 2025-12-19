@@ -4,11 +4,24 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
+import { UnifiedEvaluationService, AnswerPayload } from '@/lib/unified-evaluation-service';
+import { resultGenerationService } from '@/lib/result-generation-service';
+import { TestType, EvaluationContext } from '@/lib/types/evaluation';
+import { QuestionType } from '@/lib/types/test';
 
 interface AnswerSubmission {
   questionId: string;
   selectedOption?: string;
   textAnswer?: string;
+  audioResponse?: {
+    audioUrl: string;
+    duration: number;
+    transcript?: string;
+  };
+  matches?: { [leftItemId: string]: string };
+  answers?: { [blankIndex: number]: string };
+  timeSpent: number;
+  timestamp: Date;
 }
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
@@ -17,7 +30,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   if (!session) {
     return ApiResponse.error('Unauthorized', 401);
   }
-
 
   const body = await request.json();
   const { answers, timeSpent, testId, sessionFilters }: {
@@ -41,10 +53,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     return ApiResponse.error('Valid timeSpent is required', 400);
   }
 
-
   try {
     let testInfo = null;
     let passingScore = 60; // Default for practice sessions
+    let examType = TestType.PRACTICE;
 
     // If testId is provided, get test info and validate
     if (testId) {
@@ -53,6 +65,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         select: {
           id: true,
           title: true,
+          type: true,
           passingScore: true,
         },
       });
@@ -62,6 +75,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       }
 
       passingScore = testInfo.passingScore;
+      examType = testInfo.type as TestType;
     }
 
     // Fetch all questions that were answered to validate and grade them
@@ -76,6 +90,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         correctAnswer: true,
         options: true,
         points: true,
+        questionText: true,
       },
     });
 
@@ -83,87 +98,176 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       return ApiResponse.error('Some questions not found', 400);
     }
 
-    // Create question lookup map
-    const questionMap = new Map(questions.map(q => [q.id, q]));
+    // Initialize Unified Evaluation Service
+    const evaluationService = new UnifiedEvaluationService();
 
-    // Grade answers
-    let correctAnswers = 0;
-    let totalPoints = 0;
-    let earnedPoints = 0;
+    // Create evaluation context
+    const evaluationContext: EvaluationContext = {
+      userId: session.user.id,
+      testId,
+      examType,
+      config: {
+        allowPartialCredit: true,
+        synonymSupport: true,
+        caseSensitive: false,
+      },
+      sectionFilters: sessionFilters,
+    };
 
-    const gradedAnswers = answers.map(answer => {
-      const question = questionMap.get(answer.questionId);
+    // Transform answers to unified format with proper type casting
+    const unifiedAnswers: AnswerPayload[] = answers.map(answer => {
+      const question = questions.find(q => q.id === answer.questionId);
       if (!question) {
         throw new Error(`Question ${answer.questionId} not found`);
       }
 
-      let isCorrect = false;
+      // Transform based on question type
+      switch (question.type) {
+        case QuestionType.MULTIPLE_CHOICE:
+          if (!answer.selectedOption) {
+            throw new Error(`Selected option is required for question ${answer.questionId}`);
+          }
+          return {
+            questionId: answer.questionId,
+            questionType: QuestionType.MULTIPLE_CHOICE,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              selectedOption: answer.selectedOption,
+            },
+          } as AnswerPayload;
 
-      if (question.type === 'MULTIPLE_CHOICE') {
-        const options: any = question.options;
-        const correctOption = options?.find((o: any) => o.isCorrect);
-        isCorrect = answer.selectedOption === correctOption?.id;
-      } else if (question.type === 'TRUE_FALSE' || question.type === 'FILL_BLANK') {
-        isCorrect = answer.textAnswer?.toLowerCase() === question.correctAnswer?.toLowerCase();
+        case QuestionType.TRUE_FALSE:
+          if (!answer.textAnswer) {
+            throw new Error(`Text answer is required for question ${answer.questionId}`);
+          }
+          return {
+            questionId: answer.questionId,
+            questionType: QuestionType.TRUE_FALSE,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              value: answer.textAnswer.toLowerCase() === 'true',
+            },
+          } as AnswerPayload;
+
+        case QuestionType.FILL_BLANK:
+          return {
+            questionId: answer.questionId,
+            questionType: QuestionType.FILL_BLANK,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              answers: answer.answers || {},
+              synonyms: true,
+            },
+          } as AnswerPayload;
+
+        case QuestionType.MATCHING:
+          return {
+            questionId: answer.questionId,
+            questionType: QuestionType.MATCHING,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              matches: answer.matches || {},
+              partialCredit: true,
+            },
+          } as AnswerPayload;
+
+        case QuestionType.AUDIO_QUESTION:
+          return {
+            questionId: answer.questionId,
+            questionType: QuestionType.AUDIO_QUESTION,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              audioResponse: answer.audioResponse,
+              textAnswer: answer.textAnswer,
+            },
+          } as AnswerPayload;
+
+        default:
+          return {
+            questionId: answer.questionId,
+            questionType: question.type as QuestionType,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              textAnswer: answer.textAnswer,
+            },
+          } as AnswerPayload;
       }
-
-      if (isCorrect) {
-        correctAnswers++;
-        earnedPoints += question.points;
-      }
-      totalPoints += question.points;
-
-      return {
-        questionId: answer.questionId,
-        selectedOption: answer.selectedOption,
-        textAnswer: answer.textAnswer,
-        isCorrect,
-      };
     });
 
+    // Batch evaluate all answers
+    const evaluationResults = await evaluationService.evaluateBatch(
+      questions,
+      unifiedAnswers,
+      evaluationContext
+    );
 
-    // Calculate score percentage
-    const score = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
-    const passed = score >= passingScore;
+    if (!evaluationResults.success) {
+      console.error('Evaluation errors:', evaluationResults.errors);
+      return ApiResponse.error('Failed to evaluate answers', 400);
+    }
 
     // Create test attempt
     const attempt = await prisma.testAttempt.create({
       data: {
         userId: session.user.id,
         testId: testId || null, // Use testId if provided, null for practice session
-        score,
-        correctAnswers,
+        score: 0, // Will be updated after result generation
+        correctAnswers: 0, // Will be updated after result generation
         totalQuestions: questions.length,
-        passed,
+        passed: false, // Will be updated after result generation
         timeSpent,
         completedAt: new Date(),
       },
     });
 
-    // Save graded answers
-    const answersWithAttemptId = gradedAnswers.map(answer => ({
-      ...answer,
-      attemptId: attempt.id,
-    }));
+    // Save answers to database
+    const answersWithAttemptId = evaluationResults.results!.map(result => {
+      const answer = answers.find(a => a.questionId === result.questionId);
+      return {
+        attemptId: attempt.id,
+        questionId: result.questionId,
+        selectedOption: (result as any).selectedOption,
+        textAnswer: (result as any).textAnswer || answer?.textAnswer,
+        audioUrl: answer?.audioResponse?.audioUrl,
+        isCorrect: result.isCorrect,
+        answeredAt: new Date(),
+      };
+    });
 
     await prisma.answer.createMany({
       data: answersWithAttemptId,
     });
 
+    // Generate comprehensive result
+    const testResult = await resultGenerationService.generateComprehensiveResult(
+      attempt.id,
+      evaluationResults.results!
+    );
+
+    // Update attempt with final scores
+    await prisma.testAttempt.update({
+      where: { id: attempt.id },
+      data: {
+        score: testResult.percentage,
+        correctAnswers: testResult.correctAnswers,
+        passed: testResult.status === 'pass',
+      },
+    });
+
     return ApiResponse.success({
       attemptId: attempt.id,
-      score: Math.round(score * 100) / 100, // Round to 2 decimal places
-      correctAnswers,
-      totalQuestions: questions.length,
-      passed,
-      timeSpent,
-      earnedPoints,
-      totalPoints,
+      result: testResult,
       sessionFilters,
     });
 
   } catch (error) {
-    console.error('Error submitting practice test:', error);
+    console.error('Error submitting test:', error);
     return ApiResponse.error('Failed to submit test', 500);
   }
 });

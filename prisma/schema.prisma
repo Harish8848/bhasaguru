@@ -257,6 +257,7 @@ model Answer {
   questionId     String
   selectedOption String?
   textAnswer     String?
+  jsonAnswer     Json?       // For complex answers (matching, fill-blank, comprehension)
   audioUrl       String?     // For speaking responses
   isCorrect      Boolean
   answeredAt     DateTime    @default(now())
@@ -451,6 +452,9 @@ enum QuestionType {
   SPEAKING_PART1
   SPEAKING_PART2
   SPEAKING_PART3
+  WRITING
+  READING_COMPREHENSION
+  LISTENING_COMPREHENSION
 }
 
 enum JobType {

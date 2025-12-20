@@ -4,10 +4,12 @@ import Footer from "@/components/footer"
 
 export default function CulturePage() {
   return (
-    <main>
-        <Navbar/>
-      <CultureSection />
-      <Footer/>
-    </main>
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-grow">
+        <CultureSection />
+      </main>
+      <Footer />
+    </div>
   )
 }

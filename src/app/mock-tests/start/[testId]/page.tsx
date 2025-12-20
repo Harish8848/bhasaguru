@@ -125,6 +125,14 @@ export default function TakeTestPage() {
       if (questionsResponse.ok) {
         const questionsData = await questionsResponse.json()
         const fetchedQuestions = questionsData.data?.questions || []
+        
+        // Debug: Log the questions to verify questionText is being received
+        console.log('Fetched questions:', fetchedQuestions)
+        if (fetchedQuestions.length > 0) {
+          console.log('First question:', fetchedQuestions[0])
+          console.log('First question text:', fetchedQuestions[0]?.questionText)
+        }
+        
         setQuestions(fetchedQuestions)
         
         if (fetchedQuestions.length === 0) {

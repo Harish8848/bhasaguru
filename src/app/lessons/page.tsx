@@ -4,10 +4,12 @@ import Footer from "@/components/footer"
 
 export default function LessonsPage() {
   return (
-    <main>
-        <Navbar/>
-      <LessonsComponent/>
-      <Footer/>
-    </main>
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-grow">
+        <LessonsComponent />
+      </main>
+      <Footer />
+    </div>
   )
 }

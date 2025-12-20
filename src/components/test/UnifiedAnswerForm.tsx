@@ -731,12 +731,6 @@ export default function UnifiedAnswerForm({
   
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-2">
-        {getQuestionTypeIcon()}
-        <span className="text-sm font-medium text-muted-foreground">
-          {question.type.replace(/_/g, ' ')}
-        </span>
-      </div>
       
       {/* Question Text */}
       {question.questionText && (

@@ -241,25 +241,26 @@ function generateQuestionsForTest(course: any, testIndex: number) {
     const qIdx = (testIndex - 1) * 100 + q;
     const type = q % 5 === 0 ? "TRUE_FALSE" : "MULTIPLE_CHOICE";
     if (type === "MULTIPLE_CHOICE") {
-      const options = {
-        a: `Option A for q${qIdx}`,
-        b: `Option B for q${qIdx}`,
-        c: `Option C for q${qIdx}`,
-        d: `Option D for q${qIdx}`,
-      };
+      // Options must be in array format with id and text for the frontend
+      const options = [
+        { id: "A", text: `First option for question ${qIdx}` },
+        { id: "B", text: `Second option for question ${qIdx}` },
+        { id: "C", text: `Third option for question ${qIdx}` },
+        { id: "D", text: `Fourth option for question ${qIdx}` },
+      ];
       qs.push({
         type: type as any,
-        questionText: `[${course.language}] Sample MCQ ${qIdx} for ${course.slug}`,
+        questionText: `What is the correct answer for ${course.language} practice question ${qIdx}?`,
         options,
-        correctAnswer: "a",
+        correctAnswer: "A", // Correct answer ID must match option id (uppercase)
         points: 1,
         order: q,
-        explanation: "Correct answer is A (sample explanation).",
+        explanation: "The correct answer is option A.",
       });
     } else {
       qs.push({
         type: type as any,
-        questionText: `[${course.language}] True/False sample ${qIdx} for ${course.slug}`,
+        questionText: `Is this statement true or false? Sample statement ${qIdx} for ${course.language}.`,
         correctAnswer: q % 2 === 0 ? "true" : "false",
         points: 1,
         order: q,

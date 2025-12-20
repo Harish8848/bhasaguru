@@ -108,10 +108,19 @@ export class ResultGenerationService {
         evaluationResults
       );
 
-      // Calculate overall statistics
-      const totalQuestions = attempt.totalQuestions;
-      const correctAnswers = attempt.correctAnswers;
-      const percentage = (attempt.score / (totalQuestions || 1)) * 100;
+      // Calculate overall statistics from evaluation results (not from attempt record which hasn't been updated yet)
+      let totalScore = 0;
+      let maxScore = 0;
+      let correctAnswers = 0;
+      
+      evaluationResults.forEach(result => {
+        totalScore += result.score;
+        maxScore += result.maxScore;
+        if (result.isCorrect) correctAnswers++;
+      });
+      
+      const totalQuestions = evaluationResults.length;
+      const percentage = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
 
       // Generate result metadata
       const resultMetadata = this.generateResultMetadata(
@@ -126,8 +135,8 @@ export class ResultGenerationService {
         testTitle: test.title,
         examType: test.type,
         level: undefined, // Could be extracted from test metadata
-        totalScore: attempt.score,
-        maxScore: totalQuestions, // Assuming 1 point per question
+        totalScore,
+        maxScore,
         percentage,
         correctAnswers,
         totalQuestions,

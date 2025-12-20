@@ -19,6 +19,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         _count: {
           select: {
             attempts: true,
+            questions: true,
           },
         },
       },

@@ -28,14 +28,16 @@ const Footer = dynamic(() => import("@/components/footer"), {
 
 export default function Home() {
   return (
-    <main>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <HeroSection />
-      <FeaturesSection />
-      <CoursesSection />
-      <JobsSection />
-      <StatsSection />
+      <main className="flex-grow">
+        <HeroSection />
+        <FeaturesSection />
+        <CoursesSection />
+        <JobsSection />
+        <StatsSection />
+      </main>
       <Footer />
-    </main>
+    </div>
   )
 }

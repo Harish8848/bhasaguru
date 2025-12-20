@@ -3,7 +3,7 @@ import React from "react"
 import { footerLinks } from "@/lib/data"
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = 2025
 
   return (
     <footer className="bg-background border-t border-border">

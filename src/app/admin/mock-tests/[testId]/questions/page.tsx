@@ -52,18 +52,30 @@ export default function TestQuestionsPage() {
   const [test, setTest] = useState<MockTest | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
   const [loading, setLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
-  const fetchTestAndQuestions = async () => {
+  const fetchTestAndQuestions = async (isRefresh = false) => {
     try {
-      setLoading(true)
+      if (isRefresh) {
+        setIsRefreshing(true)
+      } else {
+        setLoading(true)
+      }
 
+      // Add cache-busting timestamp
+      const timestamp = Date.now()
+      
       // Fetch test details
-      const testResponse = await fetch(`/api/admin/mock-tests/${testId}`)
+      const testResponse = await fetch(`/api/admin/mock-tests/${testId}?_t=${timestamp}`, { 
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      })
       if (!testResponse.ok) {
         throw new Error('Failed to fetch test details')
       }
@@ -71,16 +83,20 @@ export default function TestQuestionsPage() {
       setTest(testData.data)
 
       // Fetch questions - get all questions for this test (no pagination in admin)
-      const questionsResponse = await fetch(`/api/admin/mock-test/questions?testId=${testId}&limit=1000`)
+      const questionsResponse = await fetch(`/api/admin/mock-test/questions?testId=${testId}&limit=1000&_t=${timestamp}`, { 
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      })
       if (questionsResponse.ok) {
         const questionsData = await questionsResponse.json()
         console.log('Fetched questions:', questionsData.data) // Debug logging
-        setQuestions(questionsData.data)
+        setQuestions(questionsData.data || [])
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
+      setIsRefreshing(false)
     }
   }
 
@@ -92,7 +108,7 @@ export default function TestQuestionsPage() {
 
   const handleCreateSuccess = () => {
     setCreateDialogOpen(false)
-    fetchTestAndQuestions() // Refresh the questions list
+    fetchTestAndQuestions(true) // Refresh the questions list without showing full-page loader
   }
 
   const handleEditClick = (question: Question) => {
@@ -103,7 +119,7 @@ export default function TestQuestionsPage() {
   const handleEditSuccess = () => {
     setEditDialogOpen(false)
     setSelectedQuestion(null)
-    fetchTestAndQuestions() // Refresh the questions list
+    fetchTestAndQuestions(true) // Refresh the questions list without showing full-page loader
   }
 
   const handleDeleteClick = (question: Question) => {
@@ -112,25 +128,38 @@ export default function TestQuestionsPage() {
   }
 
   const handleDeleteConfirm = async () => {
-    if (!selectedQuestion) return
+    if (!selectedQuestion || isDeleting) return
 
     try {
-      const response = await fetch(`/api/admin/mock-test/questions?id=${selectedQuestion.id}`, {
+      setIsDeleting(true)
+      
+      // Optimistically remove the question from the UI first
+      const questionIdToDelete = selectedQuestion.id
+      setQuestions(prev => prev.filter(q => q.id !== questionIdToDelete))
+      setDeleteDialogOpen(false)
+      setSelectedQuestion(null)
+      
+      const response = await fetch(`/api/admin/mock-test/questions?id=${questionIdToDelete}`, {
         method: 'DELETE',
       })
 
       if (response.ok) {
-        setDeleteDialogOpen(false)
-        setSelectedQuestion(null)
-        fetchTestAndQuestions() // Refresh the questions list
+        // Success - refresh to sync with server
+        fetchTestAndQuestions(true)
       } else {
         const error = await response.json()
         console.error('Delete API Error:', error)
+        // Revert the optimistic update on error
+        fetchTestAndQuestions(true)
         alert(error.message || 'Failed to delete question')
       }
     } catch (error) {
       console.error('Delete Question Error:', error)
+      // Revert on error
+      fetchTestAndQuestions(true)
       alert('Failed to delete question')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -188,7 +217,10 @@ export default function TestQuestionsPage() {
       {/* Questions Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground">Questions</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold text-foreground">Questions</h2>
+            {isRefreshing && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+          </div>
           <Button
             onClick={() => setCreateDialogOpen(true)}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
@@ -316,14 +348,22 @@ export default function TestQuestionsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setSelectedQuestion(null)}>
+            <AlertDialogCancel onClick={() => setSelectedQuestion(null)} disabled={isDeleting}>
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
+              disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

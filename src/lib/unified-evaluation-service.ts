@@ -362,8 +362,34 @@ export class UnifiedEvaluationService implements EvaluationService {
   }
 
   private evaluateTrueFalse(question: any, answer: TrueFalseAnswer, config: EvaluationConfig): TrueFalseEvaluation {
-    const expected = Boolean(question.correctAnswer);
-    const selected = Boolean(answer.userAnswer?.value);
+    // Handle correctAnswer - it could be stored as boolean, string "true"/"false", or number 1/0
+    let expected: boolean;
+    const correctAnswer = question.correctAnswer;
+    
+    if (typeof correctAnswer === 'boolean') {
+      expected = correctAnswer;
+    } else if (typeof correctAnswer === 'string') {
+      expected = correctAnswer.toLowerCase() === 'true' || correctAnswer === '1';
+    } else if (typeof correctAnswer === 'number') {
+      expected = correctAnswer === 1;
+    } else {
+      expected = Boolean(correctAnswer);
+    }
+    
+    // Handle user answer - could be boolean, string, etc.
+    let selected: boolean;
+    const userValue: unknown = answer.userAnswer?.value;
+    
+    if (typeof userValue === 'boolean') {
+      selected = userValue;
+    } else if (typeof userValue === 'string') {
+      selected = userValue.toLowerCase() === 'true' || userValue === '1';
+    } else if (typeof userValue === 'number') {
+      selected = userValue === 1;
+    } else {
+      selected = Boolean(userValue);
+    }
+    
     const isCorrect = expected === selected;
     const maxScore = question.points ?? 1;
 

@@ -128,8 +128,7 @@ export default function TakeTestPage() {
         setQuestions(fetchedQuestions)
         
         if (fetchedQuestions.length === 0) {
-          toast.error('No questions found for this test')
-          router.push('/mock-tests')
+          // No questions found - let the UI handle it
         } else {
           // Check if this is a speaking test
           const hasSpeakingQuestions = fetchedQuestions.some((q: any) => 
@@ -371,12 +370,8 @@ export default function TakeTestPage() {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <AlertCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-foreground mb-2">No Questions Available</h2>
-            <p className="text-muted-foreground mb-6">Unable to load test questions.</p>
-            <Button onClick={() => router.push('/mock-tests')}>
-              <ArrowLeft size={16} className="mr-2" />
-              Back to Tests
-            </Button>
+            <h2 className="text-2xl font-bold text-foreground mb-2">No questions yet</h2>
+            <p className="text-muted-foreground mb-6">Questions will be added soon.</p>
           </div>
         </div>
         <Footer />

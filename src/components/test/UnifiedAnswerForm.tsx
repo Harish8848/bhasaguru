@@ -495,7 +495,8 @@ export default function UnifiedAnswerForm({
   const renderAnswerInput = () => {
     switch (question.type) {
       case QuestionType.MULTIPLE_CHOICE:
-        const multipleChoiceOptions = (question as Question).options || []
+        const optionsData = (question as Question).options;
+        const multipleChoiceOptions = Array.isArray(optionsData) ? optionsData : [];
         return (
           <RadioGroup
             value={answerState.selectedOptions?.[0] || ""}
@@ -736,6 +737,57 @@ export default function UnifiedAnswerForm({
           {question.type.replace(/_/g, ' ')}
         </span>
       </div>
+      
+      {/* Question Text */}
+      {question.questionText && (
+        <div className="text-lg font-medium text-foreground leading-relaxed whitespace-pre-wrap">
+          {question.questionText}
+        </div>
+      )}
+      
+      {!question.questionText && (
+        <div className="text-lg text-muted-foreground italic">
+          No question text available
+        </div>
+      )}
+      
+      {/* Question Image if available */}
+      {'imageUrl' in question && question.imageUrl && (
+        <div className="my-4">
+          <img 
+            src={question.imageUrl} 
+            alt="Question image" 
+            className="max-w-full h-auto rounded-lg border border-border"
+          />
+        </div>
+      )}
+      
+      {/* Audio player for questions with audio (not speaking questions) */}
+      {'audioUrl' in question && question.audioUrl && 
+       question.type !== QuestionType.SPEAKING_PART1 && 
+       question.type !== QuestionType.SPEAKING_PART2 && 
+       question.type !== QuestionType.SPEAKING_PART3 && (
+        <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => playAudio(question.audioUrl!)}
+            disabled={disabled || answerState.isPlaying}
+          >
+            {answerState.isPlaying ? (
+              <>
+                <Pause size={16} className="mr-2" />
+                Playing...
+              </>
+            ) : (
+              <>
+                <Volume2 size={16} className="mr-2" />
+                Play Audio
+              </>
+            )}
+          </Button>
+        </div>
+      )}
       
       {renderAnswerInput()}
       

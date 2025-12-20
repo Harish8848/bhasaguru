@@ -19,7 +19,7 @@ interface AnswerSubmission {
     transcript?: string;
   };
   matches?: { [leftItemId: string]: string };
-  answers?: { [blankIndex: number]: string };
+  answers?: { [key: string]: string };
   timeSpent: number;
   timestamp: Date;
 }
@@ -91,6 +91,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         options: true,
         points: true,
         questionText: true,
+        preparationTime: true,
       },
     });
 
@@ -125,7 +126,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       switch (question.type) {
         case QuestionType.MULTIPLE_CHOICE:
           if (!answer.selectedOption) {
-            throw new Error(`Selected option is required for question ${answer.questionId}`);
+            // throw new Error(`Selected option is required for question ${answer.questionId}`);
+            // Allow empty answers for skipping
           }
           return {
             questionId: answer.questionId,
@@ -133,21 +135,18 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             timeSpent: answer.timeSpent,
             timestamp: answer.timestamp,
             userAnswer: {
-              selectedOption: answer.selectedOption,
+              selectedOption: answer.selectedOption || '',
             },
           } as AnswerPayload;
 
         case QuestionType.TRUE_FALSE:
-          if (!answer.textAnswer) {
-            throw new Error(`Text answer is required for question ${answer.questionId}`);
-          }
           return {
             questionId: answer.questionId,
             questionType: QuestionType.TRUE_FALSE,
             timeSpent: answer.timeSpent,
             timestamp: answer.timestamp,
             userAnswer: {
-              value: answer.textAnswer.toLowerCase() === 'true',
+              value: answer.textAnswer?.toLowerCase() === 'true',
             },
           } as AnswerPayload;
 
@@ -184,6 +183,62 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             userAnswer: {
               audioResponse: answer.audioResponse,
               textAnswer: answer.textAnswer,
+              selectedOption: answer.selectedOption,
+            },
+          } as AnswerPayload;
+
+        case QuestionType.SPEAKING_PART1:
+        case QuestionType.SPEAKING_PART2:
+        case QuestionType.SPEAKING_PART3:
+          return {
+            questionId: answer.questionId,
+            questionType: question.type,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              audioUrl: answer.audioResponse?.audioUrl || '',
+              duration: answer.audioResponse?.duration || 0,
+              transcript: answer.audioResponse?.transcript,
+              preparationTime: question.preparationTime || 0,
+            },
+          } as AnswerPayload;
+
+        case QuestionType.WRITING:
+          return {
+            questionId: answer.questionId,
+            questionType: QuestionType.WRITING,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              essayType: 'task2', // Default to task2 for now
+              content: answer.textAnswer || '',
+              wordCount: answer.textAnswer?.trim().split(/\s+/).length || 0,
+            },
+          } as AnswerPayload;
+
+        case QuestionType.READING_COMPREHENSION:
+          return {
+            questionId: answer.questionId,
+            questionType: QuestionType.READING_COMPREHENSION,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              passageId: question.id,
+              answers: answer.answers || {},
+              timeOnPassage: answer.timeSpent,
+            },
+          } as AnswerPayload;
+
+        case QuestionType.LISTENING_COMPREHENSION:
+          return {
+            questionId: answer.questionId,
+            questionType: QuestionType.LISTENING_COMPREHENSION,
+            timeSpent: answer.timeSpent,
+            timestamp: answer.timestamp,
+            userAnswer: {
+              audioId: question.id,
+              answers: answer.answers || {},
+              timeOnAudio: answer.timeSpent,
             },
           } as AnswerPayload;
 

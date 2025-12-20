@@ -131,7 +131,7 @@ export default function MockTestsPage() {
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar />
-        <main className="grow flex items-center justify-center">
+        <main className="flex-grow flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin" />
         </main>
         <Footer />
@@ -143,7 +143,7 @@ export default function MockTestsPage() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
 
-      <main className="grow">
+      <main className="flex-grow">
         {/* Hero Section */}
         <section className="py-5 md:py-5 bg-linear-to-br from-primary/10 via-background to-secondary/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -6,7 +6,7 @@ export default function CulturePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-grow">
+      <main className="grow">
         <CultureSection />
       </main>
       <Footer />

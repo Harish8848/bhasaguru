@@ -7,21 +7,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Loader2 } from "lucide-react"
+import { Loader2, Plus, Trash2 } from "lucide-react"
 import { ImageUpload } from "@/components/upload/ImageUpload"
 import { FileUpload } from "@/components/upload/FileUpload"
 
 interface Question {
   id: string
   questionText: string
-  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "FILL_BLANK" | "MATCHING" | "AUDIO_QUESTION" | "SPEAKING_PART1" | "SPEAKING_PART2" | "SPEAKING_PART3"
+  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "FILL_BLANK" | "MATCHING" | "AUDIO_QUESTION" | "SPEAKING_PART1" | "SPEAKING_PART2" | "SPEAKING_PART3" | "WRITING" | "READING_COMPREHENSION" | "LISTENING_COMPREHENSION"
   difficulty?: string
   order: number
   points: number
   audioUrl?: string
   imageUrl?: string
   videoUrl?: string
-  options?: string[]
+  options?: any
   correctAnswer?: string
   explanation?: string
   questionPassage?: string
@@ -47,22 +47,31 @@ interface EditQuestionFormProps {
 export default function EditQuestionForm({ question, testType, testLanguage, onSuccess, onCancel }: EditQuestionFormProps) {
   const [loading, setLoading] = useState(false)
 
+  // Initialize complex fields based on question type
+  const initialMatchingPairs = question.type === 'MATCHING' && question.options?.pairs 
+    ? question.options.pairs 
+    : [{ left: "", right: "" }];
+    
+  const initialBlanks = question.type === 'FILL_BLANK' && question.options?.blanks
+    ? question.options.blanks
+    : [""];
+
   const [formData, setFormData] = useState({
     questionText: question.questionText || "",
-    type: question.type,
-    difficulty: question.difficulty || "",
+    type: question.type as any,
+    difficulty: question.difficulty || "medium",
     order: question.order || 1,
     points: question.points || 1,
     audioUrl: question.audioUrl || "",
     imageUrl: question.imageUrl || "",
     videoUrl: question.videoUrl || "",
-    options: question.options || ["", "", "", ""],
+    options: Array.isArray(question.options) ? question.options : ["", "", "", ""],
     correctAnswer: question.correctAnswer || "",
     explanation: question.explanation || "",
     // Test-specific fields
     questionPassage: question.questionPassage || "",
     questionSubSection: question.questionSubSection || "",
-    language: question.language || "",
+    language: question.language || testLanguage || "",
     module: question.module || "",
     section: question.section || "",
     standardSection: question.standardSection || "",
@@ -70,7 +79,10 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
     preparationTime: question.preparationTime || 60,
     speakingTime: question.speakingTime || 120,
     cueCardContent: question.cueCardContent || "",
-    followUpQuestions: question.followUpQuestions || [],
+    followUpQuestions: Array.isArray(question.followUpQuestions) ? question.followUpQuestions : [],
+    // Complex fields
+    matchingPairs: initialMatchingPairs,
+    blanks: initialBlanks
   })
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -82,7 +94,7 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
     }
 
     if (formData.type === 'MULTIPLE_CHOICE') {
-      if (formData.options.some(opt => !opt.trim())) {
+      if (formData.options.some((opt: string) => !opt.trim())) {
         alert('All options are required for multiple choice questions')
         return
       }
@@ -92,21 +104,42 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
       }
     }
 
+    if (formData.type === 'MATCHING') {
+      if (formData.matchingPairs.some((p: any) => !p.left.trim() || !p.right.trim())) {
+        alert('All matching pairs must be completed')
+        return
+      }
+    }
+
     setLoading(true)
 
     try {
-      const submitData: any = {
-        ...formData,
-        options: formData.type === 'MULTIPLE_CHOICE' ? formData.options : undefined,
-        correctAnswer: formData.type === 'MULTIPLE_CHOICE' || formData.type === 'TRUE_FALSE' ? formData.correctAnswer : undefined,
+      // Format options properly for the database
+      let formattedOptions: any = undefined;
+      
+      if (formData.type === 'MULTIPLE_CHOICE') {
+        formattedOptions = formData.options.map((text: string, index: number) => ({
+          id: String.fromCharCode(65 + index),
+          text: text,
+        }));
+      } else if (formData.type === 'MATCHING') {
+        formattedOptions = {
+          pairs: formData.matchingPairs
+        };
+      } else if (formData.type === 'FILL_BLANK') {
+        formattedOptions = {
+          blanks: formData.blanks
+        };
       }
 
-      // Remove undefined and empty string fields to avoid sending them to the API
-      Object.keys(submitData).forEach(key => {
-        if (submitData[key] === undefined || submitData[key] === '') {
-          delete submitData[key]
-        }
-      })
+      const submitData: any = {
+        ...formData,
+        options: formattedOptions,
+      }
+
+      // Cleanup
+      delete submitData.matchingPairs;
+      delete submitData.blanks;
 
       const response = await fetch(`/api/admin/mock-test/questions?id=${question.id}`, {
         method: 'PUT',
@@ -143,6 +176,61 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
     setFormData(prev => ({ ...prev, options: newOptions }))
   }
 
+  const handlePairChange = (index: number, side: 'left' | 'right', value: string) => {
+    const newPairs = [...formData.matchingPairs]
+    newPairs[index][side] = value
+    setFormData(prev => ({ ...prev, matchingPairs: newPairs }))
+  }
+
+  const addPair = () => {
+    setFormData(prev => ({
+      ...prev,
+      matchingPairs: [...prev.matchingPairs, { left: "", right: "" }]
+    }))
+  }
+
+  const removePair = (index: number) => {
+    if (formData.matchingPairs.length > 1) {
+      const newPairs = formData.matchingPairs.filter((_: any, i: number) => i !== index)
+      setFormData(prev => ({ ...prev, matchingPairs: newPairs }))
+    }
+  }
+
+  const handleBlankChange = (index: number, value: string) => {
+    const newBlanks = [...formData.blanks]
+    newBlanks[index] = value
+    setFormData(prev => ({ ...prev, blanks: newBlanks }))
+  }
+
+  const addBlank = () => {
+    setFormData(prev => ({ ...prev, blanks: [...prev.blanks, ""] }))
+  }
+
+  const removeBlank = (index: number) => {
+    if (formData.blanks.length > 1) {
+      const newBlanks = formData.blanks.filter((_: any, i: number) => i !== index)
+      setFormData(prev => ({ ...prev, blanks: newBlanks }))
+    }
+  }
+
+  const handleFollowUpChange = (index: number, value: string) => {
+    const newQuestions = [...formData.followUpQuestions]
+    newQuestions[index] = value
+    setFormData(prev => ({ ...prev, followUpQuestions: newQuestions }))
+  }
+
+  const addFollowUp = () => {
+    setFormData(prev => ({
+      ...prev,
+      followUpQuestions: [...prev.followUpQuestions, ""]
+    }))
+  }
+
+  const removeFollowUp = (index: number) => {
+    const newQuestions = formData.followUpQuestions.filter((_: any, i: number) => i !== index)
+    setFormData(prev => ({ ...prev, followUpQuestions: newQuestions }))
+  }
+
   const renderTestSpecificFields = () => {
     const upperTestType = testType.toUpperCase()
 
@@ -151,23 +239,23 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
         return (
           <>
             <div className="space-y-2">
-              <Label htmlFor="questionPassage">Question Passage</Label>
+              <Label htmlFor="questionPassage">Context Passage / Script (Optional)</Label>
               <Textarea
                 id="questionPassage"
                 value={formData.questionPassage}
                 onChange={(e) => handleInputChange('questionPassage', e.target.value)}
-                placeholder="Enter the passage text for this question"
+                placeholder="Enter the reading passage or listening script context"
                 rows={6}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="questionSubSection">Question Sub-section</Label>
+              <Label htmlFor="questionSubSection">IELTS Section</Label>
               <Select
                 value={formData.questionSubSection}
                 onValueChange={(value) => handleInputChange('questionSubSection', value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select sub-section" />
+                  <SelectValue placeholder="Select section" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="listening_part_1">Listening Part 1</SelectItem>
@@ -192,93 +280,34 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
         return (
           <>
             <div className="space-y-2">
-              <Label htmlFor="questionSubSection">JLPT Question Type</Label>
+              <Label htmlFor="questionSubSection">JLPT Component</Label>
               <Select
                 value={formData.questionSubSection}
                 onValueChange={(value) => handleInputChange('questionSubSection', value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select question type" />
+                  <SelectValue placeholder="Select component" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="vocabulary">Vocabulary</SelectItem>
-                  <SelectItem value="grammar">Grammar</SelectItem>
-                  <SelectItem value="reading">Reading Passage</SelectItem>
-                  <SelectItem value="kanji">Kanji</SelectItem>
-                  <SelectItem value="listening">Listening</SelectItem>
+                  <SelectItem value="vocabulary">Vocabulary (文字・語彙)</SelectItem>
+                  <SelectItem value="grammar">Grammar (文法)</SelectItem>
+                  <SelectItem value="reading">Reading (読解)</SelectItem>
+                  <SelectItem value="listening">Listening (聴解)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            {formData.questionSubSection === 'reading' && (
+            {(formData.questionSubSection === 'reading' || formData.questionSubSection === 'grammar') && (
               <div className="space-y-2">
-                <Label htmlFor="questionPassage">Reading Passage</Label>
+                <Label htmlFor="questionPassage">Reading/Grammar Context</Label>
                 <Textarea
                   id="questionPassage"
                   value={formData.questionPassage}
                   onChange={(e) => handleInputChange('questionPassage', e.target.value)}
-                  placeholder="Enter the reading passage text"
+                  placeholder="Enter the passage or sentence context"
                   rows={6}
                 />
               </div>
             )}
-          </>
-        )
-
-      case 'TOPIK':
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="questionSubSection">TOPIK Question Type</Label>
-              <Select
-                value={formData.questionSubSection}
-                onValueChange={(value) => handleInputChange('questionSubSection', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select question type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="listening">Listening</SelectItem>
-                  <SelectItem value="grammar_reading">Grammar/Reading</SelectItem>
-                  <SelectItem value="vocabulary_fill_blank">Vocabulary Fill-in-the-blank</SelectItem>
-                  <SelectItem value="reading_comprehension">Reading Comprehension</SelectItem>
-                  <SelectItem value="writing">Writing</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {formData.questionSubSection === 'listening' && (
-              <div className="space-y-2">
-                <Label htmlFor="audioUrl">Audio URL (for listening questions)</Label>
-                <Input
-                  id="audioUrl"
-                  value={formData.audioUrl}
-                  onChange={(e) => handleInputChange('audioUrl', e.target.value)}
-                  placeholder="Enter audio URL"
-                />
-              </div>
-            )}
-          </>
-        )
-
-      case 'PTE':
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="questionSubSection">PTE Question Type</Label>
-              <Select
-                value={formData.questionSubSection}
-                onValueChange={(value) => handleInputChange('questionSubSection', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select question type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="speaking">Speaking</SelectItem>
-                  <SelectItem value="writing">Writing</SelectItem>
-                  <SelectItem value="reading">Reading</SelectItem>
-                  <SelectItem value="listening">Listening</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </>
         )
 
@@ -288,7 +317,7 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto pr-2">
       {/* Common Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -307,9 +336,16 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
               <SelectItem value="FILL_BLANK">Fill in the Blank</SelectItem>
               <SelectItem value="MATCHING">Matching</SelectItem>
               <SelectItem value="AUDIO_QUESTION">Audio Question</SelectItem>
-              <SelectItem value="SPEAKING_PART1">Speaking Part 1</SelectItem>
-              <SelectItem value="SPEAKING_PART2">Speaking Part 2</SelectItem>
-              <SelectItem value="SPEAKING_PART3">Speaking Part 3</SelectItem>
+              <SelectItem value="WRITING">Writing / Essay</SelectItem>
+              <SelectItem value="READING_COMPREHENSION">Reading Comprehension</SelectItem>
+              <SelectItem value="LISTENING_COMPREHENSION">Listening Comprehension</SelectItem>
+              {(testLanguage?.toLowerCase() === 'english' || testType.toUpperCase() === 'IELTS') && (
+                <>
+                  <SelectItem value="SPEAKING_PART1">Speaking Part 1</SelectItem>
+                  <SelectItem value="SPEAKING_PART2">Speaking Part 2</SelectItem>
+                  <SelectItem value="SPEAKING_PART3">Speaking Part 3</SelectItem>
+                </>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -457,10 +493,90 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
         </div>
       )}
 
+      {/* Matching Type UI */}
+      {formData.type === 'MATCHING' && (
+        <div className="space-y-4 border p-4 rounded-md bg-muted/30">
+          <div className="flex justify-between items-center">
+            <Label>Matching Pairs *</Label>
+            <Button type="button" variant="outline" size="sm" onClick={addPair}>
+              <Plus className="w-4 h-4 mr-2" /> Add Pair
+            </Button>
+          </div>
+          {formData.matchingPairs.map((pair: any, index: number) => (
+            <div key={index} className="flex gap-2 items-start">
+              <div className="flex-1 space-y-2">
+                <Input
+                  value={pair.left}
+                  onChange={(e) => handlePairChange(index, 'left', e.target.value)}
+                  placeholder={`Left Item ${index + 1}`}
+                  required
+                />
+              </div>
+              <div className="flex-1 space-y-2">
+                <Input
+                  value={pair.right}
+                  onChange={(e) => handlePairChange(index, 'right', e.target.value)}
+                  placeholder={`Right Item ${index + 1}`}
+                  required
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removePair(index)}
+                disabled={formData.matchingPairs.length <= 1}
+                className="text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Fill in the Blank Type UI */}
+      {formData.type === 'FILL_BLANK' && (
+        <div className="space-y-4 border p-4 rounded-md bg-muted/30">
+          <div className="flex justify-between items-center">
+            <div>
+              <Label>Correct Answers for Blanks *</Label>
+              <p className="text-xs text-muted-foreground">Add the correct word(s) for each blank in the question text.</p>
+            </div>
+            <Button type="button" variant="outline" size="sm" onClick={addBlank}>
+              <Plus className="w-4 h-4 mr-2" /> Add Blank
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {formData.blanks.map((blank: string, index: number) => (
+              <div key={index} className="flex gap-2 items-center">
+                <span className="text-sm font-medium">#{index + 1}</span>
+                <Input
+                  value={blank}
+                  onChange={(e) => handleBlankChange(index, e.target.value)}
+                  placeholder="Correct word"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeBlank(index)}
+                  disabled={formData.blanks.length <= 1}
+                  className="text-destructive"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Speaking-specific fields */}
       {(formData.type === 'SPEAKING_PART1' || formData.type === 'SPEAKING_PART2' || formData.type === 'SPEAKING_PART3') && (
-        <div className="space-y-4">
-          <Label>Speaking Configuration</Label>
+        <div className="space-y-4 border p-4 rounded-md bg-blue-50/10 border-blue-200/20">
+          <Label className="text-blue-400">Speaking Configuration</Label>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -471,7 +587,6 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
                 min="0"
                 value={formData.preparationTime}
                 onChange={(e) => handleInputChange('preparationTime', parseInt(e.target.value) || 0)}
-                placeholder="60"
               />
             </div>
 
@@ -483,42 +598,49 @@ export default function EditQuestionForm({ question, testType, testLanguage, onS
                 min="1"
                 value={formData.speakingTime}
                 onChange={(e) => handleInputChange('speakingTime', parseInt(e.target.value) || 60)}
-                placeholder="120"
               />
             </div>
           </div>
 
           {formData.type === 'SPEAKING_PART2' && (
             <div className="space-y-2">
-              <Label htmlFor="cueCardContent">Cue Card Content</Label>
+              <Label htmlFor="cueCardContent">Cue Card Content / Prompts</Label>
               <Textarea
                 id="cueCardContent"
                 value={formData.cueCardContent}
                 onChange={(e) => handleInputChange('cueCardContent', e.target.value)}
-                placeholder="Enter the cue card content for Part 2 speaking"
+                placeholder="Describe a place you visited... You should say: Where it was, Who you went with..."
                 rows={4}
               />
             </div>
           )}
 
           {formData.type === 'SPEAKING_PART3' && (
-            <div className="space-y-2">
-              <Label htmlFor="followUpQuestions">Follow-up Questions (JSON format)</Label>
-              <Textarea
-                id="followUpQuestions"
-                value={JSON.stringify(formData.followUpQuestions, null, 2)}
-                onChange={(e) => {
-                  try {
-                    const parsed = JSON.parse(e.target.value)
-                    handleInputChange('followUpQuestions', parsed)
-                  } catch (error) {
-                    // Invalid JSON, keep as string for now
-                    handleInputChange('followUpQuestions', e.target.value)
-                  }
-                }}
-                placeholder='["Question 1?", "Question 2?"]'
-                rows={4}
-              />
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <Label>Follow-up Questions</Label>
+                <Button type="button" variant="outline" size="sm" onClick={addFollowUp}>
+                  <Plus className="w-4 h-4 mr-2" /> Add Question
+                </Button>
+              </div>
+              {formData.followUpQuestions.map((q: string, index: number) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    value={q}
+                    onChange={(e) => handleFollowUpChange(index, e.target.value)}
+                    placeholder={`Follow-up question ${index + 1}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeFollowUp(index)}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
           )}
         </div>

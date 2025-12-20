@@ -61,7 +61,19 @@ export const createTestSchema = z.object({
 
 export const createQuestionSchema = z.object({
   testId: z.string().cuid(),
-  type: z.enum(['MULTIPLE_CHOICE', 'TRUE_FALSE', 'FILL_BLANK', 'MATCHING', 'AUDIO_QUESTION', 'SPEAKING_PART1', 'SPEAKING_PART2', 'SPEAKING_PART3']),
+  type: z.enum([
+    'MULTIPLE_CHOICE', 
+    'TRUE_FALSE', 
+    'FILL_BLANK', 
+    'MATCHING', 
+    'AUDIO_QUESTION', 
+    'SPEAKING_PART1', 
+    'SPEAKING_PART2', 
+    'SPEAKING_PART3', 
+    'WRITING', 
+    'READING_COMPREHENSION', 
+    'LISTENING_COMPREHENSION'
+  ]),
   questionText: z.string().min(1),
   audioUrl: z.string().url().optional(),
   imageUrl: z.string().url().optional(),

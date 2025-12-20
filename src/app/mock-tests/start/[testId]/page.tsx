@@ -15,7 +15,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 
 import SpeakingTestInterface from "@/components/speaking/SpeakingTestInterface"
-import { QuestionType } from "@/lib/types/test"
+import UnifiedAnswerForm from "@/components/test/UnifiedAnswerForm"
+import { QuestionType, Question } from "@/lib/types/test"
+import { AnswerPayload } from "@/lib/types/evaluation"
 import {
   ArrowLeft,
   Clock,
@@ -31,28 +33,6 @@ import {
   FileText
 } from "lucide-react"
 import { toast } from "sonner"
-
-interface Question {
-  id: string
-  type: string
-  questionText: string
-  audioUrl?: string
-  imageUrl?: string
-  options?: Array<{
-    id: string
-    text: string
-    isCorrect?: boolean
-  }>
-  explanation?: string
-  points: number
-}
-
-interface Answer {
-  questionId: string
-  selectedOption?: string
-  textAnswer?: string
-}
-
 
 interface MockTest {
   id: string
@@ -85,7 +65,7 @@ export default function TakeTestPage() {
   const { data: session, status } = useSession()
   const [test, setTest] = useState<MockTest | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
-  const [answers, setAnswers] = useState<Record<string, Answer>>({})
+  const [answers, setAnswers] = useState<Record<string, AnswerPayload>>({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -190,12 +170,16 @@ export default function TakeTestPage() {
     }
   }
 
-  const handleAnswerChange = (questionId: string, answer: Answer) => {
+  const handleAnswerChange = useCallback((answer: AnswerPayload) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: answer
+      [answer.questionId]: answer
     }))
-  }
+  }, [])
+
+  const handleTimeUpdate = useCallback((questionId: string, timeSpent: number) => {
+    // Optionally track time per question
+  }, [])
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
@@ -237,14 +221,41 @@ export default function TakeTestPage() {
       setSubmitting(true)
       const timeSpent = Math.floor((Date.now() - startTime) / 1000)
 
-      // Create answers for all questions, even if not answered
+      // Format answers for the backend
       const answersArray = questions.map(question => {
-        const existingAnswer = answers[question.id]
-        return {
-          questionId: question.id,
-          selectedOption: existingAnswer?.selectedOption || undefined,
-          textAnswer: existingAnswer?.textAnswer || undefined,
+        const answer = answers[question.id]
+        
+        if (!answer) {
+          // Provide a skipped answer format if not answered
+          return {
+            questionId: question.id,
+            questionType: question.type,
+            timeSpent: 0,
+            timestamp: new Date(),
+            userAnswer: {} // Empty answer for skipped
+          }
         }
+        
+        // Extract the userAnswer part which the backend expects in a specific way
+        // The backend expects: questionId, selectedOption, textAnswer, audioResponse, matches, answers, timeSpent, timestamp
+        const backendAnswer: any = {
+          questionId: answer.questionId,
+          timeSpent: answer.timeSpent,
+          timestamp: answer.timestamp
+        }
+
+        const ua = (answer as any).userAnswer
+        if (ua) {
+          if (ua.selectedOption) backendAnswer.selectedOption = ua.selectedOption
+          if (ua.textAnswer) backendAnswer.textAnswer = ua.textAnswer
+          if (ua.value !== undefined) backendAnswer.textAnswer = String(ua.value)
+          if (ua.answers) backendAnswer.answers = ua.answers
+          if (ua.matches) backendAnswer.matches = ua.matches
+          if (ua.audioResponse) backendAnswer.audioResponse = ua.audioResponse
+          if (ua.content) backendAnswer.textAnswer = ua.content // For writing
+        }
+
+        return backendAnswer
       })
 
       const response = await fetch('/api/mock-test/submit', {
@@ -270,7 +281,20 @@ export default function TakeTestPage() {
       }
 
       const resultData = await response.json()
-      setResult(resultData.data)
+      
+      // Map API response to TestResult interface
+      const apiResult = resultData.data.result
+      setResult({
+        attemptId: resultData.data.attemptId,
+        score: apiResult.percentage,
+        correctAnswers: apiResult.correctAnswers,
+        totalQuestions: apiResult.totalQuestions || questions.length,
+        passed: apiResult.status === 'pass',
+        timeSpent: apiResult.timeSpent,
+        earnedPoints: apiResult.totalScore,
+        totalPoints: apiResult.maxScore
+      })
+      
       setTestCompleted(true)
       toast.success('Test submitted successfully!')
     } catch (error) {
@@ -567,108 +591,16 @@ export default function TakeTestPage() {
             </CardHeader>
 
             <CardContent className="space-y-6">
-              {/* Question Text */}
-              <div>
-                <p className="text-lg text-foreground leading-relaxed">
-                  {currentQuestion.questionText}
-                </p>
-
-                {currentQuestion.explanation && (
-                  <p className="text-sm text-muted-foreground mt-2 italic">
-                    {currentQuestion.explanation}
-                  </p>
-                )}
-              </div>
-
-              {/* Audio Player */}
-              {currentQuestion.audioUrl && (
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => playAudio(currentQuestion.id, currentQuestion.audioUrl!)}
-                    disabled={playingAudio === currentQuestion.id}
-                    className="bg-transparent border-border text-foreground hover:bg-secondary"
-                  >
-                    {playingAudio === currentQuestion.id ? (
-                      <>
-                        <Pause size={16} className="mr-2" />
-                        Playing...
-                      </>
-                    ) : (
-                      <>
-                        <Play size={16} className="mr-2" />
-                        Play Audio
-                      </>
-                    )}
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    Audio content available
-                  </span>
-                </div>
-              )}
-
-              {/* Answer Options */}
-              <div className="space-y-4">
-                {currentQuestion.type === 'MULTIPLE_CHOICE' && Array.isArray(currentQuestion.options) && currentQuestion.options.length > 0 && (
-                  <RadioGroup
-                    value={currentAnswer?.selectedOption || ""}
-                    onValueChange={(value) => handleAnswerChange(currentQuestion.id, {
-                      questionId: currentQuestion.id,
-                      selectedOption: value
-                    })}
-                  >
-                    {currentQuestion.options.map((option) => (
-                      <div key={option.id} className="flex items-center space-x-2">
-                        <RadioGroupItem value={option.id} id={option.id} />
-                        <Label
-                          htmlFor={option.id}
-                          className="text-foreground cursor-pointer flex-1 leading-relaxed"
-                        >
-                          {option.text}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                )}
-
-                {(currentQuestion.type === 'TRUE_FALSE' || currentQuestion.type === 'FILL_BLANK') && (
-                  <div className="space-y-2">
-                    <Label htmlFor="answer" className="text-foreground">
-                      Your Answer
-                    </Label>
-                    <Textarea
-                      id="answer"
-                      value={currentAnswer?.textAnswer || ""}
-                      onChange={(e) => handleAnswerChange(currentQuestion.id, {
-                        questionId: currentQuestion.id,
-                        textAnswer: e.target.value
-                      })}
-                      placeholder={currentQuestion.type === 'TRUE_FALSE' ? "Enter true or false" : "Enter your answer"}
-                      className="bg-input border-border text-foreground placeholder:text-muted-foreground"
-                      rows={3}
-                    />
-                  </div>
-                )}
-
-                {currentQuestion.type === 'AUDIO_QUESTION' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="answer" className="text-foreground">
-                      Your Answer
-                    </Label>
-                    <Textarea
-                      id="answer"
-                      value={currentAnswer?.textAnswer || ""}
-                      onChange={(e) => handleAnswerChange(currentQuestion.id, {
-                        questionId: currentQuestion.id,
-                        textAnswer: e.target.value
-                      })}
-                      placeholder="Type what you heard..."
-                      className="bg-input border-border text-foreground placeholder:text-muted-foreground"
-                      rows={3}
-                    />
-                  </div>
-                )}
-              </div>
+              <UnifiedAnswerForm
+                key={currentQuestion.id}
+                question={currentQuestion}
+                questionIndex={currentQuestionIndex}
+                totalQuestions={questions.length}
+                onAnswerChange={handleAnswerChange}
+                onTimeUpdate={(time) => handleTimeUpdate(currentQuestion.id, time)}
+                initialAnswer={answers[currentQuestion.id]}
+                disabled={submitting}
+              />
 
               {/* Navigation */}
               <div className="flex items-center justify-between pt-6 border-t border-border">

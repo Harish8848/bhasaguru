@@ -54,17 +54,30 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     return ApiResponse.error('Validation failed', 400, validation.errors.format());
   }
 
-  const question = await prisma.question.create({
-    data: validation.data,
-    include: {
-      test: {
-        select: {
-          id: true,
-          title: true,
-          type: true,
+  const question = await prisma.$transaction(async (tx) => {
+    const newQuestion = await tx.question.create({
+      data: validation.data,
+      include: {
+        test: {
+          select: {
+            id: true,
+            title: true,
+            type: true,
+          },
         },
       },
-    },
+    });
+
+    await tx.mockTest.update({
+      where: { id: validation.data.testId },
+      data: {
+        questionsCount: {
+          increment: 1
+        }
+      }
+    });
+
+    return newQuestion;
   });
 
   return ApiResponse.success(question, 'Question created successfully', 201);
@@ -113,8 +126,23 @@ export const DELETE = withErrorHandler(async (request: NextRequest) => {
   }
 
   try {
-    await prisma.question.delete({
-      where: { id },
+    // Use transaction to delete question and update test count
+    await prisma.$transaction(async (tx) => {
+      const deletedQuestion = await tx.question.delete({
+        where: { id },
+      });
+
+      // Update the test's question count
+      if (deletedQuestion) {
+        await tx.mockTest.update({
+          where: { id: deletedQuestion.testId },
+          data: {
+            questionsCount: {
+              decrement: 1
+            }
+          }
+        });
+      }
     });
 
     return ApiResponse.success(null, 'Question deleted successfully');

@@ -142,7 +142,7 @@ export default function CreateQuestionForm({ testId, testType, testLanguage, onS
         onSuccess()
       } else {
         const error = await response.json()
-        console.error('API Error:', error)
+        console.error('Create Question API Error:', JSON.stringify(error, null, 2), error)
         alert(error.message || 'Failed to create question')
       }
     } catch (error) {

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { UnifiedEvaluationService } from "@/lib/unified-evaluation-service";
-import { AnswerPayload } from "@/lib/types/evaluation";
+import { AnswerPayload, TestType } from "@/lib/types/evaluation";
 
 export async function POST(
     request: NextRequest,
@@ -38,18 +38,28 @@ export async function POST(
       const evaluationService = new UnifiedEvaluationService();
       const answerPayloads: AnswerPayload[] = answers.map((ans: any) => ({
         ...ans,
-        questionType: attempt.test.questions.find(q => q.id === ans.questionId)?.type,
+        questionType: attempt.test!.questions.find(q => q.id === ans.questionId)?.type,
       }));
 
       const evaluationResult = await evaluationService.evaluateBatch(
         attempt.test.questions,
         answerPayloads,
-        {}
+        {
+          userId: session.user.id,
+          testId: attempt.test.id,
+          examType: attempt.test.type as unknown as TestType,
+          config: {
+            allowPartialCredit: true,
+            synonymSupport: true,
+            caseSensitive: false
+          }
+        }
       );
 
-      const correctAnswers = evaluationResult.results.filter(r => r.isCorrect).length;
+      const results = evaluationResult.results || [];
+      const correctAnswers = results.filter(r => r.isCorrect).length;
       
-      const gradedAnswers = evaluationResult.results.map(result => ({
+      const gradedAnswers = results.map(result => ({
         attemptId,
         questionId: result.questionId,
         selectedOption: answers.find((a: any) => a.questionId === result.questionId)?.selectedOption,
@@ -70,8 +80,8 @@ export async function POST(
       });
   
       // Calculate score
-      const totalScore = evaluationResult.results.reduce((sum, r) => sum + r.score, 0);
-      const maxScore = evaluationResult.results.reduce((sum, r) => sum + r.maxScore, 0);
+      const totalScore = results.reduce((sum, r) => sum + r.score, 0);
+      const maxScore = results.reduce((sum, r) => sum + r.maxScore, 0);
       const score = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
       const passed = score >= attempt.test.passingScore;
   

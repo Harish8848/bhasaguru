@@ -203,6 +203,7 @@ model Question {
   questionText     String
   audioUrl         String?
   imageUrl         String?
+  videoUrl         String?
   options          Json?
   correctAnswer    String?
   points           Int          @default(1)

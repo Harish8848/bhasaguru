@@ -75,9 +75,9 @@ export const createQuestionSchema = z.object({
     'LISTENING_COMPREHENSION'
   ]),
   questionText: z.string().min(1),
-  audioUrl: z.string().url().optional(),
-  imageUrl: z.string().url().optional(),
-  videoUrl: z.string().url().optional(),
+  audioUrl: z.string().url().optional().or(z.literal('')).or(z.literal(null)),
+  imageUrl: z.string().url().optional().or(z.literal('')).or(z.literal(null)),
+  videoUrl: z.string().url().optional().or(z.literal('')).or(z.literal(null)),
   options: z.any().optional(),
   correctAnswer: z.string().optional(),
   points: z.number().positive().default(1),

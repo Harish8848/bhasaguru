@@ -131,7 +131,8 @@ export default function UnifiedAnswerForm({
         }
       }
     }
-  }, [initialAnswer, question.id, question.type])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question.id])
 
   const createAnswerPayload = useCallback((): AnswerPayload => {
     const baseData = {

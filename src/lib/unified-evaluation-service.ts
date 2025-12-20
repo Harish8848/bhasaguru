@@ -383,9 +383,19 @@ export class UnifiedEvaluationService implements EvaluationService {
   }
 
   private evaluateFillBlank(question: any, answer: FillBlankAnswer, config: EvaluationConfig): FillBlankEvaluation {
-    const expectedAnswers: string[] = Array.isArray(question.correctAnswer)
-      ? question.correctAnswer
-      : [question.correctAnswer];
+    // Try to get expected answers from correctAnswer field or options.blanks
+    let expectedAnswers: string[] = []
+    
+    if (question.options?.blanks && Array.isArray(question.options.blanks)) {
+      expectedAnswers = question.options.blanks;
+    } else if (Array.isArray(question.correctAnswer)) {
+      expectedAnswers = question.correctAnswer;
+    } else if (question.correctAnswer) {
+      // If it's a comma-separated string, split it
+      expectedAnswers = question.correctAnswer.includes(',') 
+        ? question.correctAnswer.split(',').map((s: string) => s.trim())
+        : [question.correctAnswer];
+    }
 
     const provided: Record<number, string> = answer.userAnswer?.answers ?? {};
 
@@ -419,7 +429,24 @@ export class UnifiedEvaluationService implements EvaluationService {
   }
 
   private evaluateMatching(question: any, answer: MatchingAnswer, config: EvaluationConfig): MatchingEvaluation {
-    const expected: Record<string, string> = question.correctAnswer ?? {};
+    // Try to get expected matches from correctAnswer field or options.pairs
+    let expected: Record<string, string> = {};
+    
+    if (question.options?.pairs && Array.isArray(question.options.pairs)) {
+      // Convert pairs array [{left, right}] to record {left: right}
+      question.options.pairs.forEach((p: any) => {
+        if (p.left && p.right) expected[p.left] = p.right;
+      });
+    } else if (typeof question.correctAnswer === 'string') {
+      try {
+        expected = JSON.parse(question.correctAnswer);
+      } catch (e) {
+        expected = {};
+      }
+    } else if (question.correctAnswer && typeof question.correctAnswer === 'object') {
+      expected = question.correctAnswer;
+    }
+
     const provided: Record<string, string> = answer.userAnswer?.matches ?? {};
 
     const keys = Object.keys(expected);

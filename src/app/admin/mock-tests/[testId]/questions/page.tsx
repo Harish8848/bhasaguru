@@ -125,10 +125,11 @@ export default function TestQuestionsPage() {
         fetchTestAndQuestions() // Refresh the questions list
       } else {
         const error = await response.json()
+        console.error('Delete API Error:', error)
         alert(error.message || 'Failed to delete question')
       }
     } catch (error) {
-      console.error('Error deleting question:', error)
+      console.error('Delete Question Error:', error)
       alert('Failed to delete question')
     }
   }

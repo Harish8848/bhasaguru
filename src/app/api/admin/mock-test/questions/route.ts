@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
-import { createQuestionSchema, updateQuestionSchema, validateBody } from '@/lib/validation';
+import { createQuestionSchema, updateQuestionSchema, validateBody, validateQuestionWithTestType } from '@/lib/validation';
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   await requireAdmin();
@@ -54,6 +54,12 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     return ApiResponse.error('Validation failed', 400, validation.errors.format());
   }
 
+  // Validate TestType-QuestionType compatibility
+  const compatibilityValidation = await validateQuestionWithTestType(validation.data);
+  if (!compatibilityValidation.isValid) {
+    return ApiResponse.error(compatibilityValidation.error!, 400);
+  }
+
   const question = await prisma.$transaction(async (tx) => {
     const newQuestion = await tx.question.create({
       data: validation.data,
@@ -96,6 +102,12 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
   const validation = await validateBody(request, updateQuestionSchema);
   if (validation.errors) {
     return ApiResponse.error('Validation failed', 400, validation.errors.format());
+  }
+
+  // Validate TestType-QuestionType compatibility for updates
+  const compatibilityValidation = await validateQuestionWithTestType(validation.data, id);
+  if (!compatibilityValidation.isValid) {
+    return ApiResponse.error(compatibilityValidation.error!, 400);
   }
 
   const question = await prisma.question.update({

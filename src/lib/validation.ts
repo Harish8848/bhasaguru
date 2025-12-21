@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getAllowedQuestionTypes, isQuestionTypeAllowed } from './question-mapping';
 
 // User validation schemas
 export const updateUserSchema = z.object({
@@ -49,7 +50,7 @@ export const createTestSchema = z.object({
   module: z.string().optional(),
   section: z.string().optional(),
   standardSection: z.string().optional(),
-  type: z.enum(['PRACTICE', 'FINAL', 'CERTIFICATION']),
+  type: z.enum(['PRACTICE', 'FINAL', 'CERTIFICATION', 'LISTENING', 'READING', 'SPEAKING', 'WRITING']),
   duration: z.number().positive(),
   passingScore: z.number().min(0).max(100),
   questionsCount: z.number().int().nonnegative(),
@@ -158,6 +159,53 @@ export const createSavedItemSchema = z.object({
   itemId: z.string().cuid(),
   notes: z.string().max(500).optional(),
 });
+
+/**
+ * Validate question creation/update with TestType-QuestionType compatibility
+ */
+export async function validateQuestionWithTestType(
+  questionData: any,
+  testId?: string
+): Promise<{ isValid: boolean; error?: string }> {
+  try {
+    // If testId is provided in the question data, use it
+    const targetTestId = testId || questionData.testId;
+
+    if (!targetTestId) {
+      return { isValid: false, error: 'Test ID is required' };
+    }
+
+    // Fetch test details to get test type
+    const testResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/mock-tests/${targetTestId}`, {
+      cache: 'no-store',
+    });
+
+    if (!testResponse.ok) {
+      return { isValid: false, error: 'Failed to fetch test details' };
+    }
+
+    const testData = await testResponse.json();
+    const testType = testData.data?.type;
+
+    if (!testType) {
+      return { isValid: false, error: 'Test type not found' };
+    }
+
+    // Check if question type is allowed for this test type
+    if (!isQuestionTypeAllowed(testType, questionData.type)) {
+      const allowedTypes = getAllowedQuestionTypes(testType);
+      return {
+        isValid: false,
+        error: `Question type '${questionData.type}' is not allowed for test type '${testType}'. Allowed types: ${allowedTypes.join(', ')}`
+      };
+    }
+
+    return { isValid: true };
+  } catch (error) {
+    console.error('Error validating question with test type:', error);
+    return { isValid: false, error: 'Validation failed due to an internal error' };
+  }
+}
 
 // Helper function to validate request body
 export async function validateBody<T>(

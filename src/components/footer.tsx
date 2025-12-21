@@ -5,8 +5,8 @@ export default function Footer() {
   const currentYear = 2025;
 
   return (
-    <footer className="bg-background border-t border-border flex-col justify-center items-center mx-auto py-4 ">
-      <div className="max-w-7xl ">
+    <footer className="z-50 bg-background  border-t border-border backdrop-blur-3xl flex-col justify-center items-center  py-4 ">
+      <div className="max-w-7xl mx-auto ">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 md:gap-6 lg:gap-6   text-center ">
           {/* Brand Section */}
@@ -29,13 +29,13 @@ export default function Footer() {
             </p>
             <div className="flex gap-4 pt-1 justify-center ">
               <a
-                href="mailto:contact@bhasaguru.com"
+                href="mailto:bhattharish2059@gmail.com"
                 className="text-muted-foreground hover:text-accent transition-colors"
               >
                 <Mail className="w-5 h-5" />
               </a>
               <a
-                href="tel:+977-1-4234567"
+                href="tel:+977-9868795658"
                 className="text-muted-foreground hover:text-accent transition-colors"
               >
                 <Phone className="w-5 h-5" />

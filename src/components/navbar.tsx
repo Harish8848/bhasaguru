@@ -32,7 +32,7 @@ export default function Navbar() {
             <div className="w-8 h-8 rounded-lg bg-gradient-accent flex items-center justify-center">
               <Globe className="w-5 h-5 text-primary-foreground" />
             </div>
-            <a href="/" className="inline-flex">
+            <a href="/" className="inline-flex fixed left-0.5">
             <img src="/favicon.ico" alt="" />
             <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mt-2">
               BhasaGuru
@@ -100,21 +100,21 @@ export default function Navbar() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden pb-4 space-y-3">
-             <a href="/lessons" className="block text-sm font-medium hover:text-accent py-2">
+          <div className="md:hidden pb-4  flex flex-col justify-center  items-center bg-accent/10 rounded-lg">
+             <a href="/lessons" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Lessons
             </a>
-            <a href="/courses" className="block text-sm font-medium hover:text-accent py-2">
+            <a href="/courses" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Courses
             </a>
-            <a href="/jobs" className="block text-sm font-medium hover:text-accent py-2">
+            <a href="/jobs" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Jobs
             </a>
-            <a href="/culture" className="block text-sm font-medium hover:text-accent py-2">
+            <a href="/culture" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Culture
             </a>
            
-            <a href="/mock-tests" className="block text-sm font-medium hover:text-accent py-2">
+            <a href="/mock-tests" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Mock Tests
             </a>
             <div className="flex gap-2 pt-3">
@@ -123,7 +123,7 @@ export default function Navbar() {
                   <Loader2 className="w-4 h-4 animate-spin" />
                 </div>
               ) : session ? (
-                <Button size="sm" className="w-full bg-gradient-accent" onClick={() => signOut()}>
+                <Button size="sm" className="w-full bg-accent" onClick={() => signOut()}>
                   Sign Out
                 </Button>
               ) : (
@@ -131,11 +131,7 @@ export default function Navbar() {
                   Sign In
                 </Button>
               )}
-              {!session && status !== "loading" && (
-                <Button size="sm" className="w-full bg-gradient-accent">
-                  Get Started
-                </Button>
-              )}
+
             </div>
           </div>
         )}

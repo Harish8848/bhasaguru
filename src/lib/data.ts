@@ -78,7 +78,7 @@ export const faqs = [
       title: "Company",
       links: ["About", "Careers", "Contact"],
     },
-  
+
     {
       title: "Legal",
       links: ["Privacy", "Terms",  "Licenses"],

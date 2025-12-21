@@ -101,6 +101,9 @@ export default function Navbar() {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden pb-4 space-y-3">
+             <a href="/lessons" className="block text-sm font-medium hover:text-accent py-2">
+              Lessons
+            </a>
             <a href="/courses" className="block text-sm font-medium hover:text-accent py-2">
               Courses
             </a>
@@ -110,11 +113,9 @@ export default function Navbar() {
             <a href="/culture" className="block text-sm font-medium hover:text-accent py-2">
               Culture
             </a>
-            <a href="/blog" className="block text-sm font-medium hover:text-accent py-2">
-              Blog
-            </a>
-            <a href="/tests" className="block text-sm font-medium hover:text-accent py-2">
-              Tests
+           
+            <a href="/mock-tests" className="block text-sm font-medium hover:text-accent py-2">
+              Mock Tests
             </a>
             <div className="flex gap-2 pt-3">
               {status === "loading" ? (

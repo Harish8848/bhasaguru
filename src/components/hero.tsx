@@ -16,7 +16,7 @@ export default function HeroSection() {
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20">
                 <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <span className="text-xs md:text-sm font-medium text-accent">Master Global Languages</span>
+                <span className="text-xs md:text-sm font-medium text-accent">Master Your Prefered Language, Unlock Your Global Future.</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-bold leading-tight text-pretty">
                 Transform Your Career Through{" "}
@@ -25,7 +25,7 @@ export default function HeroSection() {
                 </span>
               </h1>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-pretty max-w-lg">
-                Learn Japanese, Korean, English and more from expert instructors. Get certified, find international
+                Learn Japanese, Korean, English and more from expert instructors. Find international
                 jobs, and unlock endless career opportunities abroad.
               </p>
             </div>
@@ -33,10 +33,6 @@ export default function HeroSection() {
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 pt-8">
-              <div>
-                <div className="text-2xl md:text-3xl font-bold text-foreground">50K+</div>
-                <p className="text-xs md:text-sm text-muted-foreground">Active Learners</p>
-              </div>
               <div>
                 <div className="text-2xl md:text-3xl font-bold text-foreground">1000+</div>
                 <p className="text-xs md:text-sm text-muted-foreground">Job Listings</p>

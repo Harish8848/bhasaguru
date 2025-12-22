@@ -819,6 +819,10 @@ import {
     PRACTICE: 'Practice Test',
     FINAL: 'Final Exam',
     CERTIFICATION: 'Certification Test',
+    WRITING: 'Writing Test',
+    LISTENING: 'Listening Test',
+    READING: 'Reading Test',
+    SPEAKING: 'Speaking Test',
   };
   
   

@@ -1,9 +1,7 @@
 // Enhanced evaluation types for unified test system
 import { QuestionType } from './test'
 
-// ============================================================================
 // CORE UNIFIED TYPES
-// ============================================================================
 
 export interface BaseAnswerPayload {
   questionId: string
@@ -111,9 +109,7 @@ export type AnswerPayload =
   | WritingAnswer
   | SpeakingAnswer
 
-// ============================================================================
 // EVALUATION RESULT TYPES
-// ============================================================================
 
 export interface BaseEvaluationResult {
   questionId: string
@@ -228,9 +224,7 @@ export type EvaluationResult =
   | WritingEvaluation
   | SpeakingEvaluation
 
-// ============================================================================
 // RESULT STRUCTURE TYPES
-// ============================================================================
 
 export interface SectionResult {
   sectionId: string
@@ -285,9 +279,7 @@ export enum TestType {
   TOEFL = 'TOEFL'
 }
 
-// ============================================================================
 // EVALUATION SERVICE TYPES
-// ============================================================================
 
 export interface EvaluationConfig {
   allowPartialCredit: boolean
@@ -332,9 +324,8 @@ export interface EvaluationService {
   ): TestResult
 }
 
-// ============================================================================
 // ERROR TYPES
-// ============================================================================
+
 
 export interface EvaluationError {
   questionId: string
@@ -355,9 +346,7 @@ export interface BatchEvaluationResult {
   }
 }
 
-// ============================================================================
 // COMPATIBILITY TYPES FOR EVALUATION SERVICE
-// ============================================================================
 
 export interface TestSubmission {
   testId: string

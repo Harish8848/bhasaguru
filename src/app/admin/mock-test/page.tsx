@@ -23,7 +23,7 @@ type TestFormData = {
   module?: string
   section?: string
   standardSection?: string
-  type: "PRACTICE" | "FINAL" | "CERTIFICATION"
+  type: "PRACTICE" | "FINAL" | "CERTIFICATION" | "LISTENING" | "READING" | "SPEAKING" | "WRITING"
   duration: number
   passingScore: number
   questionsCount: number
@@ -70,6 +70,10 @@ const testTypes = [
   { value: "PRACTICE", label: "Practice" },
   { value: "FINAL", label: "Final" },
   { value: "CERTIFICATION", label: "Certification" },
+  { value: "LISTENING", label: "Listening" },
+  { value: "READING", label: "Reading" },
+  { value: "SPEAKING", label: "Speaking" },
+  { value: "WRITING", label: "Writing" },
 ]
 
 export default function CreateMockTestPage() {

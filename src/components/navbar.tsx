@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Menu, X, Globe, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signIn, signOut, useSession } from "next-auth/react"
+import Link from "next/link"
 import Image from "next/image"
 import {
   DropdownMenu,
@@ -32,31 +33,31 @@ export default function Navbar() {
             <div className="w-8 h-8 rounded-lg bg-gradient-accent flex items-center justify-center">
               <Globe className="w-5 h-5 text-primary-foreground" />
             </div>
-            <a href="/" className="inline-flex fixed left-0.5">
+            <Link href="/" className="inline-flex fixed left-0.5">
             <img src="/favicon.ico" alt="" />
             <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mt-2">
               BhasaGuru
             </span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-          <a href="/lessons" className="text-sm font-medium hover:text-accent transition-colors">
+          <Link href="/lessons" className="text-sm font-medium hover:text-accent transition-colors">
               Lessons
-            </a>
-            <a href="/courses" className="text-sm font-medium hover:text-accent transition-colors">
+            </Link>
+            <Link href="/courses" className="text-sm font-medium hover:text-accent transition-colors">
               Courses
-            </a>
-            <a href="/jobs" className="text-sm font-medium hover:text-accent transition-colors">
+            </Link>
+            <Link href="/jobs" className="text-sm font-medium hover:text-accent transition-colors">
               Jobs
-            </a>
-            <a href="/culture" className="text-sm font-medium hover:text-accent transition-colors">
+            </Link>
+            <Link href="/culture" className="text-sm font-medium hover:text-accent transition-colors">
               Culture
-            </a>
-            <a href="/mock-tests" className="text-sm font-medium hover:text-accent transition-colors">
+            </Link>
+            <Link href="/mock-tests" className="text-sm font-medium hover:text-accent transition-colors">
               Mock Tests
-            </a>
+            </Link>
           </div>
 
           {/* CTA Buttons */}
@@ -79,7 +80,7 @@ export default function Navbar() {
                   <DropdownMenuLabel>{session.user?.name}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <a href="/profile">Profile</a>
+                    <Link href="/profile">Profile</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => signOut()}>Sign Out</DropdownMenuItem>
@@ -101,22 +102,22 @@ export default function Navbar() {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden pb-4  flex flex-col justify-center  items-center bg-accent/10 rounded-lg">
-             <a href="/lessons" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+             <Link href="/lessons" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Lessons
-            </a>
-            <a href="/courses" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+            </Link>
+            <Link href="/courses" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Courses
-            </a>
-            <a href="/jobs" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+            </Link>
+            <Link href="/jobs" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Jobs
-            </a>
-            <a href="/culture" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+            </Link>
+            <Link href="/culture" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Culture
-            </a>
+            </Link>
            
-            <a href="/mock-tests" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+            <Link href="/mock-tests" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
               Mock Tests
-            </a>
+            </Link>
             <div className="flex gap-2 pt-3">
               {status === "loading" ? (
                 <div className="w-full flex items-center justify-center">

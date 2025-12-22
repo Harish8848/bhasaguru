@@ -36,60 +36,64 @@ interface Lesson {
   slug: string
 }
 
+import Link from "next/link"
+
 // Memoized Lesson Card Component
 const LessonCard = memo(({ lesson }: { lesson: Lesson }) => {
   const typeInfo = typeConfig[lesson.type as keyof typeof typeConfig] || typeConfig.text
   const TypeIcon = typeInfo.icon
 
   return (
-    <Card
-      className={`bg-card border-border hover:border-primary/50 transition-all cursor-pointer group overflow-hidden ${typeInfo.bgHover}`}
-    >
-      {/* Type Badge */}
-      <div className="relative h-32 bg-linear-to-br from-muted/50 to-muted flex items-center justify-center">
-        <div className={`p-4 rounded-lg ${typeInfo.color}`}>
-          <TypeIcon size={32} />
-        </div>
-        {lesson.type === "video" && (
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80">
-            <Play size={40} className="text-primary fill-primary" />
+    <Link href={`/lessons/${lesson.id}`} className="block h-full">
+      <Card
+        className={`bg-card border-border hover:border-primary/50 transition-all cursor-pointer group overflow-hidden ${typeInfo.bgHover} h-full`}
+      >
+        {/* Type Badge */}
+        <div className="relative h-32 bg-linear-to-br from-muted/50 to-muted flex items-center justify-center">
+          <div className={`p-4 rounded-lg ${typeInfo.color}`}>
+            <TypeIcon size={32} />
           </div>
-        )}
-      </div>
-
-      <CardHeader>
-        <div className="space-y-2">
-          <CardTitle className="text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-            {lesson.title}
-          </CardTitle>
-          <p className="text-xs text-muted-foreground">{lesson.course}</p>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-3">
-        {/* Metadata */}
-        <div className="flex flex-wrap gap-2">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}>
-            <TypeIcon size={12} className="inline mr-1" />
-            {typeInfo.label}
-          </span>
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground">
-            {lesson.level}
-          </span>
+          {lesson.type === "video" && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80">
+              <Play size={40} className="text-primary fill-primary" />
+            </div>
+          )}
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{lesson.views.toLocaleString()} views</span>
-          {lesson.duration && <span>{lesson.duration}</span>}
-        </div>
+        <CardHeader>
+          <div className="space-y-2">
+            <CardTitle className="text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+              {lesson.title}
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">{lesson.course}</p>
+          </div>
+        </CardHeader>
 
-        {/* CTA Button */}
-        <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 mt-2">
-          Start Lesson
-        </Button>
-      </CardContent>
-    </Card>
+        <CardContent className="space-y-3">
+          {/* Metadata */}
+          <div className="flex flex-wrap gap-2">
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}>
+              <TypeIcon size={12} className="inline mr-1" />
+              {typeInfo.label}
+            </span>
+            <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground">
+              {lesson.level}
+            </span>
+          </div>
+
+          {/* Stats */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{lesson.views.toLocaleString()} views</span>
+            {lesson.duration && <span>{lesson.duration}</span>}
+          </div>
+
+          {/* CTA Button */}
+          <div className="w-full bg-primary text-primary-foreground hover:bg-primary/90 mt-2 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors">
+            Start Lesson
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   )
 })
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { cacheHelpers } from "@/lib/cache";
 
 export async function GET(request: NextRequest) {
     try {
@@ -11,6 +12,15 @@ export async function GET(request: NextRequest) {
       const search = searchParams.get("search");
       const page = parseInt(searchParams.get("page") || "1");
       const limit = parseInt(searchParams.get("limit") || "12");
+
+      // Generate a unique cache key based on all filter parameters
+      const cacheKey = `courses:${language || 'all'}:${level || 'all'}:${search || 'none'}:${page}:${limit}`;
+
+      // Try to fetch from cache first
+      const cachedData = await cacheHelpers.get(cacheKey);
+      if (cachedData) {
+        return NextResponse.json(cachedData);
+      }
 
       const where: any = { status: "PUBLISHED" };
       if (language && language !== "all") where.language = language;
@@ -47,7 +57,7 @@ export async function GET(request: NextRequest) {
         prisma.course.count({ where }),
       ]);
   
-      return NextResponse.json({
+      const responseData = {
         courses,
         pagination: {
           total,
@@ -55,7 +65,12 @@ export async function GET(request: NextRequest) {
           limit,
           totalPages: Math.ceil(total / limit),
         },
-      });
+      };
+
+      // Cache the result for 5 minutes (300 seconds)
+      await cacheHelpers.set(cacheKey, responseData, 300);
+
+      return NextResponse.json(responseData);
     } catch (error) {
       return NextResponse.json(
         { error: "Failed to fetch courses" },
@@ -81,6 +96,9 @@ export async function GET(request: NextRequest) {
           slug: body.title.toLowerCase().replace(/\s+/g, "-"),
         },
       });
+
+      // Invalidate course list cache
+      await cacheHelpers.deletePattern('courses:*');
   
       return NextResponse.json(course, { status: 201 });
     } catch (error) {

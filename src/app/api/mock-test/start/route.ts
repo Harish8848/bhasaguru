@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
+import { cacheHelpers } from '@/lib/cache';
 
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
@@ -24,6 +25,14 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 
   // If testId is provided, fetch questions for that specific test
   if (testId) {
+    const cacheKey = `test-questions:${testId}`;
+    
+    // Try to fetch from cache first
+    const cachedData = await cacheHelpers.get(cacheKey);
+    if (cachedData) {
+      return ApiResponse.success(cachedData);
+    }
+
     try {
       // First verify the test exists
       const test = await prisma.mockTest.findUnique({
@@ -67,11 +76,16 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         },
       });
 
-      return ApiResponse.success({
+      const responseData = {
         questions,
         test,
         totalQuestions: questions.length,
-      });
+      };
+
+      // Cache for 1 hour
+      await cacheHelpers.set(cacheKey, responseData, 3600);
+
+      return ApiResponse.success(responseData);
 
     } catch (error) {
       console.error('Error fetching test questions:', error);

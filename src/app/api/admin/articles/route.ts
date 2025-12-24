@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
+import { cacheHelpers } from '@/lib/cache';
 
 // GET - List articles with pagination and optional status filter
 
@@ -58,6 +59,8 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         publishedAt: body.status === 'PUBLISHED' ? new Date() : null,
       },
     });
+
+    await cacheHelpers.deletePattern('articles:*');
   
     return ApiResponse.success(article, 'Article created successfully', 201);
   });

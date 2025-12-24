@@ -1,49 +1,61 @@
-import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { ApiResponse } from '@/lib/api-response';
-
-
-const cache = new Map<string, { data: any; expiresAt: number }>();
+import { redis } from '@/lib/redis';
 
 export const cacheHelpers = {
   get: async <T>(key: string): Promise<T | null> => {
-    const cached = cache.get(key);
-    if (!cached) return null;
-    
-    if (Date.now() > cached.expiresAt) {
-      cache.delete(key);
+    try {
+      const data = await redis.get(key);
+      if (!data) return null;
+      return JSON.parse(data) as T;
+    } catch (error) {
+      console.warn('Cache retrieval failed:', error);
       return null;
     }
-    
-    return cached.data as T;
   },
 
   set: async (key: string, data: any, ttlSeconds: number = 300) => {
-    cache.set(key, {
-      data,
-      expiresAt: Date.now() + ttlSeconds * 1000,
-    });
+    try {
+      await redis.set(key, JSON.stringify(data), 'EX', ttlSeconds);
+    } catch (error) {
+      console.warn('Cache set failed:', error);
+    }
   },
 
   delete: async (key: string) => {
-    cache.delete(key);
+    try {
+      await redis.del(key);
+    } catch (error) {
+      console.error('Cache delete failed:', error);
+    }
+  },
+
+  deletePattern: async (pattern: string) => {
+    try {
+      // Use scan for better performance on large datasets compared to keys
+      const stream = redis.scanStream({
+        match: pattern,
+        count: 100
+      });
+      
+      stream.on('data', async (keys: string[]) => {
+        if (keys.length) {
+          await redis.del(...keys);
+        }
+      });
+
+      return new Promise<void>((resolve, reject) => {
+        stream.on('end', () => resolve());
+        stream.on('error', (err) => reject(err));
+      });
+    } catch (error) {
+      console.error('Cache pattern delete failed:', error);
+    }
   },
 
   clear: async () => {
-    cache.clear();
+    try {
+      await redis.flushall();
+    } catch (error) {
+      console.error('Cache clear failed:', error);
+    }
   },
 };
-
-export async function GET(request: NextRequest) {
-  const cacheKey = 'courses:all';
-  
-  const cached = await cacheHelpers.get(cacheKey);
-  if (cached) {
-    return ApiResponse.success(cached);
-  }
-  
-  const data = await prisma.course.findMany();
-  await cacheHelpers.set(cacheKey, data, 600); // 10 minutes
-  
-  return ApiResponse.success(data);
-}

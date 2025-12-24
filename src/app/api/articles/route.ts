@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
 import { ArticleStatus } from '@/generated/prisma/client';
+import { cacheHelpers } from '@/lib/cache';
 
 // GET - List published articles with optional filtering
 
@@ -21,6 +22,13 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const status = searchParams.get('status') as ArticleStatus;
   const language = searchParams.get('language');
   const category = searchParams.get('category');
+
+  const cacheKey = `articles:${status || 'published'}:${language || 'all'}:${category || 'all'}:${page}:${limit}`;
+
+  const cachedData = await cacheHelpers.get(cacheKey);
+  if (cachedData) {
+    return ApiResponse.success(cachedData);
+  }
 
   const where: WhereClause = {};
 
@@ -49,5 +57,17 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     prisma.article.count({ where }),
   ]);
 
-  return ApiResponse.paginated(articles, total, page, limit);
+  const result = {
+    data: articles,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    }
+  };
+
+  await cacheHelpers.set(cacheKey, result, 300);
+
+  return ApiResponse.success(result);
 });

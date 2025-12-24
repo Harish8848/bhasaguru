@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { cacheHelpers } from "@/lib/cache"
 
 async function fetchFromJSearchAPI(query: string, country: string, apiKey: string) {
   const countryMap: any = {
@@ -121,10 +122,22 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const country = searchParams.get("country")?.toLowerCase() || "japan"
 
-
+  const cacheKey = `jobs:${country}`
 
   try {
+    const cachedJobs = await cacheHelpers.get(cacheKey)
+    if (cachedJobs) {
+      return NextResponse.json({
+        success: true,
+        source: "cache",
+        total: (cachedJobs as any[]).length,
+        jobs: cachedJobs,
+      })
+    }
+
     const jobs = await fetchFromRemoteOK(country)
+
+    await cacheHelpers.set(cacheKey, jobs, 3600) // Cache for 1 hour
 
     return NextResponse.json({
       success: true,

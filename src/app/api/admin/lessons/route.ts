@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
+import { cacheHelpers } from '@/lib/cache';
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   await requireAdmin();
@@ -57,6 +58,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         lessonsCount: { increment: 1 },
       },
     });
+
+    await cacheHelpers.deletePattern('lessons:*');
   
     return ApiResponse.success(lesson, 'Lesson created successfully', 201);
   });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { cacheHelpers } from "@/lib/cache";
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,6 +10,13 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
+
+    const cacheKey = `lessons:${language || 'all'}:${level || 'all'}:${search || 'none'}:${page}:${limit}`;
+
+    const cachedData = await cacheHelpers.get(cacheKey);
+    if (cachedData) {
+      return NextResponse.json(cachedData);
+    }
 
     const where: any = {};
 
@@ -71,7 +79,7 @@ export async function GET(request: NextRequest) {
       slug: lesson.slug,
     }));
 
-    return NextResponse.json({
+    const responseData = {
       lessons: transformedLessons,
       pagination: {
         total,
@@ -79,7 +87,11 @@ export async function GET(request: NextRequest) {
         limit,
         totalPages: Math.ceil(total / limit),
       },
-    });
+    };
+
+    await cacheHelpers.set(cacheKey, responseData, 300);
+
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error("Error fetching lessons:", error);
     return NextResponse.json(

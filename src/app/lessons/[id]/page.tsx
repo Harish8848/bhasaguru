@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { prisma } from "@/lib/prisma"
-import { LessonView } from "./components/lesson-view"
+import { LessonView } from "@/components/lesson-view"
 import { LessonAttachment, LessonType } from "@/lib/types"
 
 interface LessonPageProps {

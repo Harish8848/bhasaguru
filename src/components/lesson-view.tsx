@@ -103,6 +103,8 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
             </div>
         )
     }
+
+    
     return (
         <div className="flex flex-col items-center justify-center p-8 text-center">
             <Paperclip className="h-16 w-16 text-muted-foreground mb-4" />
@@ -142,13 +144,8 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Main Content - Left Side */}
-            <div className="space-y-6">
-                
                 {/* Header */}
-                <div>
+                <div className="container mx-auto px-4 py-6 flex flex-col items-center">
                     <div className="flex items-center gap-2 mb-2">
                         <Badge variant="outline">{lesson.type}</Badge>
                         {lesson.duration && <span className="text-sm text-muted-foreground">{lesson.duration} mins</span>}
@@ -156,23 +153,8 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
                     <h1 className="text-3xl font-bold">{lesson.title}</h1>
                     {lesson.description && <p className="text-muted-foreground mt-2">{lesson.description}</p>}
                 </div>
-
-                {/* Lesson Content */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Lesson Content</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: lesson.content }} />
-                    </CardContent>
-
-                    
-                </Card>
-
-            </div>
-
-            {/* Sidebar - Right Side (Media & Attachments) */}
-            <div className="space-y-6">
+{/*attachment rendering*/}
+    <div className="space-y-6  flex justify-center items-center">
                 {/* Direct Media Rendering */}
                 {lesson.attachments && lesson.attachments.map((att, idx) => {
                     const isImage = att.type === "image" || att.type.startsWith("image/");
@@ -238,9 +220,19 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
                         <p className="text-muted-foreground">Video content placeholder.</p>
                      </Card>
                 )}
+            </div>           
+            <div className="space-y-6 text-center flex flex-col justify-center items-center container ">
+                {/* Lesson Content */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Lesson Content</CardTitle>
+                    </CardHeader>
+                    <CardContent className="whitespace-pre-wrap">
+                        <div  dangerouslySetInnerHTML={{  __html : lesson.content  }} />
+                    </CardContent>
+                </Card>
+
             </div>
          </div>
-      </div>
-    </div>
   )
 }

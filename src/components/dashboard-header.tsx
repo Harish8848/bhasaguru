@@ -3,11 +3,12 @@
 import { Bell, Search, Settings, Menu } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useSidebar } from "@/components/sidebar-context"
 import { cn } from "@/lib/utils"
+import { useAppDispatch } from "@/lib/hooks"
+import { toggleSidebar } from "@/lib/features/ui/uiSlice"
 
 export function DashboardHeader() {
-  const { isOpen, toggle } = useSidebar()
+  const dispatch = useAppDispatch()
 
   return (
     <header className="sticky top-0 bg-card border-b border-border px-6 py-4 z-30">
@@ -15,7 +16,7 @@ export function DashboardHeader() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={toggle}
+          onClick={() => dispatch(toggleSidebar())}
           className="text-foreground hover:bg-secondary hidden md:flex"
         >
           <Menu size={20} />

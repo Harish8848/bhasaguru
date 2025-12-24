@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, BookOpen, BarChart3, Briefcase, FileText, Users, LogOut, Video } from "lucide-react"
-import { useSidebar } from "@/components/sidebar-context"
+import { useAppSelector } from "@/lib/hooks"
 
 interface DashboardSidebarProps {
   role: "ADMIN" | "MODERATOR"
@@ -12,7 +12,7 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ role }: DashboardSidebarProps) {
   const pathname = usePathname()
-  const { isOpen } = useSidebar()
+  const isOpen = useAppSelector((state) => state.ui.isSidebarOpen)
 
   const adminLinks = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },

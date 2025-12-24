@@ -2,6 +2,7 @@
 
 import { SessionProvider } from "next-auth/react"
 import { Session } from "next-auth"
+import StoreProvider from "@/app/StoreProvider"
 
 export default function Providers({
   children,
@@ -18,7 +19,9 @@ export default function Providers({
       // Disable automatic session refresh to prevent UI flickering
       refetchInterval={0}
     >
-      {children}
+      <StoreProvider>
+        {children}
+      </StoreProvider>
     </SessionProvider>
   )
 }

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // This is a placeholder for a real AI evaluation service.
-// In a real application, this would make a call to the Gemini API.
 async function evaluateWithAI(data: any) {
   // Simulate AI evaluation
   console.log("Evaluating with AI:", data);

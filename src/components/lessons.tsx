@@ -44,7 +44,7 @@ const LessonCard = memo(({ lesson }: { lesson: Lesson }) => {
   const TypeIcon = typeInfo.icon
 
   return (
-    <Link href={`/lessons/${lesson.id}`} className="block h-full">
+    <Link href={`/lessons/${lesson.id}`} className="block h-full ">
       <Card
         className={`bg-card border-border hover:border-primary/50 transition-all cursor-pointer group overflow-hidden ${typeInfo.bgHover} h-full`}
       >
@@ -55,13 +55,13 @@ const LessonCard = memo(({ lesson }: { lesson: Lesson }) => {
           </div>
           {lesson.type === "video" && (
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80">
-              <Play size={40} className="text-primary fill-primary" />
+              <Play size={50} className="text-primary fill-primary" />
             </div>
           )}
         </div>
 
         <CardHeader>
-          <div className="space-y-2">
+          <div className="space-y-1">
             <CardTitle className="text-foreground line-clamp-2 group-hover:text-primary transition-colors">
               {lesson.title}
             </CardTitle>
@@ -69,7 +69,7 @@ const LessonCard = memo(({ lesson }: { lesson: Lesson }) => {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-1">
           {/* Metadata */}
           <div className="flex flex-wrap gap-2">
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}>

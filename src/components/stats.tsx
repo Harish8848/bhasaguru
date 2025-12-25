@@ -60,17 +60,12 @@ export default function StatsSection() {
       label: "Satisfaction Rate",
       description: "Learners recommend BhasaGuru to others",
     },
-    {
-      number: stats.jobPlacements.toString(),
-      label: "Job Placements",
-      description: "Successful placements in 2024 alone",
-    },
   ] : []
 
   return (
     <section className="py-20 md:py-32 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-6">
           {statItems.map((stat, index) => (
             <div
               key={index}

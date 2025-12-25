@@ -33,7 +33,7 @@ export default function CultureSection() {
         const result = await response.json()
 
         if (result.success) {
-          setArticles(result.data)
+          setArticles(result.data.data)
         }
       } catch (err) {
         console.error('Failed to fetch articles:', err)

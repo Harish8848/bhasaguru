@@ -119,9 +119,9 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
   }
 
   return (
-    <div className="min-h-screen bg-background pb-12">
+    <div className="min-h-screen bg-background pb-12 ">
       {/* Top Navigation Bar */}
-      <div className="border-b bg-card">
+      <div className="border-b bg-card sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Button variant="ghost" size="sm" onClick={() => router.push(`/lessons`)}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -228,7 +228,7 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
                         <CardTitle>Lesson Content</CardTitle>
                     </CardHeader>
                     <CardContent className="whitespace-pre-wrap">
-                        <div  dangerouslySetInnerHTML={{  __html : lesson.content  }} />
+                        <div className=""  dangerouslySetInnerHTML={{  __html : lesson.content  }} />
                     </CardContent>
                 </Card>
 

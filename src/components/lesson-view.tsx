@@ -154,7 +154,7 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
                     {lesson.description && <p className="text-muted-foreground mt-2">{lesson.description}</p>}
                 </div>
 {/*attachment rendering*/}
-    <div className="space-y-6  flex justify-center items-center">
+    <div className="space-y-6  mx-auto w-screen-lg px-4">
                 {/* Direct Media Rendering */}
                 {lesson.attachments && lesson.attachments.map((att, idx) => {
                     const isImage = att.type === "image" || att.type.startsWith("image/");
@@ -221,7 +221,7 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
                      </Card>
                 )}
             </div>           
-            <div className="space-y-6 text-center flex flex-col justify-center items-center container ">
+            <div className=" py-5 space-y-6   w-screen-lg px-4 ">
                 {/* Lesson Content */}
                 <Card>
                     <CardHeader>

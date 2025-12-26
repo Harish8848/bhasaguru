@@ -31,7 +31,7 @@ export default function CoursesPage() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch('/api/admin/courses')
+        const response = await fetch('/api/admin/courses', { cache: 'no-store' })
         const result = await response.json()
 
         if (result.success) {

@@ -71,7 +71,7 @@ const LessonCard = memo(({ lesson }: { lesson: Lesson }) => {
 
         <CardContent className="space-y-1">
           {/* Metadata */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 p-32">
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}>
               <TypeIcon size={12} className="inline mr-1" />
               {typeInfo.label}
@@ -83,7 +83,6 @@ const LessonCard = memo(({ lesson }: { lesson: Lesson }) => {
 
           {/* Stats */}
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{lesson.views.toLocaleString()} views</span>
             {lesson.duration && <span>{lesson.duration}</span>}
           </div>
 

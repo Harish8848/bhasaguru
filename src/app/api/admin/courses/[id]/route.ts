@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
+import { cacheHelpers } from '@/lib/cache';
 
 // GET - Get single course
 export const GET = withErrorHandler(async (
@@ -62,6 +63,9 @@ export const PATCH = withErrorHandler(async (
     data: updateData,
   });
 
+  // Invalidate course list cache
+  await cacheHelpers.deletePattern('courses:*');
+
   return ApiResponse.success(course, 'Course updated successfully');
 });
 
@@ -85,6 +89,9 @@ export const DELETE = withErrorHandler(async (
   await prisma.course.delete({
     where: { id },
   });
+
+  // Invalidate course list cache
+  await cacheHelpers.deletePattern('courses:*');
 
   return ApiResponse.success(null, 'Course deleted successfully');
 });

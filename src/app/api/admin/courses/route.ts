@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
+import { cacheHelpers } from '@/lib/cache';
 interface WhereClause {
   status?: CourseStatus;
   language?: string;
@@ -60,6 +61,9 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         publishedAt: body.status === 'PUBLISHED' ? new Date() : null,
       },
     });
+
+    // Invalidate course list cache
+    await cacheHelpers.deletePattern('courses:*');
   
     return ApiResponse.success(course, 'Course created successfully', 201);
   });

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, Video, Music, Download, CheckCircle, ArrowLeft, ArrowRight, Paperclip, Play, Eye } from "lucide-react"
+import { FileText, Video, Music, Download, ArrowLeft, ArrowRight, Paperclip } from "lucide-react"
 import { LessonAttachment, LessonType } from "@/lib/types"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from "@/components/ui/dialog"
 
@@ -85,7 +85,7 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
       return (
         <div className="flex items-center justify-center p-4">
            {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={att.url} alt={att.name} className="max-w-full max-h-[80vh] rounded-md object-contain" />
+          <img src={att.url} alt={att.name} className="  max-w-full max-h-[80vh] rounded-md object-cover object-center" />
         </div>
       )
     }

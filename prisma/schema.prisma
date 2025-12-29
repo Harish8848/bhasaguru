@@ -37,6 +37,8 @@ model User {
 
   @@index([email])
   @@index([status, role])
+  @@index([name])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -106,6 +108,10 @@ model Course {
   @@index([language, level, status])
   @@index([slug])
   @@index([status, publishedAt])
+  @@index([title])
+  @@index([createdAt])
+  @@index([lessonsCount])
+  @@index([studentsCount])
   @@map("courses")
 }
 
@@ -128,6 +134,8 @@ model Lesson {
 
   @@unique([courseId, slug])
   @@index([courseId, order])
+  @@index([title])
+  @@index([isFree])
   @@map("lessons")
 }
 
@@ -192,46 +200,46 @@ model MockTest {
   attempts         TestAttempt[]
 
   @@index([courseId, type])
+  @@index([title])
+  @@index([createdAt])
   @@map("mock_tests")
 }
 
-
 model Question {
-  id               String       @id @default(cuid())
-  testId           String
-  type             QuestionType
-  questionText     String
-  audioUrl         String?
-  imageUrl         String?
-  videoUrl         String?
-  options          Json?
-  correctAnswer    String?
-  points           Int          @default(1)
-  order            Int
-  explanation      String?
-  language         String?
-  module           String?
-  section          String?
-  standardSection  String?
-  difficulty       String?
+  id                String       @id @default(cuid())
+  testId            String
+  type              QuestionType
+  questionText      String
+  audioUrl          String?
+  imageUrl          String?
+  videoUrl          String?
+  options           Json?
+  correctAnswer     String?
+  points            Int          @default(1)
+  order             Int
+  explanation       String?
+  language          String?
+  module            String?
+  section           String?
+  standardSection   String?
+  difficulty        String?
   // Speaking-specific fields
-  preparationTime  Int?         // Preparation time in seconds for Part 2
-  speakingTime     Int?         // Speaking time in seconds
-  cueCardContent   String?      // Cue card content for Part 2
-  followUpQuestions Json?       // Follow-up questions for Part 3
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
-  answers          Answer[]
-  test             MockTest     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  preparationTime   Int? // Preparation time in seconds for Part 2
+  speakingTime      Int? // Speaking time in seconds
+  cueCardContent    String? // Cue card content for Part 2
+  followUpQuestions Json? // Follow-up questions for Part 3
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  answers           Answer[]
+  test              MockTest     @relation(fields: [testId], references: [id], onDelete: Cascade)
 
   @@index([testId, order])
   @@index([language, module, difficulty])
   @@map("questions")
 }
 
-
 model TestAttempt {
-  id             String     @id @default(cuid())
+  id             String         @id @default(cuid())
   userId         String
   testId         String?
   score          Float
@@ -239,18 +247,17 @@ model TestAttempt {
   totalQuestions Int
   passed         Boolean
   timeSpent      Int
-  startedAt      DateTime   @default(now())
+  startedAt      DateTime       @default(now())
   completedAt    DateTime?
   answers        Answer[]
   speakingScore  SpeakingScore? // One speaking score per attempt
-  test           MockTest?  @relation(fields: [testId], references: [id], onDelete: Cascade)
-  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test           MockTest?      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, testId])
   @@index([userId, completedAt])
   @@map("test_attempts")
 }
-
 
 model Answer {
   id             String      @id @default(cuid())
@@ -258,8 +265,8 @@ model Answer {
   questionId     String
   selectedOption String?
   textAnswer     String?
-  jsonAnswer     Json?       // For complex answers (matching, fill-blank, comprehension)
-  audioUrl       String?     // For speaking responses
+  jsonAnswer     Json? // For complex answers (matching, fill-blank, comprehension)
+  audioUrl       String? // For speaking responses
   isCorrect      Boolean
   answeredAt     DateTime    @default(now())
   attempt        TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
@@ -270,16 +277,16 @@ model Answer {
 }
 
 model SpeakingScore {
-  id                    String   @id @default(cuid())
-  attemptId             String   @unique
-  fluencyCoherence      Float    // 1-9 bands
-  lexicalResource       Float    // 1-9 bands
-  grammaticalRange      Float    // 1-9 bands
-  pronunciation         Float    // 1-9 bands
-  overallBand           Float    // Calculated average
-  notes                 String?  // Examiner notes
-  createdAt             DateTime @default(now())
-  attempt               TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  id               String      @id @default(cuid())
+  attemptId        String      @unique
+  fluencyCoherence Float // 1-9 bands
+  lexicalResource  Float // 1-9 bands
+  grammaticalRange Float // 1-9 bands
+  pronunciation    Float // 1-9 bands
+  overallBand      Float // Calculated average
+  notes            String? // Examiner notes
+  createdAt        DateTime    @default(now())
+  attempt          TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
   @@index([attemptId])
   @@map("speaking_scores")
@@ -310,6 +317,11 @@ model JobListing {
 
   @@index([languageRequired, languageLevel])
   @@index([status, expiresAt])
+  @@index([company])
+  @@index([location])
+  @@index([title])
+  @@index([createdAt])
+  @@index([viewCount])
   @@map("job_listings")
 }
 
@@ -354,6 +366,10 @@ model Article {
 
   @@index([language, category])
   @@index([status, publishedAt])
+  @@index([title])
+  @@index([createdAt])
+  @@index([viewCount])
+  @@index([authorId])
   @@map("articles")
 }
 
@@ -384,6 +400,7 @@ model SavedItem {
 
   @@unique([userId, itemType, itemId])
   @@index([userId, itemType])
+  @@index([savedAt])
   @@map("saved_items")
 }
 
@@ -442,7 +459,6 @@ enum EnrollmentStatus {
   COMPLETED
   DROPPED
 }
-
 
 enum QuestionType {
   MULTIPLE_CHOICE

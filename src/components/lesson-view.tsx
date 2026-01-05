@@ -228,7 +228,8 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
                         <CardTitle>Lesson Content</CardTitle>
                     </CardHeader>
                     <CardContent className="whitespace-pre-wrap">
-                        <div className=""  dangerouslySetInnerHTML={{  __html : lesson.content  }} />
+                        <p className="text-2xl" dangerouslySetInnerHTML={{  __html : lesson.content  }} >
+                        </p>
                     </CardContent>
                 </Card>
 

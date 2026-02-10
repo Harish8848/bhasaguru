@@ -1,32 +1,16 @@
 import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-react"
 
-
-
-
-
   //Stats Data
 
   export const stats = [
-    {
-      number: "2",
-      label: "Active Learners",
-      description: "From 85+ countries learning with BhasaGuru",
-    },
-    {
-      number: "10+",
-      label: "Expert Courses",
-      description: "From beginner to advanced proficiency levels",
-    },
+   
+   
     {
       number: "95%",
       label: "Satisfaction Rate",
       description: "Learners recommend BhasaGuru to others",
     },
-    {
-      number: "0",
-      label: "Job Placements",
-      description: "Successful placements in 2024 alone",
-    },
+    
   ]
   
 //Footer Links Data
@@ -95,118 +79,10 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
   ]
 
   //Culture Posts Data
-  export const culturePosts = [
-    {
-      id: 1,
-      title: "The Art of Japanese Tea Ceremony",
-      excerpt: "Explore the rich history and traditions of the Japanese tea ceremony, a spiritual and aesthetic ritual.",
-      author: "Yuki Tanaka",
-      date: "Nov 28, 2024",
-      category: "Tradition",
-      image: "/japanese-tea-ceremony.jpg",
-      country: "japan",
-    },
-    {
-      id: 2,
-      title: "K-Pop: A Global Phenomenon",
-      excerpt: "Discover the rise of Korean Pop music and its impact on global culture, fashion, and entertainment.",
-      author: "Min-jun Kim",
-      date: "Nov 25, 2024",
-      category: "Modern Culture",
-      image: "/k-pop-phenomenon.jpg",
-      country: "korea",
-    },
-    {
-      id: 3,
-      title: "A Guide to British Pub Culture",
-      excerpt: "Learn about the social etiquette and traditions of British pubs, an integral part of UK social life.",
-      author: "Emily Clark",
-      date: "Nov 22, 2024",
-      category: "Social Life",
-      image: "/british-pub-culture.jpg",
-      country: "uk",
-    },
-    {
-      id: 4,
-      title: "American Dream: From Immigration to Innovation",
-      excerpt: "Explore the cultural narrative of the American Dream and its impact on global immigration and entrepreneurship.",
-      author: "Sarah Johnson",
-      date: "Nov 20, 2024",
-      category: "Modern Culture",
-      image: "/american-dream.jpg",
-      country: "us",
-    },
-    {
-      id: 5,
-      title: "Australian Outback Adventures",
-      excerpt: "Discover the unique traditions and lifestyle of Australia's outback culture, from Aboriginal heritage to modern bush life.",
-      author: "David Mitchell",
-      date: "Nov 18, 2024",
-      category: "Adventure",
-      image: "/australian-outback.jpg",
-      country: "australia",
-    },
-  ]
+  
 
   //Pricing Plans Data
-  export const plans = [
-    {
-      id: "basic",
-      name: "Basic",
-      description: "Perfect for beginners",
-      price: "Free",
-      period: "forever",
-      features: [
-        "A1 & A2 level courses",
-        "Basic lessons only",
-        "Community access",
-        "Limited job listings",
-        "Certificate of completion",
-        "Mobile app access",
-      ],
-      cta: "Get Started",
-      highlighted: false,
-    },
-    {
-      id: "pro",
-      name: "Pro",
-      description: "Most popular for learners",
-      price: "$29",
-      period: "/month",
-      features: [
-        "All A & B level courses",
-        "Live classes & workshops",
-        "1-on-1 mentoring",
-        "Premium job listings",
-        "Official CEFR certificate",
-        "Mobile app + offline",
-        "Job matching service",
-        "Career consulting",
-      ],
-      cta: "Start Free Trial",
-      highlighted: true,
-    },
-    {
-      id: "enterprise",
-      name: "Enterprise",
-      description: "For organizations & teams",
-      price: "Custom",
-      period: "pricing",
-      features: [
-        "All courses & features",
-        "Unlimited team members",
-        "Team analytics",
-        "Dedicated support",
-        "Custom curriculum",
-        "API access",
-        "White-label options",
-        "Priority job matching",
-      ],
-      cta: "Contact Sales",
-      highlighted: false,
-    },
-  ]
-
+  
   // Job Queries and Country Codes
   export const queries = {
     japan: "jobs in Japan",

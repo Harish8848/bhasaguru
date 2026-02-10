@@ -197,7 +197,7 @@ export default function LessonsPage() {
       {/* Header */}
       <main className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
         {/* Search Bar */}
-        <div className="max-w-xl">
+        <div className="max-w-xl mx-auto">
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -213,11 +213,11 @@ export default function LessonsPage() {
         </div>
 
         {/* Language Selection */}
-        <div className="space-y-4">
+        <div className="space-y-4 ">
           <h2 className="text-lg font-semibold text-foreground">
             Select Language
           </h2>
-          <div className="relative">
+          <div className="relative ">
             <button
               onClick={() => scroll("left")}
               className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background border border-border rounded-full p-2 hover:bg-muted transition-colors"
@@ -227,7 +227,7 @@ export default function LessonsPage() {
 
             <div
               ref={scrollRef}
-              className="flex gap-3 overflow-x-auto scrollbar-hide px-12"
+              className="flex gap-3 overflow-x-auto scrollbar-hide px-12 "
               style={{ scrollBehavior: "smooth" }}
             >
               {languages.map((lang) => (

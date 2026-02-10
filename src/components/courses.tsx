@@ -104,14 +104,7 @@ export default function CoursesSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Featured Courses */}
         <div className="space-y-8">
-          <div className="text-center space-y-3">
-            <h2 className="text-3xl md:text-5xl font-bold leading-tight">
-              <span className="text-accent">Featured</span> Courses
-            </h2>
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Start your language learning journey with our most popular courses
-            </p>
-          </div>
+          
 
           {/* Search and Language Selection */}
           <div className="space-y-6">

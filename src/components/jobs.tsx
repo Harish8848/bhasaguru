@@ -92,26 +92,16 @@ export default function JobsSection() {
   return (
     <section className="py-20 md:py-10 bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h2 className="text-3xl md:text-5xl font-bold leading-tight">
-            <span className="text-accent">1000+</span> International Job Opportunities
-          </h2>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-            Get matched with positions that fit your language skills. Start your career abroad today.
-          </p>
-        </div>
-
         {/* Search and Filters */}
         <div className="space-y-4">
           {/* Search Input */}
-          <div className="flex gap-2   mx-auto w-full">
+          <div className="flex gap-2   mx-auto">
             <Input
               type="text"
               placeholder="Search jobs by title, company, or keywords..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 p-8 bg-accent/10 mb-4 max-w-full"
+              className="flex-1 p-8 bg-accent/10  "
             />
             <Button
               onClick={() => setIsSearching(!isSearching)}

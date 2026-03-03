@@ -3,8 +3,6 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
   //Stats Data
 
   export const stats = [
-   
-   
     {
       number: "95%",
       label: "Satisfaction Rate",
@@ -14,21 +12,7 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
   ]
   
 //Footer Links Data
-  export const footerLinks = [
-    {
-      title: "Product",
-      links: ["Courses", "Jobs", "Pricing"],
-    },
-    {
-      title: "Company",
-      links: ["About", "Careers", "Contact"],
-    },
-
-    {
-      title: "Legal",
-      links: ["Privacy", "Terms",  "Licenses"],
-    },
-  ]
+  
 
   //Language Levels Data
   export const languages = [
@@ -37,15 +21,6 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
     { code: "english", label: "English", courses: 15, icon: "🇺🇸", learners: 12000 },
   ]
   
-  export const levels = [
-    { level: "BEGINNER", label: "A1", description: "Start your journey" },
-    { level: "ELEMENTARY", label: "A2", description: "Build foundation" },
-    { level: "INTERMEDIATE", label: "B1", description: "Speak with confidence" },
-    { level: "UPPER_INTERMEDIATE", label: "B2", description: "Advanced fluency" },
-    { level: "ADVANCED", label: "C1", description: "Near native level" },
-    { level: "PROFICIENT", label: "C2", description: "Mastery achieved" },
-  ]
-
 
   //Features Data
   export const features = [

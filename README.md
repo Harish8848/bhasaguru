@@ -220,15 +220,3 @@ When making schema changes:
 | `RESEND_API_KEY` | Resend email API key | Yes |
 | `REDIS_URL` | Redis connection URL | No |
 | `RAPIDAPI_KEY` | RapidAPI key for external services | No |
-
-## Support
-
-For support or questions:
-
-- Create an issue on GitHub
-- Check existing documentation
-- Contact the development team
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.

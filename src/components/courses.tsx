@@ -104,7 +104,6 @@ export default function CoursesSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Featured Courses */}
         <div className="space-y-8">
-          
 
           {/* Search and Language Selection */}
           <div className="space-y-6">

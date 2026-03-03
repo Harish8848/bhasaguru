@@ -217,7 +217,7 @@ export default function LessonsPage() {
           <h2 className="text-lg font-semibold text-foreground">
             Select Language
           </h2>
-          <div className="relative ">
+          <div className="relative mx-auto">
             <button
               onClick={() => scroll("left")}
               className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background border border-border rounded-full p-2 hover:bg-muted transition-colors"

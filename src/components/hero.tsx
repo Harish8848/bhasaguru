@@ -8,7 +8,6 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-linear-to-b from-accent/5 to-transparent pointer-events-none" />
       <div className="absolute top-20 right-0 w-96 h-96 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 relative z-10">
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left Content */}

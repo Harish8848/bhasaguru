@@ -19,13 +19,13 @@ export default function Footer() {
               <a href="/" className="inline-flex justify-center items-center">
                 <img src="/favicon.ico" alt="" />
                 <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
-                  BhasaGuru
+                  YUKI Consulting & Training Center
                 </span>
               </a>
             </div>
             <p className="text-md text-muted-foreground text-center ">
-              Empowering Nepali speakers to master global languages and achieve
-              international careers.
+              Empowering Nepalese to master Japanese languages and achieve
+               careers in Japan.
             </p>
             <div className="flex gap-4 pt-1 justify-center ">
               <a
@@ -45,7 +45,7 @@ export default function Footer() {
           {/* Links */}
           <p className="  text-lg text-muted-foreground pb-4 md:pb-0  md:col-span-2 lg:col-span-2 ">
             {" "}
-            &copy; {currentYear} BhasaGuru. All rights reserved.
+            &copy; {currentYear} YUKI Consulting & Training Center. All rights reserved.
           </p>
         </div>
       </div>

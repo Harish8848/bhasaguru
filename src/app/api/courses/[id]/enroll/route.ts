@@ -3,82 +3,98 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(request: NextRequest) {
-    try {
-      const { searchParams } = new URL(request.url);
-      const language = searchParams.get("language");
-      const level = searchParams.get("level");
-      const page = parseInt(searchParams.get("page") || "1");
-      const limit = parseInt(searchParams.get("limit") || "12");
-  
-      const where: any = { status: "PUBLISHED" };
-      if (language) where.language = language;
-      if (level) where.level = level;
-  
-      const [courses, total] = await Promise.all([
-        prisma.course.findMany({
-          where,
-          skip: (page - 1) * limit,
-          take: limit,
-          select: {
-            id: true,
-            slug: true,
-            title: true,
-            description: true,
-            language: true,
-            level: true,
-            thumbnail: true,
-            duration: true,
-            lessonsCount: true,
-            studentsCount: true,
-            publishedAt: true,
-          },
-          orderBy: { publishedAt: "desc" },
-        }),
-        prisma.course.count({ where }),
-      ]);
-  
-      return NextResponse.json({
-        courses,
-        pagination: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-        },
-      });
-    } catch (error) {
+// Helper function to check profile completion
+export function isProfileComplete(user: { name: string | null; phone: string | null; address: string | null }) {
+  return !!(user.name && user.name.trim() !== '' && user.phone && user.phone.trim() !== '' && user.address && user.address.trim() !== '');
+}
+
+// POST /api/courses/[id]/enroll - Enroll in a course
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id: courseId } = await params;
+    const userId = session.user.id;
+
+    // Check if user has completed their profile
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true, phone: true, address: true },
+    });
+
+    if (!user || !isProfileComplete(user)) {
       return NextResponse.json(
-        { error: "Failed to fetch courses" },
-        { status: 500 }
+        { 
+          error: "profile_incomplete",
+          message: "Please complete your profile before enrolling. Add your name, phone number, and address."
+        },
+        { status: 400 }
       );
     }
-  }
-  
-  // POST /api/courses - Create course (Admin only)
-  export async function POST(request: NextRequest) {
-    try {
-      const session = await getServerSession(authOptions);
-      
-      if (!session || session.user.role !== "ADMIN") {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-  
-      const body = await request.json();
-      
-      const course = await prisma.course.create({
-        data: {
-          ...body,
-          slug: body.title.toLowerCase().replace(/\s+/g, "-"),
+
+    // Check if course exists
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+    });
+
+    if (!course) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
+    }
+
+    // Check if already enrolled
+    const existingEnrollment = await prisma.enrollment.findUnique({
+      where: {
+        userId_courseId: {
+          userId,
+          courseId,
         },
-      });
-  
-      return NextResponse.json(course, { status: 201 });
-    } catch (error) {
+      },
+    });
+
+    if (existingEnrollment) {
       return NextResponse.json(
-        { error: "Failed to create course" },
-        { status: 500 }
+        { error: "Already enrolled in this course" },
+        { status: 409 }
       );
     }
+
+    // Create enrollment
+    const enrollment = await prisma.enrollment.create({
+      data: {
+        userId,
+        courseId,
+        status: "ACTIVE",
+      },
+      include: {
+        course: true,
+      },
+    });
+
+    // Update course student count
+    await prisma.course.update({
+      where: { id: courseId },
+      data: { studentsCount: { increment: 1 } },
+    });
+
+    return NextResponse.json(
+      { 
+        message: "Successfully enrolled in course",
+        enrollment 
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Enrollment error:", error);
+    return NextResponse.json(
+      { error: "Failed to enroll in course" },
+      { status: 500 }
+    );
   }
-  
+}

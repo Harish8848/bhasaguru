@@ -12,24 +12,24 @@ export default function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 relative z-10">
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left Content */}
-          <div className="space-y-6 md:space-y-8">
+          <div className="space-y-2 md:space-y-2">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20">
                 <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
                 <span className="text-xs md:text-sm font-medium text-accent">
-                  Master Your Prefered Language, Unlock Your Global Future.
+                  Yuki Consulting and Training Center.
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold leading-tight text-pretty">
-                Transform Your Career Through{" "}
+              <h1 className="text-3xl md:text-6xl sm:text:xl font-bold leading-tight text-pretty">
+                Best Consultancy & Training Center for Japanese Language Learners in{" "}
                 <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Language Excellence
+                  Kathmandu
                 </span>
               </h1>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-pretty max-w-lg">
-                Learn Japanese, Korean, English and more from expert
-                instructors. Find international jobs, and unlock endless career
-                opportunities abroad.
+                Learn Japanese language from expert
+                instructors. Find jobs, and unlock endless career
+                opportunities in Japan.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
@@ -46,18 +46,18 @@ export default function HeroSection() {
             <div className="grid grid-cols-3 gap-4 pt-8">
               <div>
                 <div className="text-2xl md:text-3xl font-bold text-foreground">
-                  1000+
+                  100+
                 </div>
                 <p className="text-xs md:text-sm text-muted-foreground">
-                  Job Listings
+                  Enrollments
                 </p>
               </div>
               <div>
                 <div className="text-2xl md:text-3xl font-bold text-foreground">
-                  98%
+                  90%
                 </div>
                 <p className="text-xs md:text-sm text-muted-foreground">
-                  Pass Rate
+                  Success Rate
                 </p>
               </div>
             </div>
@@ -79,10 +79,10 @@ export default function HeroSection() {
                 <div className="text-center space-y-4">
                   <div className="text-4xl md:text-5xl">🌍</div>
                   <h3 className="text-lg md:text-xl font-semibold">
-                    Global Language Learning
+                    Japanese Language Learning
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Join a worldwide community
+                    High Visa Success Rate for Japanese
                   </p>
                 </div>
               </div>

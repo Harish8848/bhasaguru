@@ -20,6 +20,7 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
     { href: "/admin/lessons", label: "Lessons", icon: Video },
     { href: "/admin/mock-tests", label: "Mock Tests", icon: BarChart3 },
     { href: "/admin/jobs", label: "Jobs Board", icon: Briefcase },
+    { href: "/admin/enrollments", label: "Enrollments", icon: Users },
     { href: "/admin/culture", label: "Culture Posts", icon: FileText },
     { href: "/admin/users", label: "Users", icon: Users },
   ]
@@ -29,6 +30,7 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
     { href: "/admin/courses", label: "Courses", icon: BookOpen },
     { href: "/admin/mock-tests", label: "Mock Tests", icon: BarChart3 },
     { href: "/admin/jobs", label: "Jobs Board", icon: Briefcase },
+    { href: "/admin/enrollments", label: "Enrollments", icon: Users },
     { href: "/admin/culture", label: "Culture Posts", icon: FileText },
   ]
 

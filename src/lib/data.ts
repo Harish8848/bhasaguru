@@ -11,14 +11,12 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
     
   ]
   
-//Footer Links Data
   
 
   //Language Levels Data
   export const languages = [
     { code: "japanese", label: "Japanese", courses: 12, icon: "🇯🇵", learners: 8500 },
-    { code: "korean", label: "Korean", courses: 10, icon: "🇰🇷", learners: 6200 },
-    { code: "english", label: "English", courses: 15, icon: "🇺🇸", learners: 12000 },
+
   ]
   
 
@@ -28,7 +26,7 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
       icon: BookOpen,
       title: "Expert-Led Courses",
       description:
-        "Comprehensive curriculum from CEFR A1 to C2 level. Learn at your own pace with video, audio, and interactive lessons.",
+        "Comprehensive curriculum from N5 to N2 level. Learn at your own pace with video, audio, and interactive lessons.",
     },
  
     {
@@ -41,7 +39,7 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
       icon: Users,
       title: "Community",
       description:
-        "Connect with learners worldwide. Share experiences, get feedback, and build professional networks globally.",
+        "Connect with learners. Share experiences, get feedback, and build professional networks.",
     },
   ]
   

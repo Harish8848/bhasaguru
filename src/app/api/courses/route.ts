@@ -6,6 +6,7 @@ import { cacheHelpers } from "@/lib/cache";
 
 export async function GET(request: NextRequest) {
     try {
+      const session = await getServerSession(authOptions);
       const { searchParams } = new URL(request.url);
       const language = searchParams.get("language");
       const level = searchParams.get("level");
@@ -13,20 +14,10 @@ export async function GET(request: NextRequest) {
       const page = parseInt(searchParams.get("page") || "1");
       const limit = parseInt(searchParams.get("limit") || "12");
 
-      // Generate a unique cache key based on all filter parameters
-      const cacheKey = `courses:${language || 'all'}:${level || 'all'}:${search || 'none'}:${page}:${limit}`;
-
-      // Try to fetch from cache first
-      const cachedData = await cacheHelpers.get(cacheKey);
-      if (cachedData) {
-        return NextResponse.json(cachedData);
-      }
-
       const where: any = { status: "PUBLISHED" };
       if (language && language !== "all") where.language = language;
       if (level) where.level = level;
 
-      // Filter by search term if provided
       if (search) {
         where.OR = [
           { title: { contains: search, mode: "insensitive" } },
@@ -56,21 +47,36 @@ export async function GET(request: NextRequest) {
         }),
         prisma.course.count({ where }),
       ]);
+
+      // If user is logged in, check enrollment status for each course
+      let enrolledCourseIds: string[] = [];
+      if (session?.user?.id) {
+        const enrollments = await prisma.enrollment.findMany({
+          where: {
+            userId: session.user.id,
+            courseId: { in: courses.map(c => c.id) },
+            status: "ACTIVE",
+          },
+          select: { courseId: true },
+        });
+        enrolledCourseIds = enrollments.map(e => e.courseId);
+      }
   
-      const responseData = {
-        courses,
+      // Add isEnrolled flag to each course
+      const coursesWithEnrollment = courses.map(course => ({
+        ...course,
+        isEnrolled: enrolledCourseIds.includes(course.id),
+      }));
+
+      return NextResponse.json({
+        courses: coursesWithEnrollment,
         pagination: {
           total,
           page,
           limit,
           totalPages: Math.ceil(total / limit),
         },
-      };
-
-      // Cache the result for 5 minutes (300 seconds)
-      await cacheHelpers.set(cacheKey, responseData, 300);
-
-      return NextResponse.json(responseData);
+      });
     } catch (error) {
       return NextResponse.json(
         { error: "Failed to fetch courses" },
@@ -96,9 +102,6 @@ export async function GET(request: NextRequest) {
           slug: body.title.toLowerCase().replace(/\s+/g, "-"),
         },
       });
-
-      // Invalidate course list cache
-      await cacheHelpers.deletePattern('courses:*');
   
       return NextResponse.json(course, { status: 201 });
     } catch (error) {

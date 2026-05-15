@@ -5,7 +5,6 @@ import { Menu, X, Globe, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signIn, signOut, useSession } from "next-auth/react"
 import Link from "next/link"
-import Image from "next/image"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,8 +17,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  // Use both session data and status to properly handle loading states
-  // This prevents flickering by showing appropriate UI during session validation
   const { data: session, status } = useSession()
 
   const toggleMenu = () => setIsOpen(!isOpen)
@@ -36,7 +33,7 @@ export default function Navbar() {
             <Link href="/" className="inline-flex fixed left-0.5">
             <img src="/favicon.ico" alt="" />
             <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mt-2">
-              BhasaGuru
+              YUKI Consulting & Training Center
             </span>
             </Link>
           </div>
@@ -55,15 +52,17 @@ export default function Navbar() {
             <Link href="/culture" className="text-sm font-medium hover:text-accent transition-colors">
               Culture
             </Link>
+            <Link href="/contact" className="text-sm font-medium hover:text-accent transition-colors">
+              Contact
+            </Link>
             <Link href="/mock-tests" className="text-sm font-medium hover:text-accent transition-colors">
               Mock Tests
             </Link>
           </div>
 
-          {/* CTA Buttons */}
-          <div className="hidden md:flex  items-center gap-3 " >
+          {/* CTA Buttons - Desktop */}
+          <div className="hidden md:flex items-center gap-3">
             {status === "loading" ? (
-              // Loading skeleton while session is being determined
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
                 <div className="w-16 h-4 bg-muted animate-pulse rounded"></div>
@@ -87,7 +86,7 @@ export default function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="outline" className="border-accent  hover:bg-blue-400 bg-white text-stone-900" onClick={() => signIn('google', { callbackUrl: '/' })}>
+              <Button variant="outline" className="border-accent hover:bg-blue-400 bg-white text-stone-900" onClick={() => signIn('google', { callbackUrl: '/' })}>
                 Sign In
               </Button>
             )}
@@ -101,39 +100,62 @@ export default function Navbar() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden pb-4  flex flex-col justify-center  items-center bg-accent/10 rounded-lg">
-             <Link href="/lessons" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+          <div className="md:hidden pb-4 flex flex-col justify-center items-center bg-accent/10 rounded-lg">
+            {/* Profile Avatar at Top - Mobile */}
+            {session && (
+              <div className="pt-2 pb-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar className="cursor-pointer w-12 h-12">
+                      <AvatarImage src={(session.user as any)?.profilePicture || session.user?.image || undefined} className="object-cover"/>
+                      <AvatarFallback className="text-lg">{session.user?.name?.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-48">
+                    <DropdownMenuLabel className="text-center">{session.user?.name}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="justify-center">
+                      <Link href="/profile" className="w-full text-center">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="justify-center">Settings</DropdownMenuItem>
+                    <DropdownMenuItem className="justify-center text-destructive" onClick={() => signOut()}>Sign Out</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+
+            {/* Navigation Links */}
+            <Link href="/lessons" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Lessons
             </Link>
-            <Link href="/courses" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+            <Link href="/courses" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Courses
             </Link>
-            <Link href="/jobs" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+            <Link href="/jobs" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Jobs
             </Link>
-            <Link href="/culture" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+            <Link href="/culture" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Culture
             </Link>
-           
-            <Link href="/mock-tests" className="block text-md font-medium hover:text-accent py-1 text-blue-600 ">
+            <Link href="/contact" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
+              Contact
+            </Link>
+            <Link href="/mock-tests" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Mock Tests
             </Link>
-            <div className="flex gap-2 pt-3">
-              {status === "loading" ? (
-                <div className="w-full flex items-center justify-center">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                </div>
-              ) : session ? (
-                <Button size="sm" className="w-full bg-accent" onClick={() => signOut()}>
-                  Sign Out
-                </Button>
-              ) : (
-                <Button variant="outline" size="sm" className="w-full border-accent text-accent bg-transparent" onClick={() => signIn('google', { callbackUrl: '/' })}>
-                  Sign In
-                </Button>
-              )}
-
-            </div>
+            
+            {/* Sign In for Non-authenticated Users */}
+            {!session && (
+              <div className="pt-3">
+                {status === "loading" ? (
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                ) : (
+                  <Button variant="outline" size="sm" className="border-accent text-accent bg-transparent" onClick={() => signIn('google', { callbackUrl: '/' })}>
+                    Sign In
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

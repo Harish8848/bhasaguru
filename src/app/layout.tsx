@@ -20,10 +20,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   icons: {
-    icon: "@/public/bhasaguru.png",
+    icon: "@/public/logo.png",
   },
-  title: "BhasaGuru",
-  description: "Learn Japanese(N5, N4, N3, N2), Korean(TOPIC I, TOPIC II), English(IELTS, TOEFL, PTE) and more. Connect with job opportunities abroad and advance your career globally.",
+  title: "Yuki Consulting and Training Center - Japanese Learning and Career Advancement",
+  description: "Learn Japanese(N5, N4, N3, N2) Connect with job opportunities in Japan and advance your career globally.",
 };
 
 export default async function RootLayout({

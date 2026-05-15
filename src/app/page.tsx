@@ -1,11 +1,8 @@
 import dynamic from 'next/dynamic'
 import Navbar from "@/components/navbar"
+import HeroSection from "@/components/hero"
 
-// Lazy load components with loading fallbacks
-const HeroSection = dynamic(() => import("@/components/hero"), {
-  loading: () => <div className="h-screen bg-background animate-pulse" />
-})
-
+// Lazy load non-critical sections below the fold
 const FeaturesSection = dynamic(() => import("@/components/features"), {
   loading: () => <div className="h-96 bg-background animate-pulse" />
 })
@@ -33,8 +30,6 @@ export default function Home() {
       <main className="grow">
         <HeroSection />
         <FeaturesSection />
-        <CoursesSection />
-        <JobsSection />
         <StatsSection />
       </main>
       <Footer />

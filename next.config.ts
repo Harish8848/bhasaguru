@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  turbopack: {},
+  // Explicitly set the root directory for Turbopack to avoid workspace inference warnings
+  turbopack: {
+    root: process.cwd(),
+  },
 
   // Performance optimizations
   compress: true,
@@ -56,15 +59,6 @@ const nextConfig: NextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=300, s-maxage=600, stale-while-revalidate=86400'
-          }
-        ]
-      },
-      {
-        source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
           }
         ]
       }

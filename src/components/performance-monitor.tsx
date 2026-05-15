@@ -1,57 +1,66 @@
-"use client"
+"use client";
 
-import { useEffect } from 'react'
+import { useEffect } from "react";
 
 export default function PerformanceMonitor() {
+  const shouldEnable = process.env.NODE_ENV !== "production";
+
   useEffect(() => {
+    if (!shouldEnable) return;
     // Basic performance monitoring
     const logPerformance = () => {
-      if ('performance' in window) {
-        const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+      if ("performance" in window) {
+        const navigation = performance.getEntriesByType(
+          "navigation"
+        )[0] as PerformanceNavigationTiming;
         if (navigation) {
-          console.log('Page Load Performance:', {
-            'DNS Lookup': navigation.domainLookupEnd - navigation.domainLookupStart,
-            'TCP Connect': navigation.connectEnd - navigation.connectStart,
-            'Server Response': navigation.responseStart - navigation.requestStart,
-            'Page Load': navigation.loadEventEnd - navigation.startTime,
-            'DOM Ready': navigation.domContentLoadedEventEnd - navigation.startTime,
-          })
+          console.log("Page Load Performance:", {
+            "DNS Lookup":
+              navigation.domainLookupEnd - navigation.domainLookupStart,
+            "TCP Connect": navigation.connectEnd - navigation.connectStart,
+            "Server Response":
+              navigation.responseStart - navigation.requestStart,
+            "Page Load": navigation.loadEventEnd - navigation.startTime,
+            "DOM Ready":
+              navigation.domContentLoadedEventEnd - navigation.startTime,
+          });
         }
       }
-    }
+    };
 
     // Log performance on load
-    if (document.readyState === 'complete') {
-      logPerformance()
+    if (document.readyState === "complete") {
+      logPerformance();
     } else {
-      window.addEventListener('load', logPerformance)
-      return () => window.removeEventListener('load', logPerformance)
+      window.addEventListener("load", logPerformance);
+      return () => window.removeEventListener("load", logPerformance);
     }
 
     // Performance observer for long tasks
-    if ('PerformanceObserver' in window) {
+    if ("PerformanceObserver" in window) {
       try {
         const observer = new PerformanceObserver((list) => {
           for (const entry of list.getEntries()) {
-            if (entry.duration > 50) { // Tasks longer than 50ms
-              console.log('Long task detected:', {
+            if (entry.duration > 50) {
+              // Tasks longer than 50ms
+              console.log("Long task detected:", {
                 duration: entry.duration,
                 startTime: entry.startTime,
-                name: entry.name
-              })
+                name: entry.name,
+              });
             }
           }
-        })
+        });
 
-        observer.observe({ entryTypes: ['longtask'] })
+        observer.observe({ entryTypes: ["longtask"] });
 
-        return () => observer.disconnect()
+        return () => observer.disconnect();
       } catch (e) {
         // PerformanceObserver not supported or failed
-        console.log('Performance monitoring not fully supported')
+        console.log("Performance monitoring not fully supported");
       }
     }
-  }, [])
+  }, []);
 
-  return null
+  return null;
 }

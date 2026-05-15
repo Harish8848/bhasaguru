@@ -113,7 +113,7 @@ export default function CreateQuestionForm({ testId, testType, testLanguage, onS
     try {
       // Format options properly for the database
       let formattedOptions: any = undefined;
-      let finalCorrectAnswer = formData.correctAnswer;
+      const finalCorrectAnswer = formData.correctAnswer;
 
       if (formData.type === 'MULTIPLE_CHOICE') {
         formattedOptions = formData.options.map((text, index) => ({

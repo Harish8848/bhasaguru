@@ -1,5 +1,6 @@
-import { ArrowRight, Play } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ArrowRight, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function HeroSection() {
   return (
@@ -15,7 +16,9 @@ export default function HeroSection() {
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20">
                 <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <span className="text-xs md:text-sm font-medium text-accent">Master Your Prefered Language, Unlock Your Global Future.</span>
+                <span className="text-xs md:text-sm font-medium text-accent">
+                  Master Your Prefered Language, Unlock Your Global Future.
+                </span>
               </div>
               <h1 className="text-4xl md:text-6xl font-bold leading-tight text-pretty">
                 Transform Your Career Through{" "}
@@ -24,21 +27,38 @@ export default function HeroSection() {
                 </span>
               </h1>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-pretty max-w-lg">
-                Learn Japanese, Korean, English and more from expert instructors. Find international
-                jobs, and unlock endless career opportunities abroad.
+                Learn Japanese, Korean, English and more from expert
+                instructors. Find international jobs, and unlock endless career
+                opportunities abroad.
               </p>
-            </div>
 
+              <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                <Link href="/courses">
+                  <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                    Enroll Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 pt-8">
               <div>
-                <div className="text-2xl md:text-3xl font-bold text-foreground">1000+</div>
-                <p className="text-xs md:text-sm text-muted-foreground">Job Listings</p>
+                <div className="text-2xl md:text-3xl font-bold text-foreground">
+                  1000+
+                </div>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Job Listings
+                </p>
               </div>
               <div>
-                <div className="text-2xl md:text-3xl font-bold text-foreground">98%</div>
-                <p className="text-xs md:text-sm text-muted-foreground">Pass Rate</p>
+                <div className="text-2xl md:text-3xl font-bold text-foreground">
+                  98%
+                </div>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Pass Rate
+                </p>
               </div>
             </div>
           </div>
@@ -58,8 +78,12 @@ export default function HeroSection() {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center space-y-4">
                   <div className="text-4xl md:text-5xl">🌍</div>
-                  <h3 className="text-lg md:text-xl font-semibold">Global Language Learning</h3>
-                  <p className="text-sm text-muted-foreground">Join a worldwide community</p>
+                  <h3 className="text-lg md:text-xl font-semibold">
+                    Global Language Learning
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Join a worldwide community
+                  </p>
                 </div>
               </div>
             </div>
@@ -67,5 +91,5 @@ export default function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

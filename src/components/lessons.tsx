@@ -111,6 +111,8 @@ export default function LessonsPage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Initialize state from URL parameters
@@ -138,8 +140,30 @@ export default function LessonsPage() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch lessons from API with debounced search
   useEffect(() => {
+    const checkEnrollment = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch("/api/users/enrollment-status");
+        const data = await res.json();
+        setIsEnrolled(!!data?.enrolled);
+      } catch {
+        setIsEnrolled(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkEnrollment();
+  }, []);
+
+  // Fetch lessons from API with debounced search (only for enrolled users)
+  useEffect(() => {
+    if (isEnrolled === false) return;
+    if (isEnrolled === null) return;
+
     const fetchLessons = async () => {
       try {
         setLoading(true);
@@ -172,7 +196,7 @@ export default function LessonsPage() {
     };
 
     fetchLessons();
-  }, [selectedLanguage, selectedLevel, debouncedSearchTerm]);
+  }, [isEnrolled, selectedLanguage, selectedLevel, debouncedSearchTerm]);
 
   const selectedLanguageData = languages.find((l) => l.id === selectedLanguage);
 
@@ -286,6 +310,21 @@ export default function LessonsPage() {
           </div>
         )}
 
+        {/* Enrollment Gating */}
+        {!loading && isEnrolled === false && (
+          <div className="flex flex-col items-center justify-center py-12 rounded-lg border-2 border-dashed border-border">
+            <p className="text-center text-muted-foreground font-medium">
+              Enroll now to get access for lessons and mock test data
+            </p>
+            <Button
+              className="mt-6 bg-accent hover:bg-accent/90 text-accent-foreground"
+              onClick={() => (window.location.href = "/courses")}
+            >
+              Enroll Now
+            </Button>
+          </div>
+        )}
+
         {/* Error State */}
         {error && (
           <div className="flex flex-col items-center justify-center py-12 rounded-lg border-2 border-dashed border-destructive/50">
@@ -298,7 +337,7 @@ export default function LessonsPage() {
         )}
 
         {/* Lessons Grid */}
-        {!loading && !error && lessons.length > 0 ? (
+        {!loading && isEnrolled === true && !error && lessons.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {lessons.map((lesson) => (
               <LessonCard key={lesson.id} lesson={lesson} />
@@ -306,6 +345,7 @@ export default function LessonsPage() {
           </div>
         ) : (
           !loading &&
+          isEnrolled === true &&
           !error && (
             <div className="flex flex-col items-center justify-center py-12 rounded-lg border-2 border-dashed border-border">
               <Search size={48} className="text-muted-foreground mb-4" />

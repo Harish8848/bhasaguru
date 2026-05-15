@@ -1,116 +1,125 @@
-"use client"
-import { BookOpen, Users, Globe, Clock, Loader2, Search } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+"use client";
+import { BookOpen, Users, Globe, Clock, Loader2, Search } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Course {
-  id: string
-  slug: string
-  title: string
-  description: string
-  language: string
-  level: string
-  thumbnail: string | null
-  duration: number | null
-  lessonsCount: number
-  studentsCount: number
-  publishedAt: string | null
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  language: string;
+  level: string;
+  thumbnail: string | null;
+  duration: number | null;
+  lessonsCount: number;
+  studentsCount: number;
+  publishedAt: string | null;
 }
 
 export default function CoursesSection() {
-  const router = useRouter()
-  const [courses, setCourses] = useState<Course[]>([])
-  const [loading, setLoading] = useState(true)
-  const [languages, setLanguages] = useState<{code: string, label: string, icon: string}[]>([])
-  const [languageStats, setLanguageStats] = useState<{[key: string]: {courses: number, learners: number}}>({})
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("all")
-  const [searchQuery, setSearchQuery] = useState("")
+  const router = useRouter();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [languages, setLanguages] = useState<
+    { code: string; label: string; icon: string }[]
+  >([]);
+  const [languageStats, setLanguageStats] = useState<{
+    [key: string]: { courses: number; learners: number };
+  }>({});
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleStartLearning = (course: Course) => {
-    router.push(`/lessons?language=${course.language}&level=${course.level}`)
-  }
+  const handleStartLearning = (_course: Course) => {
+    router.push(`/courses`);
+  };
 
   // CEFR Levels based on database enum
-  
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        setLoading(true)
-        const params = new URLSearchParams()
+        setLoading(true);
+        const params = new URLSearchParams();
         if (selectedLanguage && selectedLanguage !== "all") {
-          params.append("language", selectedLanguage)
+          params.append("language", selectedLanguage);
         }
         if (searchQuery) {
-          params.append("search", searchQuery)
+          params.append("search", searchQuery);
         }
 
-        const url = `/api/courses${params.toString() ? `?${params.toString()}` : ''}`
-        const response = await fetch(url)
-        const result = await response.json()
+        const url = `/api/courses${
+          params.toString() ? `?${params.toString()}` : ""
+        }`;
+        const response = await fetch(url);
+        const result = await response.json();
 
         if (result.courses) {
-          console.log('Fetched courses:', result.courses)
-          setCourses(result.courses.slice(0, 6)) // Limit to 6 for featured section
+          console.log("Fetched courses:", result.courses);
+          setCourses(result.courses.slice(0, 6)); // Limit to 6 for featured section
 
           // Calculate distinct languages from courses
-          const languageSet = new Set<string>()
-          const languageStats: {[key: string]: {courses: number, learners: number}} = {}
+          const languageSet = new Set<string>();
+          const languageStats: {
+            [key: string]: { courses: number; learners: number };
+          } = {};
 
           result.courses.forEach((course: Course) => {
-            languageSet.add(course.language)
-            const langCode = course.language  // Use original case to match codes
+            languageSet.add(course.language);
+            const langCode = course.language; // Use original case to match codes
             if (!languageStats[langCode]) {
-              languageStats[langCode] = { courses: 0, learners: 0 }
+              languageStats[langCode] = { courses: 0, learners: 0 };
             }
-            languageStats[langCode].courses += 1
-            languageStats[langCode].learners += course.studentsCount || 0
-          })
+            languageStats[langCode].courses += 1;
+            languageStats[langCode].learners += course.studentsCount || 0;
+          });
 
           // Create language objects with icons
-          const languageIcons: {[key: string]: string} = {
-            'Japanese': '🇯🇵',
-            'Korean': '🇰🇷',
-            'English': '🇺🇸'
-          }
+          const languageIcons: { [key: string]: string } = {
+            Japanese: "🇯🇵",
+            Korean: "🇰🇷",
+            English: "🇺🇸",
+          };
 
-          const dynamicLanguages = Array.from(languageSet).map(lang => ({
-            code: lang,  // Use the original case to match database
+          const dynamicLanguages = Array.from(languageSet).map((lang) => ({
+            code: lang, // Use the original case to match database
             label: lang,
-            icon: languageIcons[lang] || '🌍'
-          }))
+            icon: languageIcons[lang] || "🌍",
+          }));
 
-          setLanguages(dynamicLanguages)
-          setLanguageStats(languageStats)
-          console.log('Calculated language stats:', languageStats)
+          setLanguages(dynamicLanguages);
+          setLanguageStats(languageStats);
+          console.log("Calculated language stats:", languageStats);
         }
       } catch (err) {
-        console.error('Failed to fetch courses:', err)
+        console.error("Failed to fetch courses:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchCourses()
-  }, [selectedLanguage, searchQuery])
+    fetchCourses();
+  }, [selectedLanguage, searchQuery]);
 
   return (
     <section className="py-12 md:py-12 bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Featured Courses */}
         <div className="space-y-8">
-
           {/* Search and Language Selection */}
           <div className="space-y-6">
             {/* Search Bar */}
             <div className="max-w-xl mx-auto">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  size={20}
+                />
                 <Input
                   placeholder="Search courses..."
                   value={searchQuery}
@@ -125,7 +134,11 @@ export default function CoursesSection() {
               <Button
                 onClick={() => setSelectedLanguage("all")}
                 variant={selectedLanguage === "all" ? "default" : "outline"}
-                className={selectedLanguage === "all" ? "bg-accent text-accent-foreground" : ""}
+                className={
+                  selectedLanguage === "all"
+                    ? "bg-accent text-accent-foreground"
+                    : ""
+                }
               >
                 🌍 All Languages
               </Button>
@@ -133,8 +146,14 @@ export default function CoursesSection() {
                 <Button
                   key={lang.code}
                   onClick={() => setSelectedLanguage(lang.code)}
-                  variant={selectedLanguage === lang.code ? "default" : "outline"}
-                  className={selectedLanguage === lang.code ? "bg-accent text-accent-foreground" : ""}
+                  variant={
+                    selectedLanguage === lang.code ? "default" : "outline"
+                  }
+                  className={
+                    selectedLanguage === lang.code
+                      ? "bg-accent text-accent-foreground"
+                      : ""
+                  }
                 >
                   {lang.icon} {lang.label}
                 </Button>
@@ -149,7 +168,10 @@ export default function CoursesSection() {
           ) : courses.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {courses.map((course) => (
-                <Card key={course.id} className="border-border hover:shadow-lg transition-shadow group cursor-pointer overflow-hidden">
+                <Card
+                  key={course.id}
+                  className="border-border hover:shadow-lg transition-shadow group cursor-pointer overflow-hidden"
+                >
                   <div className="aspect-video bg-muted overflow-hidden relative">
                     <img
                       src={course.thumbnail || "/placeholder.svg"}
@@ -196,7 +218,7 @@ export default function CoursesSection() {
                       className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
                       onClick={() => handleStartLearning(course)}
                     >
-                      Start Learning
+                      Enroll Now
                     </Button>
                   </CardContent>
                 </Card>
@@ -204,11 +226,13 @@ export default function CoursesSection() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No courses available at the moment.</p>
+              <p className="text-muted-foreground">
+                No courses available at the moment.
+              </p>
             </div>
           )}
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -3,18 +3,6 @@
 import { StatCard } from "@/components/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-} from "recharts";
-import {
   Users,
   BookOpen,
   BarChart3,
@@ -99,7 +87,6 @@ export default function DashboardPage() {
   const totalCourses = overview.totalCourses ?? 0;
   const publishedCourses = overview.publishedCourses ?? 0;
   const totalEnrollments = overview.totalEnrollments ?? 0;
-  const totalTests = overview.totalTests ?? 0;
   const totalJobs = overview.totalJobs ?? 0;
   const activeJobs = overview.activeJobs ?? 0;
   const totalArticles = overview.totalArticles ?? 0;
@@ -140,12 +127,7 @@ export default function DashboardPage() {
           subtext="Total student enrollments"
           icon={<BarChart3 size={24} />}
         />
-        <StatCard
-          title="Mock Tests"
-          value={totalTests.toString()}
-          subtext="Available assessments"
-          icon={<BarChart3 size={24} />}
-        />
+      
         <StatCard
           title="Job Listings"
           value={totalJobs.toString()}

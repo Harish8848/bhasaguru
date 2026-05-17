@@ -1,18 +1,27 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { LayoutDashboard, BookOpen, BarChart3, Briefcase, FileText, Users, LogOut, Video } from "lucide-react"
-import { useAppSelector } from "@/lib/hooks"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import {
+  LayoutDashboard,
+  BookOpen,
+  BarChart3,
+  Briefcase,
+  FileText,
+  Users,
+  LogOut,
+  Video,
+} from "lucide-react";
+import { useAppSelector } from "@/lib/hooks";
 
 interface DashboardSidebarProps {
-  role: "ADMIN" | "MODERATOR"
+  role: "ADMIN" | "MODERATOR";
 }
 
 export function DashboardSidebar({ role }: DashboardSidebarProps) {
-  const pathname = usePathname()
-  const isOpen = useAppSelector((state) => state.ui.isSidebarOpen)
+  const pathname = usePathname();
+  const isOpen = useAppSelector((state) => state.ui.isSidebarOpen);
 
   const adminLinks = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -23,7 +32,12 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
     { href: "/admin/enrollments", label: "Enrollments", icon: Users },
     { href: "/admin/culture", label: "Culture Posts", icon: FileText },
     { href: "/admin/users", label: "Users", icon: Users },
-  ]
+    {
+      href: "/admin/student-feedback",
+      label: "Student Feedback",
+      icon: FileText,
+    },
+  ];
 
   const moderatorLinks = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -32,9 +46,9 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
     { href: "/admin/jobs", label: "Jobs Board", icon: Briefcase },
     { href: "/admin/enrollments", label: "Enrollments", icon: Users },
     { href: "/admin/culture", label: "Culture Posts", icon: FileText },
-  ]
+  ];
 
-  const links = role === "ADMIN" ? adminLinks : moderatorLinks
+  const links = role === "ADMIN" ? adminLinks : moderatorLinks;
 
   return (
     <>
@@ -42,18 +56,20 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
       <aside
         className={cn(
           "fixed left-0 top-0 h-screen w-64 bg-sidebar border-r border-sidebar-border transition-all duration-300 z-40",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex flex-col h-full p-6 gap-8">
           {/* Logo */}
-          <div className="text-2xl font-bold text-sidebar-primary">BhasaGuru</div>
+          <div className="text-2xl font-bold text-sidebar-primary">
+            BhasaGuru
+          </div>
 
           {/* Navigation */}
           <nav className="flex-1 space-y-2">
             {links.map((link) => {
-              const Icon = link.icon
-              const isActive = pathname === link.href
+              const Icon = link.icon;
+              const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.href}
@@ -62,13 +78,13 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
                     "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium",
                     isActive
                       ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )}
                 >
                   <Icon size={18} />
                   {link.label}
                 </Link>
-              )
+              );
             })}
           </nav>
 
@@ -89,7 +105,12 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
       </aside>
 
       {/* Overlay for mobile */}
-      {isOpen && <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => {}} />}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => {}}
+        />
+      )}
     </>
-  )
+  );
 }

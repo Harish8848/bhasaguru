@@ -31,11 +31,12 @@ export function withErrorHandler(
         );
       }
 
-      // Default error response
+      // Default error response (include message for easier debugging)
       return NextResponse.json(
-        { success: false, message: 'Internal server error' },
+        { success: false, message: error?.message ?? 'Internal server error' },
         { status: 500 }
       );
+
     }
   };
 }

@@ -5,9 +5,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) {
     try {
+      const { id } = await params;
       const session = await getServerSession(authOptions);
       
       if (!session) {
@@ -22,7 +23,7 @@ export async function POST(
         where: {
           userId_jobId: {
             userId: session.user.id,
-            jobId: params.id,
+            jobId: id,
           },
         },
       });
@@ -37,7 +38,7 @@ export async function POST(
       const application = await prisma.jobApplication.create({
         data: {
           userId: session.user.id,
-          jobId: params.id,
+          jobId: id,
           resumeUrl,
           coverLetter,
         },
@@ -45,7 +46,7 @@ export async function POST(
   
       // Increment application count
       await prisma.jobListing.update({
-        where: { id: params.id },
+        where: { id },
         data: { applicationCount: { increment: 1 } },
       });
   

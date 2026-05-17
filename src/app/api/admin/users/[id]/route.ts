@@ -6,15 +6,16 @@ import { withErrorHandler } from '@/lib/api-wrapper';
 
 export const PATCH = withErrorHandler(async (
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     await requireAdmin();
+    const { id } = await params;
   
     const body = await request.json();
     const { role, status } = body;
   
     const user = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(role && { role }),
         ...(status && { status }),
@@ -27,12 +28,13 @@ export const PATCH = withErrorHandler(async (
   // DELETE - Delete user (soft delete)
   export const DELETE = withErrorHandler(async (
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     await requireAdmin();
+    const { id } = await params;
   
     await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: { status: 'DELETED' },
     });
   

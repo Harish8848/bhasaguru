@@ -5,12 +5,13 @@ import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
 export const GET = withErrorHandler(async (
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     await requireAdmin();
+    const { id } = await params;
   
     const questions = await prisma.question.findMany({
-      where: { testId: params.id },
+      where: { testId: id },
       orderBy: { order: 'asc' },
     });
   
@@ -20,22 +21,23 @@ export const GET = withErrorHandler(async (
   // POST - Add question to test
   export const POST = withErrorHandler(async (
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     await requireAdmin();
+    const { id } = await params;
   
     const body = await request.json();
   
     const question = await prisma.question.create({
       data: {
         ...body,
-        testId: params.id,
+        testId: id,
       },
     });
   
     // Update test question count
     await prisma.mockTest.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         questionsCount: { increment: 1 },
       },

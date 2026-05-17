@@ -35,12 +35,7 @@ type TestFormData = {
 
 const languages = [
   { value: "Japanese", label: "Japanese" },
-  { value: "Korean", label: "Korean" },
-  { value: "English", label: "English" },
-  { value: "Chinese", label: "Chinese" },
-  { value: "French", label: "French" },
-  { value: "German", label: "German" },
-  { value: "Spanish", label: "Spanish" },
+ 
 ]
 
 const japaneseModules = [

@@ -5,9 +5,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) {
     try {
+      const { id } = await params;
       const session = await getServerSession(authOptions);
       
       if (!session) {
@@ -15,7 +16,7 @@ export async function POST(
       }
   
       const test = await prisma.mockTest.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
           questions: {
             orderBy: { order: "asc" },
@@ -47,7 +48,7 @@ export async function POST(
       const attempt = await prisma.testAttempt.create({
         data: {
           userId: session.user.id,
-          testId: params.id,
+          testId: id,
           score: 0,
           correctAnswers: 0,
           totalQuestions: questions.length,

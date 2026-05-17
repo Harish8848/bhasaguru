@@ -6,12 +6,13 @@ import { ApiResponse } from '@/lib/api-response';
 
 export const GET = withErrorHandler(async (
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     await requireAdmin();
+    const { id } = await params;
 
     const applications = await prisma.jobApplication.findMany({
-      where: { jobId: params.id },
+      where: { jobId: id },
       include: {
         user: {
           select: {

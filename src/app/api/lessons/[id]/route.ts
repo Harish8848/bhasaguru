@@ -5,13 +5,14 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) {
     try {
+      const { id } = await params;
       const session = await getServerSession(authOptions);
   
       const lesson = await prisma.lesson.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
           course: {
             select: {
@@ -54,7 +55,7 @@ export async function GET(
           where: {
             userId_lessonId: {
               userId: session.user.id,
-              lessonId: params.id,
+              lessonId: id,
             },
           },
         });

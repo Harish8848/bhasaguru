@@ -6,15 +6,16 @@ import { ApiResponse } from '@/lib/api-response';
 
 export const POST = withErrorHandler(async (
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     await requireAdmin();
+    const { id } = await params;
   
     const body = await request.json();
     const { status } = body; // 'PUBLISHED' or 'DRAFT'
   
     const course = await prisma.course.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status,
         publishedAt: status === 'PUBLISHED' ? new Date() : null,

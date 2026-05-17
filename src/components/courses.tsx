@@ -31,13 +31,7 @@ export default function CoursesSection() {
   const [loading, setLoading] = useState(true);
   const [enrollingCourseId, setEnrollingCourseId] = useState<string | null>(null);
   const [showProfileAlert, setShowProfileAlert] = useState(false);
-  const [languages, setLanguages] = useState<
-    { code: string; label: string; icon: string }[]
-  >([]);
-  const [languageStats, setLanguageStats] = useState<{
-    [key: string]: { courses: number; learners: number };
-  }>({});
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("all");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("Japanese");
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleEnroll = async (course: Course) => {
@@ -70,9 +64,7 @@ export default function CoursesSection() {
       
       // Refresh courses from API to get updated enrollment status
       const params = new URLSearchParams();
-      if (selectedLanguage && selectedLanguage !== "all") {
-        params.append("language", selectedLanguage);
-      }
+      params.append("language", "Japanese");
       if (searchQuery) {
         params.append("search", searchQuery);
       }
@@ -80,11 +72,11 @@ export default function CoursesSection() {
       const url = `/api/courses${
         params.toString() ? `?${params.toString()}` : ""
       }`;
-      
+
       setLoading(true);
       const coursesResponse = await fetch(url);
       const coursesResult = await coursesResponse.json();
-      
+
       if (coursesResult.courses) {
         setCourses(coursesResult.courses.slice(0, 6));
       }
@@ -108,9 +100,7 @@ export default function CoursesSection() {
       try {
         setLoading(true);
         const params = new URLSearchParams();
-        if (selectedLanguage && selectedLanguage !== "all") {
-          params.append("language", selectedLanguage);
-        }
+        params.append("language", "Japanese");
         if (searchQuery) {
           params.append("search", searchQuery);
         }
@@ -123,36 +113,6 @@ export default function CoursesSection() {
 
         if (result.courses) {
           setCourses(result.courses.slice(0, 6));
-
-          const languageSet = new Set<string>();
-          const languageStats: {
-            [key: string]: { courses: number; learners: number };
-          } = {};
-
-          result.courses.forEach((course: Course) => {
-            languageSet.add(course.language);
-            const langCode = course.language;
-            if (!languageStats[langCode]) {
-              languageStats[langCode] = { courses: 0, learners: 0 };
-            }
-            languageStats[langCode].courses += 1;
-            languageStats[langCode].learners += course.studentsCount || 0;
-          });
-
-          const languageIcons: { [key: string]: string } = {
-            Japanese: "🇯🇵",
-            Korean: "🇰🇷",
-            English: "🇺🇸",
-          };
-
-          const dynamicLanguages = Array.from(languageSet).map((lang) => ({
-            code: lang,
-            label: lang,
-            icon: languageIcons[lang] || "🌍",
-          }));
-
-          setLanguages(dynamicLanguages);
-          setLanguageStats(languageStats);
         }
       } catch (err) {
         console.error("Failed to fetch courses:", err);
@@ -162,7 +122,7 @@ export default function CoursesSection() {
     };
 
     fetchCourses();
-  }, [selectedLanguage, searchQuery]);
+  }, []);
 
   return (
     <>
@@ -192,36 +152,7 @@ export default function CoursesSection() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 justify-center">
-                <Button
-                  onClick={() => setSelectedLanguage("all")}
-                  variant={selectedLanguage === "all" ? "default" : "outline"}
-                  className={
-                    selectedLanguage === "all"
-                      ? "bg-accent text-accent-foreground"
-                      : ""
-                  }
-                >
-                  🌍 All Languages
-                </Button>
-                {languages.map((lang) => (
-                  <Button
-                    key={lang.code}
-                    onClick={() => setSelectedLanguage(lang.code)}
-                    variant={
-                      selectedLanguage === lang.code ? "default" : "outline"
-                    }
-                    className={
-                      selectedLanguage === lang.code
-                        ? "bg-accent text-accent-foreground"
-                        : ""
-                    }
-                  >
-                    {lang.icon} {lang.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
+                          </div>
 
             {loading ? (
               <div className="flex justify-center items-center h-64">

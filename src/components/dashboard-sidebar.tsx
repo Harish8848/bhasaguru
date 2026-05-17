@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   BookOpen,
-  BarChart3,
   Briefcase,
   FileText,
   Users,
@@ -27,7 +26,6 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/courses", label: "Courses", icon: BookOpen },
     { href: "/admin/lessons", label: "Lessons", icon: Video },
-    { href: "/admin/mock-tests", label: "Mock Tests", icon: BarChart3 },
     { href: "/admin/jobs", label: "Jobs Board", icon: Briefcase },
     { href: "/admin/enrollments", label: "Enrollments", icon: Users },
     { href: "/admin/culture", label: "Culture Posts", icon: FileText },
@@ -42,7 +40,6 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
   const moderatorLinks = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/courses", label: "Courses", icon: BookOpen },
-    { href: "/admin/mock-tests", label: "Mock Tests", icon: BarChart3 },
     { href: "/admin/jobs", label: "Jobs Board", icon: Briefcase },
     { href: "/admin/enrollments", label: "Enrollments", icon: Users },
     { href: "/admin/culture", label: "Culture Posts", icon: FileText },

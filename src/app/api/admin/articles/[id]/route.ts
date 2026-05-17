@@ -42,10 +42,19 @@ export const PATCH = withErrorHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  // Generate slug if title is being updated
+  // Generate unique slug if title is being updated
   const updateData = { ...body };
   if (body.title) {
-    updateData.slug = body.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    let baseSlug = body.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Check for existing slugs (excluding current article) and append counter if needed
+    while (await prisma.article.findUnique({ where: { slug, NOT: { id } } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    updateData.slug = slug;
   }
 
   // Handle publishedAt based on status

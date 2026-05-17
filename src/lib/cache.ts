@@ -27,21 +27,26 @@ export const cacheHelpers = {
   },
 
   delete: async (key: string) => {
+    // Skip cache if Redis is not ready
+    if (redis.status !== 'ready') return;
+
     try {
       await redis.del(key);
     } catch (error) {
-      console.error(`Cache delete failed (Status: ${redis.status}):`, error);
+      console.warn(`Cache delete failed (Status: ${redis.status}):`, error);
     }
   },
 
   deletePattern: async (pattern: string) => {
+    // Skip cache operations if Redis is not ready
+    if (redis.status !== 'ready') return;
+
     try {
-      // Use scan for better performance on large datasets compared to keys
       const stream = redis.scanStream({
         match: pattern,
         count: 100
       });
-      
+
       stream.on('data', async (keys: string[]) => {
         if (keys.length) {
           await redis.del(...keys);
@@ -53,15 +58,18 @@ export const cacheHelpers = {
         stream.on('error', (err) => reject(err));
       });
     } catch (error) {
-      console.error(`Cache pattern delete failed (Status: ${redis.status}):`, error);
+      console.warn(`Cache pattern delete failed (Status: ${redis.status}):`, error);
     }
   },
 
   clear: async () => {
+    // Skip cache if Redis is not ready
+    if (redis.status !== 'ready') return;
+
     try {
       await redis.flushall();
     } catch (error) {
-      console.error(`Cache clear failed (Status: ${redis.status}):`, error);
+      console.warn(`Cache clear failed (Status: ${redis.status}):`, error);
     }
   },
 };

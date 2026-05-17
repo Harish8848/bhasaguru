@@ -9,18 +9,11 @@ import {
   ImageIcon,
   Play,
   Search,
-  ChevronLeft,
-  ChevronRight,
   Loader2,
 } from "lucide-react";
-import { useState, useRef, useEffect, useMemo, useCallback, memo } from "react";
+import { useState, useEffect, memo } from "react";
 import { useSearchParams } from "next/navigation";
 
-const languages = [
-  { id: "Japanese", name: "Japanese", flag: "🇯🇵" },
-  { id: "Korean", name: "Korean", flag: "🇰🇷" },
-  { id: "English", name: "English", flag: "🇬🇧" },
-];
 
 const typeConfig = {
   video: {
@@ -105,7 +98,7 @@ LessonCard.displayName = "LessonCard";
 
 export default function LessonsPage() {
   const searchParams = useSearchParams();
-  const [selectedLanguage, setSelectedLanguage] = useState("Japanese");
+  const [selectedLanguage] = useState("Japanese");
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -113,16 +106,10 @@ export default function LessonsPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   // Initialize state from URL parameters
   useEffect(() => {
-    const language = searchParams.get("language");
     const level = searchParams.get("level");
 
-    if (language) {
-      setSelectedLanguage(language);
-    }
     if (level) {
       setSelectedLevel(level);
     }
@@ -198,24 +185,7 @@ export default function LessonsPage() {
     fetchLessons();
   }, [isEnrolled, selectedLanguage, selectedLevel, debouncedSearchTerm]);
 
-  const selectedLanguageData = languages.find((l) => l.id === selectedLanguage);
-
-  const scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const amount = 300;
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -amount : amount,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  const handleLanguageChange = (languageId: string) => {
-    setSelectedLanguage(languageId);
-    setSelectedLevel(null); // Reset level when language changes
-    setSearchTerm("");
-  };
-
+  
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -236,56 +206,11 @@ export default function LessonsPage() {
           </div>
         </div>
 
-        {/* Language Selection */}
-        <div className="space-y-4 ">
-          <h2 className="text-lg font-semibold text-foreground">
-            Select Language
-          </h2>
-          <div className="relative mx-auto">
-            <button
-              onClick={() => scroll("left")}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background border border-border rounded-full p-2 hover:bg-muted transition-colors"
-            >
-              <ChevronLeft size={20} className="text-foreground" />
-            </button>
-
-            <div
-              ref={scrollRef}
-              className="flex gap-3 overflow-x-auto scrollbar-hide px-12 "
-              style={{ scrollBehavior: "smooth" }}
-            >
-              {languages.map((lang) => (
-                <button
-                  key={lang.id}
-                  onClick={() => handleLanguageChange(lang.id)}
-                  className={`flex flex-col items-center gap-2 px-4 py-4 rounded-lg border-2 transition-all whitespace-nowrap shrink-0 ${
-                    selectedLanguage === lang.id
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-card hover:border-primary/50"
-                  }`}
-                >
-                  <span className="text-3xl">{lang.flag}</span>
-                  <span className="text-sm font-medium text-foreground">
-                    {lang.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => scroll("right")}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background border border-border rounded-full p-2 hover:bg-muted transition-colors"
-            >
-              <ChevronRight size={20} className="text-foreground" />
-            </button>
-          </div>
-        </div>
-
         {/* Results Info */}
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-foreground">
-              {selectedLanguageData?.name} Lessons
+              Japanese Lessons
               {selectedLevel && (
                 <span className="text-primary ml-2">({selectedLevel})</span>
               )}
@@ -314,7 +239,7 @@ export default function LessonsPage() {
         {!loading && isEnrolled === false && (
           <div className="flex flex-col items-center justify-center py-12 rounded-lg border-2 border-dashed border-border">
             <p className="text-center text-muted-foreground font-medium">
-              Enroll now to get access for lessons and mock test data
+              Enroll now to get access to all lessons
             </p>
             <Button
               className="mt-6 bg-accent hover:bg-accent/90 text-accent-foreground"

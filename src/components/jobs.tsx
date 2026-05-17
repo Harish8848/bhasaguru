@@ -25,7 +25,7 @@ export default function JobsSection() {
   const [jobs, setJobs] = useState<JobListing[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedCountry, setSelectedCountry] = useState("japan")
+  const [selectedCountry] = useState("japan")
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
 
@@ -112,26 +112,7 @@ export default function JobsSection() {
             </Button>
           </div>
 
-          {/* Country Filter */}
-          <div className="flex flex-wrap gap-2 justify-center">
-            {[
-              { key: "japan", label: "🇯🇵 Japan" },
-              { key: "korea", label: "🇰🇷 Korea" },
-              { key: "uk", label: "🇬🇧 UK" },
-              { key: "us", label: "🇺🇸 US" },
-              { key: "australia", label: "🇦🇺 Australia" },
-            ].map((country) => (
-              <Button
-                key={country.key}
-                onClick={() => setSelectedCountry(country.key)}
-                variant={selectedCountry === country.key ? "default" : "outline"}
-                className={selectedCountry === country.key ? "bg-accent text-accent-foreground" : ""}
-              >
-                {country.label}
-              </Button>
-            ))}
-          </div>
-        </div>
+                  </div>
 
         {/* Featured Job Listings */}
         <div className="space-y-4">

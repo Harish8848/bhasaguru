@@ -55,10 +55,7 @@ export default function Navbar() {
             <Link href="/contact" className="text-sm font-medium hover:text-accent transition-colors">
               Contact
             </Link>
-            <Link href="/mock-tests" className="text-sm font-medium hover:text-accent transition-colors">
-              Mock Tests
-            </Link>
-          </div>
+                      </div>
 
           {/* CTA Buttons - Desktop */}
           <div className="hidden md:flex items-center gap-3">
@@ -140,10 +137,7 @@ export default function Navbar() {
             <Link href="/contact" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Contact
             </Link>
-            <Link href="/mock-tests" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
-              Mock Tests
-            </Link>
-            
+                        
             {/* Sign In for Non-authenticated Users */}
             {!session && (
               <div className="pt-3">

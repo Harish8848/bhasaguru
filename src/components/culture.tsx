@@ -24,7 +24,6 @@ interface Article {
 export default function CultureSection() {
   const [articles, setArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedCountry, setSelectedCountry] = useState("all")
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -45,19 +44,7 @@ export default function CultureSection() {
     fetchArticles()
   }, [])
 
-  const filteredPosts = selectedCountry === "all"
-    ? articles
-    : articles.filter(post => {
-        // Map language to country for filtering
-        const countryMap: { [key: string]: string } = {
-          'japan': 'Japanese',
-          'korea': 'Korean',
-          'uk': 'English',
-          'us': 'English',
-          'australia': 'English'
-        }
-        return countryMap[selectedCountry] === post.language
-      })
+  const filteredPosts = articles.filter(post => post.language === 'Japanese')
 
   if (loading) {
     return (
@@ -74,27 +61,7 @@ export default function CultureSection() {
   return (
     <section className="py-8 md:py-8  border-t border-border bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Country Filter */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          {[
-            { key: "all", label: "🌍 All Countries" },
-            { key: "japan", label: "🇯🇵 Japan" },
-            { key: "korea", label: "🇰🇷 Korea" },
-            { key: "uk", label: "🇬🇧 UK" },
-            { key: "us", label: "🇺🇸 US" },
-            { key: "australia", label: "🇦🇺 Australia" },
-          ].map((country) => (
-            <Button
-              key={country.key}
-              onClick={() => setSelectedCountry(country.key)}
-              variant={selectedCountry === country.key ? "default" : "outline"}
-              className={selectedCountry === country.key ? "bg-accent text-accent-foreground" : ""}
-            >
-              {country.label}
-            </Button>
-          ))}
-        </div>
-
+        
         <div className="grid md:grid-cols-3 gap-6">
           {filteredPosts.map((post) => (
             <Card
@@ -106,7 +73,7 @@ export default function CultureSection() {
                   src={post.featuredImage || "/placeholder.svg"}
                   alt={post.title}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform"
+                  className=" object-contain group-hover:scale-105 transition-transform"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   priority={false}
                   loading="lazy"

@@ -46,12 +46,20 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   // POST - Create article
   export const POST = withErrorHandler(async (request: NextRequest) => {
     await requireAdmin();
-  
+
     const body = await request.json();
-  
-    // Generate slug
-    const slug = body.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-  
+
+    // Generate unique slug
+    let baseSlug = body.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Check for existing slugs and append counter if needed
+    while (await prisma.article.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     const article = await prisma.article.create({
       data: {
         ...body,
@@ -61,6 +69,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     });
 
     await cacheHelpers.deletePattern('articles:*');
-  
+
     return ApiResponse.success(article, 'Article created successfully', 201);
   });

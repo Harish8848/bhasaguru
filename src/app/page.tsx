@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic'
 import Navbar from "@/components/navbar"
 import HeroSection from "@/components/hero"
+import StudentFeedbackSection from '@/components/student-feedback'
 
 // Lazy load non-critical sections below the fold
 const FeaturesSection = dynamic(() => import("@/components/features"), {
@@ -30,6 +31,7 @@ export default function Home() {
       <main className="grow">
         <HeroSection />
         <FeaturesSection />
+        <StudentFeedbackSection/>
         <StatsSection />
       </main>
       <Footer />

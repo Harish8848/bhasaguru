@@ -5,6 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -79,6 +80,25 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verificationtokens")
+}
+
+model AdminNotification {
+  id        String   @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([isRead, createdAt])
+  @@index([type, createdAt])
+  @@map("admin_notifications")
+}
+
+enum NotificationType {
+  NEW_USER_REGISTRATION
+  CONTACT_FORM_SUBMISSION
 }
 
 model Course {

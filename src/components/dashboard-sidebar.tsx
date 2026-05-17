@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -11,6 +12,7 @@ import {
   Users,
   LogOut,
   Video,
+  Bell,
 } from "lucide-react";
 import { useAppSelector } from "@/lib/hooks";
 
@@ -34,6 +36,11 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
       href: "/admin/student-feedback",
       label: "Student Feedback",
       icon: FileText,
+    },
+    {
+      href: "/admin/notifications",
+      label: "Notifications",
+      icon: Bell,
     },
   ];
 
@@ -93,7 +100,10 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
                 {role === "ADMIN" ? "Administrator" : "Moderator"}
               </p>
             </div>
-            <button className="w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors text-sm">
+            <button
+              onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+              className="w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors text-sm cursor-pointer"
+            >
               <LogOut size={16} />
               Logout
             </button>

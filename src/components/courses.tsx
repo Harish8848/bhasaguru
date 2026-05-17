@@ -147,7 +147,7 @@ export default function CoursesSection() {
                     placeholder="Search courses..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-11 bg-input border-border text-foreground placeholder:text-muted-foreground text-base"
+                    className="bg-accent/10 pl-10 h-11 border-border text-foreground placeholder:text-muted-foreground text-base"
                   />
                 </div>
               </div>

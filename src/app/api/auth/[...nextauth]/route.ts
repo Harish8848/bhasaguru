@@ -43,7 +43,25 @@ export const authOptions: NextAuthOptions = {
   events: {
     signOut: async (message) => {
       console.log("User signed out:", message);
-      // Additional cleanup can be done here if needed
+    },
+    createUser: async (user) => {
+      console.log("New user created:", user.email);
+      try {
+        await prisma.adminNotification.create({
+          data: {
+            type: 'NEW_USER_REGISTRATION',
+            title: 'New User Registration',
+            message: `A new user${user.name ? ` (${user.name})` : ''} has registered with email: ${user.email}`,
+            metadata: {
+              userId: user.id,
+              email: user.email,
+              name: user.name,
+            },
+          },
+        })
+      } catch (error) {
+        console.error('Failed to create notification for new user:', error)
+      }
     },
   },
 };

@@ -187,22 +187,23 @@ export default function LessonsPage() {
 
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background ">
       {/* Header */}
       <main className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
         {/* Search Bar */}
         <div className="max-w-xl mx-auto">
-          <div className="relative">
+          <div className="relative gap-2   mx-auto ">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              size={20}
+              size={10}
             />
             <Input
               placeholder="Search lessons..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-11 bg-input border-border text-foreground placeholder:text-muted-foreground text-base"
+              className="pl-10  h-11 bg-accent/10 border-border text-foreground placeholder:text-muted-foreground text-base"
             />
+            
           </div>
         </div>
 

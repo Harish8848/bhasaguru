@@ -251,7 +251,7 @@ export default function EnrollmentsPage() {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px] bg-input border-border">
+          <SelectTrigger className="w-180px bg-input border-border">
             <Filter size={16} className="mr-2" />
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -327,7 +327,7 @@ export default function EnrollmentsPage() {
                         {enrollment.user.name || 'Not specified'}
                       </p>
                       {enrollment.user.address && (
-                        <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                        <p className="text-xs text-muted-foreground truncate max-w-150px">
                           {enrollment.user.address}
                         </p>
                       )}

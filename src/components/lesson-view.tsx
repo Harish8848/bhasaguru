@@ -177,7 +177,7 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
                             <CardContent className="p-0">
                                 {isImage && (
                                      /* eslint-disable-next-line @next/next/no-img-element */
-                                    <img src={att.url} alt={att.name} className="w-full h-auto object-contain max-h-600px" />
+                                    <img src={att.url} alt={att.name} className="flex mx-auto h-auto object-cover max-h-600px" />
                                 )}
                                 {isVideo && (
                                     <div className="aspect-video bg-black">
@@ -227,7 +227,7 @@ export function LessonView({ lesson, progress, prevLesson, nextLesson, userId }:
                     <CardHeader>
                         <CardTitle>Lesson Content</CardTitle>
                     </CardHeader>
-                    <CardContent className="whitespace-pre-wrap">
+                    <CardContent className="whitespace-pre-wrap flex mx-auto max-w-3xl justify-center">
                         <p className="text-2xl" dangerouslySetInnerHTML={{  __html : lesson.content  }} >
                         </p>
                     </CardContent>

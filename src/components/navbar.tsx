@@ -52,7 +52,7 @@ export default function Navbar() {
               Culture
             </Link>
             <Link href="/blog" className="text-sm font-medium hover:text-accent transition-colors">
-              Blog
+              Blogs
             </Link>
             <Link href="/gallery" className="text-sm font-medium hover:text-accent transition-colors">
               Gallery

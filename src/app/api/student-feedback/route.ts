@@ -76,7 +76,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   });
 
   // Shape data for the UI
-  return ApiResponse.success({
+  const response = ApiResponse.success({
     comments: comments.map((c) => ({
       id: c.id,
       content: c.content,
@@ -87,6 +87,12 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       },
     })),
   });
+
+  // Prevent caching so new submissions appear immediately
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  response.headers.set('Pragma', 'no-cache');
+
+  return response;
 });
 
 export const POST = withErrorHandler(async (request: NextRequest) => {

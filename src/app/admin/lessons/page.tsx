@@ -169,16 +169,16 @@ export default function LessonsPage() {
         </Button>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1 max-w-sm">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+      {/* Search */}
+      <div className="flex flex-col min-h-screen ">
+        <div className=" grow container max-w-4xl mx-auto p-8">
+          <div className="relative flex-1 max-w-sm mx-auto">
+            <Search className="absolute  top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
             <Input
               placeholder="Search lessons..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-input border-border text-foreground placeholder:text-muted-foreground"
+              className="pl-10  bg-input border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>

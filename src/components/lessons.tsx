@@ -133,7 +133,10 @@ export default function LessonsPage() {
         setLoading(true);
         setError(null);
 
-        const res = await fetch("/api/users/enrollment-status");
+        // Use cache-busting to ensure fresh enrollment status
+        const res = await fetch(`/api/users/enrollment-status?t=${Date.now()}`, {
+          cache: 'no-store'
+        });
         const data = await res.json();
         setIsEnrolled(!!data?.enrolled);
       } catch {
@@ -208,7 +211,7 @@ export default function LessonsPage() {
         </div>
 
         {/* Results Info */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between ">
           <div>
             <h2 className="text-2xl font-bold text-foreground">
               Japanese Lessons
@@ -264,7 +267,7 @@ export default function LessonsPage() {
 
         {/* Lessons Grid */}
         {!loading && isEnrolled === true && !error && lessons.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6   ">
             {lessons.map((lesson) => (
               <LessonCard key={lesson.id} lesson={lesson} />
             ))}

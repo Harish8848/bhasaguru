@@ -9,8 +9,6 @@ export const GET = withErrorHandler(async () => {
     activeUsers,
     totalCourses,
     publishedCourses,
-    totalJobs,
-    activeJobs,
     totalArticles,
     publishedArticles,
   ] = await Promise.all([
@@ -18,8 +16,6 @@ export const GET = withErrorHandler(async () => {
     prisma.user.count({ where: { status: 'ACTIVE' } }),
     prisma.course.count(),
     prisma.course.count({ where: { status: 'PUBLISHED' } }),
-    prisma.jobListing.count(),
-    prisma.jobListing.count({ where: { status: 'ACTIVE' } }),
     prisma.article.count(),
     prisma.article.count({ where: { status: 'PUBLISHED' } }),
   ]);
@@ -30,7 +26,6 @@ export const GET = withErrorHandler(async () => {
   return ApiResponse.success({
     activeLearners: activeUsers,
     expertCourses: publishedCourses,
-    satisfactionRate: 95, // This could be calculated from reviews/ratings if available
-    jobPlacements: totalJobs, // Using total jobs as a proxy, could be actual placements if tracked
+    satisfactionRate: 95,
   });
 });

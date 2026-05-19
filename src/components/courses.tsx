@@ -91,8 +91,9 @@ export default function CoursesSection() {
     }
   };
 
-  const handleContinueLearning = (course: Course) => {
-    router.push(`/courses/${course.slug}`);
+  const handleContinueLearning = (_course: Course) => {
+    // Force a hard navigation to ensure fresh session state is read
+    window.location.href = "/lessons?t=" + Date.now();
   };
 
   useEffect(() => {
@@ -108,7 +109,7 @@ export default function CoursesSection() {
         const url = `/api/courses${
           params.toString() ? `?${params.toString()}` : ""
         }`;
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: "no-store" });
         const result = await response.json();
 
         if (result.courses) {
@@ -122,7 +123,7 @@ export default function CoursesSection() {
     };
 
     fetchCourses();
-  }, []);
+  }, [session?.user?.id]);
 
   return (
     <>

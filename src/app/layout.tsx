@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css";
-import favicon from "@/public/favicon.ico";
 import Providers from "@/components/providers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
@@ -20,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   icons: {
-    icon: "@/public/logo.png",
+    icon: "/favicon.ico",
   },
   title: "Yuki Consulting and Training Center - Japanese Learning and Career Advancement",
   description: "Learn Japanese(N5, N4, N3, N2) Connect with job opportunities in Japan and advance your career globally.",

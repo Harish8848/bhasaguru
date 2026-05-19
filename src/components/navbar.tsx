@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Menu, X, Globe, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signIn, signOut, useSession } from "next-auth/react"
@@ -16,6 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function Navbar() {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const { data: session, status } = useSession()
 
@@ -46,11 +48,14 @@ export default function Navbar() {
             <Link href="/courses" className="text-sm font-medium hover:text-accent transition-colors">
               Courses
             </Link>
-            <Link href="/jobs" className="text-sm font-medium hover:text-accent transition-colors">
-              Jobs
-            </Link>
             <Link href="/culture" className="text-sm font-medium hover:text-accent transition-colors">
               Culture
+            </Link>
+            <Link href="/blog" className="text-sm font-medium hover:text-accent transition-colors">
+              Blog
+            </Link>
+            <Link href="/gallery" className="text-sm font-medium hover:text-accent transition-colors">
+              Gallery
             </Link>
             <Link href="/contact" className="text-sm font-medium hover:text-accent transition-colors">
               Contact
@@ -75,9 +80,7 @@ export default function Navbar() {
                 <DropdownMenuContent>
                   <DropdownMenuLabel>{session.user?.name}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Link href="/profile">Profile</Link>
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => router.push("/profile")}>Profile</DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => signOut()}>Sign Out</DropdownMenuItem>
                 </DropdownMenuContent>
@@ -111,9 +114,7 @@ export default function Navbar() {
                   <DropdownMenuContent align="center" className="w-48">
                     <DropdownMenuLabel className="text-center">{session.user?.name}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="justify-center">
-                      <Link href="/profile" className="w-full text-center">Profile</Link>
-                    </DropdownMenuItem>
+                    <DropdownMenuItem className="justify-center" onSelect={() => router.push("/profile")}>Profile</DropdownMenuItem>
                     <DropdownMenuItem className="justify-center">Settings</DropdownMenuItem>
                     <DropdownMenuItem className="justify-center text-destructive" onClick={() => signOut()}>Sign Out</DropdownMenuItem>
                   </DropdownMenuContent>
@@ -128,11 +129,14 @@ export default function Navbar() {
             <Link href="/courses" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Courses
             </Link>
-            <Link href="/jobs" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
-              Jobs
-            </Link>
             <Link href="/culture" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Culture
+            </Link>
+            <Link href="/gallery" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
+              Gallery
+            </Link>
+            <Link href="/blog" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
+              Blog
             </Link>
             <Link href="/contact" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Contact

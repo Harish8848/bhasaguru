@@ -13,8 +13,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       totalCourses,
       publishedCourses,
       totalEnrollments,
-      totalJobs,
-      activeJobs,
       totalArticles,
       publishedArticles,
     ] = await Promise.all([
@@ -23,8 +21,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       prisma.course.count(),
       prisma.course.count({ where: { status: 'PUBLISHED' } }),
       prisma.enrollment.count(),
-      prisma.jobListing.count(),
-      prisma.jobListing.count({ where: { status: 'ACTIVE' } }),
       prisma.article.count(),
       prisma.article.count({ where: { status: 'PUBLISHED' } }),
     ]);
@@ -70,8 +66,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         totalCourses,
         publishedCourses,
         totalEnrollments,
-        totalJobs,
-        activeJobs,
         totalArticles,
         publishedArticles,
         newUsersLast30Days,

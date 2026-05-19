@@ -6,7 +6,6 @@ import {
   Users,
   BookOpen,
   BarChart3,
-  Briefcase,
   FileText,
   Loader2,
 } from "lucide-react";
@@ -20,8 +19,6 @@ interface StatisticsData {
     publishedCourses: number;
     totalEnrollments: number;
     totalTests: number;
-    totalJobs: number;
-    activeJobs: number;
     totalArticles: number;
     publishedArticles: number;
     newUsersLast30Days: number;
@@ -87,8 +84,6 @@ export default function DashboardPage() {
   const totalCourses = overview.totalCourses ?? 0;
   const publishedCourses = overview.publishedCourses ?? 0;
   const totalEnrollments = overview.totalEnrollments ?? 0;
-  const totalJobs = overview.totalJobs ?? 0;
-  const activeJobs = overview.activeJobs ?? 0;
   const totalArticles = overview.totalArticles ?? 0;
   const publishedArticles = overview.publishedArticles ?? 0;
   const newUsersLast30Days = overview.newUsersLast30Days ?? 0;
@@ -127,13 +122,7 @@ export default function DashboardPage() {
           subtext="Total student enrollments"
           icon={<BarChart3 size={24} />}
         />
-      
-        <StatCard
-          title="Job Listings"
-          value={totalJobs.toString()}
-          subtext={`${activeJobs} active`}
-          icon={<Briefcase size={24} />}
-        />
+
         <StatCard
           title="Culture Posts"
           value={totalArticles.toString()}
@@ -217,14 +206,6 @@ export default function DashboardPage() {
                 </span>
                 <span className="text-sm font-medium">
                   {publishedCourses}/{totalCourses} courses published
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Job Market Activity
-                </span>
-                <span className="text-sm font-medium">
-                  {activeJobs}/{totalJobs} jobs active
                 </span>
               </div>
             </div>

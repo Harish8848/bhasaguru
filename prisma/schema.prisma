@@ -361,6 +361,32 @@ model JobApplication {
   @@map("job_applications")
 }
 
+model CulturePost {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  title           String
+  excerpt         String?
+  content         String
+  language        String
+  featuredImage   String?
+  status          ArticleStatus @default(DRAFT)
+  viewCount       Int           @default(0)
+  readTime        Int?
+  metaTitle       String?
+  metaDescription String?
+  authorName      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  publishedAt     DateTime?
+
+  @@index([language])
+  @@index([status, publishedAt])
+  @@index([title])
+  @@index([createdAt])
+  @@index([viewCount])
+  @@map("culture_posts")
+}
+
 model Article {
   id              String        @id @default(cuid())
   slug            String        @unique
@@ -527,4 +553,39 @@ enum TestType {
   READING
   SPEAKING
   WRITING
+}
+
+model GalleryItem {
+  id        String   @id @default(cuid())
+  title     String
+  type      MediaType
+  url       String
+  thumbnail String?
+  alt       String?
+  caption   String?
+  size      Int?
+  width     Int?
+  height    Int?
+  folder    String   @default("gallery")
+  status    GalleryStatus @default(ACTIVE)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type, status])
+  @@index([folder, status])
+  @@index([order])
+  @@index([createdAt])
+  @@map("gallery_items")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum GalleryStatus {
+  ACTIVE
+  HIDDEN
+  DELETED
 }

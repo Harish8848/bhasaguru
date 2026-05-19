@@ -24,7 +24,7 @@ export default function StudentFeedbackSection() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/student-feedback?limit=12");
+      const res = await fetch("/api/student-feedback?limit=12", { cache: "no-store" });
       const json = await res.json();
       if (json?.success && Array.isArray(json?.data?.comments)) {
         setItems(json.data.comments);

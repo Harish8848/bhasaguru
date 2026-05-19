@@ -12,10 +12,6 @@ const CoursesSection = dynamic(() => import("@/components/courses"), {
   loading: () => <div className="h-96 bg-background animate-pulse" />
 })
 
-const JobsSection = dynamic(() => import("@/components/jobs"), {
-  loading: () => <div className="h-96 bg-background animate-pulse" />
-})
-
 const StatsSection = dynamic(() => import("@/components/stats"), {
   loading: () => <div className="h-96 bg-background animate-pulse" />
 })

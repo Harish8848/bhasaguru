@@ -7,12 +7,13 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   BookOpen,
-  Briefcase,
   FileText,
   Users,
   LogOut,
   Video,
   Bell,
+  Image,
+  Newspaper,
 } from "lucide-react";
 import { useAppSelector } from "@/lib/hooks";
 
@@ -28,7 +29,6 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/courses", label: "Courses", icon: BookOpen },
     { href: "/admin/lessons", label: "Lessons", icon: Video },
-    { href: "/admin/jobs", label: "Jobs Board", icon: Briefcase },
     { href: "/admin/enrollments", label: "Enrollments", icon: Users },
     { href: "/admin/culture", label: "Culture Posts", icon: FileText },
     { href: "/admin/users", label: "Users", icon: Users },
@@ -42,12 +42,13 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
       label: "Notifications",
       icon: Bell,
     },
+    { href: "/admin/gallery", label: "Gallery", icon: Image },
+    { href: "/admin/articles", label: "Articles", icon: Newspaper },
   ];
 
   const moderatorLinks = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/courses", label: "Courses", icon: BookOpen },
-    { href: "/admin/jobs", label: "Jobs Board", icon: Briefcase },
     { href: "/admin/enrollments", label: "Enrollments", icon: Users },
     { href: "/admin/culture", label: "Culture Posts", icon: FileText },
   ];

@@ -50,8 +50,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         _count: {
           select: {
             enrollments: true,
-            testAttempts: true,
-            jobApplications: true,
           },
         },
       },

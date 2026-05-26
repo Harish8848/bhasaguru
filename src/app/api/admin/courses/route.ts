@@ -33,7 +33,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
           select: {
             lessons: true,
             enrollments: true,
-            mockTests: true,
           },
         },
       },

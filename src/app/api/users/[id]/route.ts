@@ -26,7 +26,6 @@ export async function GET(
           _count: {
             select: {
               enrollments: true,
-              testAttempts: true,
               savedItems: true,
             },
           },

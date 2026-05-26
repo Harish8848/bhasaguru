@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
 
-type PrismaModelName = 'article' | 'course' | 'jobListing' | 'comment' | 'user';
+type PrismaModelName = 'article' | 'course' | 'comment' | 'user';
 
 interface BulkRequestBody {
   action: 'delete' | 'publish' | 'archive';
@@ -19,7 +19,6 @@ interface BulkResult {
 const modelMap = {
     article: prisma.article,
     course: prisma.course,
-    jobListing: prisma.jobListing,
     comment: prisma.comment,
     user: prisma.user,
   };

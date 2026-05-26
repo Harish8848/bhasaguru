@@ -1,4 +1,4 @@
-import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-react"
+import { BookOpen, Users } from "lucide-react"
 
   //Stats Data
 
@@ -8,17 +8,17 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
       label: "Satisfaction Rate",
       description: "Learners recommend BhasaGuru to others",
     },
-    
+
   ]
-  
-  
+
+
 
   //Language Levels Data
   export const languages = [
     { code: "japanese", label: "Japanese", courses: 12, icon: "🇯🇵", learners: 8500 },
 
   ]
-  
+
 
   //Features Data
   export const features = [
@@ -28,13 +28,7 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
       description:
         "Comprehensive curriculum from N5 to N2 level. Learn at your own pace with video, audio, and interactive lessons.",
     },
- 
-    {
-      icon: Briefcase,
-      title: "Job Opportunities",
-      description:
-        "Browse 1000+ international job listings. Get matched with positions that fit your language skills and career goals.",
-    },
+
     {
       icon: Users,
       title: "Community",
@@ -42,33 +36,3 @@ import { BookOpen, Award, Briefcase, Users, TrendingUp, Globe } from "lucide-rea
         "Connect with learners. Share experiences, get feedback, and build professional networks.",
     },
   ]
-  
-
-  //Job Stats Data
-  export const jobStats = [
-    { label: "Active Listings", value: "0", icon: Briefcase },
-    { label: "Average Salary", value: "0", icon: TrendingUp },
-    { label: "Successful Placements", value: "0", icon: Globe },
-  ]
-
-  //Culture Posts Data
-  
-
-  //Pricing Plans Data
-  
-  // Job Queries and Country Codes
-  export const queries = {
-    japan: "jobs in Japan",
-    korea: "jobs in South Korea",
-    uk: "jobs in United Kingdom",
-    us: "jobs in United States",
-    australia: "jobs in Australia",
-  }
-
-        export const countryCodes = {
-          japan: "JP",
-              korea: "KR",
-              uk: "GB",
-              us: "US",
-              australia: "AU",
-            }

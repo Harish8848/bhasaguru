@@ -45,17 +45,4 @@ export const emailTemplates = {
     <p>Start learning now.</p>
     <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard">Go to Dashboard</a>
   `,
-
-  testComplete: (testName: string, score: number, passed: boolean) => `
-    <h1>Test Results: ${testName}</h1>
-    <p>Your score: ${score}%</p>
-    <p>Status: ${passed ? 'Passed' : 'Not Passed'}</p>
-    <a href="${process.env.NEXT_PUBLIC_APP_URL}/tests">View Details</a>
-  `,
-
-  jobApplication: (jobTitle: string, company: string) => `
-    <h1>Application Received!</h1>
-    <p>Your application for ${jobTitle} at ${company} has been submitted.</p>
-    <p>We'll notify you when there's an update.</p>
-  `,
 };

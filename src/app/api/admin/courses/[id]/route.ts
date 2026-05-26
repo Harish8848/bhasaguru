@@ -22,7 +22,6 @@ export const GET = withErrorHandler(async (
         select: {
           lessons: true,
           enrollments: true,
-          mockTests: true,
         },
       },
     },

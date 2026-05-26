@@ -40,82 +40,6 @@ export const createLessonSchema = z.object({
 
 export const updateLessonSchema = createLessonSchema.partial().omit({ courseId: true });
 
-// Test validation schemas
-export const createTestSchema = z.object({
-  courseId: z.string().cuid().optional(),
-  title: z.string().min(1).max(200),
-  description: z.string().optional(),
-  language: z.string().optional(),
-  module: z.string().optional(),
-  section: z.string().optional(),
-  standardSection: z.string().optional(),
-  type: z.enum(['PRACTICE', 'FINAL', 'CERTIFICATION', 'LISTENING', 'READING', 'SPEAKING', 'WRITING']),
-  duration: z.number().positive(),
-  passingScore: z.number().min(0).max(100),
-  questionsCount: z.number().int().nonnegative(),
-  shuffleQuestions: z.boolean().default(true),
-  shuffleOptions: z.boolean().default(true),
-  showResults: z.boolean().default(true),
-  allowRetake: z.boolean().default(true),
-});
-
-export const createQuestionSchema = z.object({
-  testId: z.string().cuid(),
-  type: z.enum([
-    'MULTIPLE_CHOICE', 
-    'TRUE_FALSE', 
-    'FILL_BLANK', 
-    'MATCHING', 
-    'AUDIO_QUESTION', 
-    'SPEAKING_PART1', 
-    'SPEAKING_PART2', 
-    'SPEAKING_PART3', 
-    'WRITING', 
-    'READING_COMPREHENSION', 
-    'LISTENING_COMPREHENSION'
-  ]),
-  questionText: z.string().min(1),
-  audioUrl: z.string().url().optional().or(z.literal('')).or(z.literal(null)),
-  imageUrl: z.string().url().optional().or(z.literal('')).or(z.literal(null)),
-  videoUrl: z.string().url().optional().or(z.literal('')).or(z.literal(null)),
-  options: z.any().optional(),
-  correctAnswer: z.string().optional(),
-  points: z.number().positive().default(1),
-  order: z.number().int().nonnegative(),
-  explanation: z.string().optional(),
-  language: z.string().optional(),
-  module: z.string().optional(),
-  section: z.string().optional(),
-  standardSection: z.string().optional(),
-  difficulty: z.string().optional(),
-  // Speaking-specific fields
-  preparationTime: z.number().positive().optional(),
-  speakingTime: z.number().positive().optional(),
-  cueCardContent: z.string().optional(),
-  followUpQuestions: z.any().optional(),
-});
-
-export const updateQuestionSchema = createQuestionSchema.partial().omit({ testId: true });
-
-// Job listing validation schemas
-export const createJobSchema = z.object({
-  title: z.string().min(1).max(200),
-  company: z.string().min(1).max(100),
-  location: z.string().min(1),
-  type: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP']),
-  description: z.string().min(10),
-  requirements: z.string().min(10),
-  languageRequired: z.string().min(1),
-  languageLevel: z.enum(['BEGINNER', 'ELEMENTARY', 'INTERMEDIATE', 'UPPER_INTERMEDIATE', 'ADVANCED', 'PROFICIENT']),
-  salary: z.string().optional(),
-  currency: z.string().optional(),
-  applicationUrl: z.string().url().optional(),
-  email: z.string().email().optional(),
-  expiresAt: z.string().datetime().optional(),
-});
-
-export const updateJobSchema = createJobSchema.partial();
-
 // Article validation schemas
 export const createArticleSchema = z.object({
   title: z.string().min(1).max(200),
@@ -139,12 +63,6 @@ export const createCommentSchema = z.object({
   content: z.string().min(1).max(1000),
 });
 
-// Job application validation schema
-export const createApplicationSchema = z.object({
-  resumeUrl: z.string().url().optional(),
-  coverLetter: z.string().min(10).max(2000).optional(),
-});
-
 // Progress update validation schema
 export const updateProgressSchema = z.object({
   completed: z.boolean().optional(),
@@ -154,7 +72,7 @@ export const updateProgressSchema = z.object({
 
 // Saved item validation schema
 export const createSavedItemSchema = z.object({
-  itemType: z.enum(['LESSON', 'ARTICLE', 'JOB']),
+  itemType: z.enum(['LESSON', 'ARTICLE']),
   itemId: z.string().cuid(),
   notes: z.string().max(500).optional(),
 });

@@ -17,8 +17,6 @@ interface User {
   lastLoginAt?: string
   _count: {
     enrollments: number
-    testAttempts: number
-    jobApplications: number
   }
 }
 
@@ -140,7 +138,6 @@ export default function UsersPage() {
                 <th className="text-left p-4 text-foreground font-semibold">Email</th>
                 <th className="text-left p-4 text-foreground font-semibold">Role</th>
                 <th className="text-left p-4 text-foreground font-semibold">Enrollments</th>
-                <th className="text-left p-4 text-foreground font-semibold">Test Attempts</th>
                 <th className="text-left p-4 text-foreground font-semibold">Joined</th>
                 <th className="text-left p-4 text-foreground font-semibold">Status</th>
                 <th className="text-left p-4 text-foreground font-semibold">Actions</th>
@@ -165,7 +162,6 @@ export default function UsersPage() {
                     </span>
                   </td>
                   <td className="p-4 text-foreground">{user._count.enrollments}</td>
-                  <td className="p-4 text-foreground">{user._count.testAttempts}</td>
                   <td className="p-4 text-foreground text-xs md:text-sm">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </td>

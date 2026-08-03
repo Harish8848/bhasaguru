@@ -110,8 +110,16 @@ importers:
         specifier: 16.2.6
         version: 16.2.6(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       next-auth:
+<<<<<<< HEAD
         specifier: ^4.24.14
         version: 4.24.14(@auth/core@0.34.3)(next@16.2.6(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+=======
+        specifier: ^4.24.13
+        version: 4.24.13(@auth/core@0.34.3)(next@16.0.10(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      openai:
+        specifier: ^7.0.0
+        version: 7.0.0(zod@4.1.13)
+>>>>>>> 0e80ed9 (Add new configuration for Llama 3.3 model and update auth imports across API routes)
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -2715,6 +2723,27 @@ packages:
   oidc-token-hash@5.2.0:
     resolution: {integrity: sha512-6gj2m8cJZ+iSW8bm0FXdGF0YhIQbKrfP4yWTNzxc31U6MOjfEmB1rHvlYvxI1B7t7BCi1F2vYTT6YhtQRG4hxw==}
     engines: {node: ^10.13.0 || >=12.0.0}
+
+  openai@7.0.0:
+    resolution: {integrity: sha512-NaAHnDTmut8tl1Is/T2bmRGQm67fEb9VrxdlVradQoh6WnHNPToQeOZiVjLa7LV9uq0Ha4C5twgOsp4+0UWwYg==}
+    engines: {node: '>=22.0.0'}
+    peerDependencies:
+      '@aws-sdk/credential-provider-node': '>=3.972.0 <4'
+      '@smithy/hash-node': '>=4.3.0 <5'
+      '@smithy/signature-v4': '>=5.4.0 <6'
+      ws: ^8.18.0
+      zod: ^3.25 || ^4.0
+    peerDependenciesMeta:
+      '@aws-sdk/credential-provider-node':
+        optional: true
+      '@smithy/hash-node':
+        optional: true
+      '@smithy/signature-v4':
+        optional: true
+      ws:
+        optional: true
+      zod:
+        optional: true
 
   openid-client@5.7.1:
     resolution: {integrity: sha512-jDBPgSVfTnkIh71Hg9pRvtJc6wTwqjRkN88+gCFtYWrlP4Yx2Dsrow8uPi3qLr/aeymPF3o2+dS+wOpglK04ew==}
@@ -6004,6 +6033,10 @@ snapshots:
   ohash@2.0.11: {}
 
   oidc-token-hash@5.2.0: {}
+
+  openai@7.0.0(zod@4.1.13):
+    optionalDependencies:
+      zod: 4.1.13
 
   openid-client@5.7.1:
     dependencies:

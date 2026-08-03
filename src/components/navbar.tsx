@@ -1,8 +1,12 @@
 "use client"
 
 import { useState } from "react"
+<<<<<<< HEAD
 import { useRouter } from "next/navigation"
 import { Menu, X, Globe, Loader2 } from "lucide-react"
+=======
+import { Menu, X, Globe, Loader2, Sparkles } from "lucide-react"
+>>>>>>> 0e80ed9 (Add new configuration for Llama 3.3 model and update auth imports across API routes)
 import { Button } from "@/components/ui/button"
 import { signIn, signOut, useSession } from "next-auth/react"
 import Link from "next/link"
@@ -54,6 +58,7 @@ export default function Navbar() {
             <Link href="/blog" className="text-sm font-medium hover:text-accent transition-colors">
               Blogs
             </Link>
+<<<<<<< HEAD
             <Link href="/gallery" className="text-sm font-medium hover:text-accent transition-colors">
               Gallery
             </Link>
@@ -61,6 +66,13 @@ export default function Navbar() {
               Contact
             </Link>
                       </div>
+=======
+            <Link href="/chat" className="text-sm font-medium hover:text-accent transition-colors flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4" />
+              AI Tutor
+            </Link>
+          </div>
+>>>>>>> 0e80ed9 (Add new configuration for Llama 3.3 model and update auth imports across API routes)
 
           {/* CTA Buttons - Desktop */}
           <div className="hidden md:flex items-center gap-3">
@@ -135,6 +147,7 @@ export default function Navbar() {
             <Link href="/gallery" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Gallery
             </Link>
+<<<<<<< HEAD
             <Link href="/blog" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Blog
             </Link>
@@ -154,6 +167,28 @@ export default function Navbar() {
                 )}
               </div>
             )}
+=======
+            <Link href="/chat" className="text-md font-medium hover:text-accent py-1 text-blue-600 flex items-center gap-1.5 justify-center">
+              <Sparkles className="w-4 h-4" />
+              AI Tutor
+            </Link>
+            <div className="flex gap-2 pt-3">
+              {status === "loading" ? (
+                <div className="w-full flex items-center justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                </div>
+              ) : session ? (
+                <Button size="sm" className="w-full bg-accent" onClick={() => signOut()}>
+                  Sign Out
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" className="w-full border-accent text-accent bg-transparent" onClick={() => signIn('google', { callbackUrl: '/' })}>
+                  Sign In
+                </Button>
+              )}
+
+            </div>
+>>>>>>> 0e80ed9 (Add new configuration for Llama 3.3 model and update auth imports across API routes)
           </div>
         )}
       </div>

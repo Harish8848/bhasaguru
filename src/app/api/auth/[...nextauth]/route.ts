@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -65,6 +66,10 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+=======
+import NextAuth from "next-auth";
+import { authOptions } from "@/lib/auth";
+>>>>>>> 0e80ed9 (Add new configuration for Llama 3.3 model and update auth imports across API routes)
 
 const handler = NextAuth(authOptions);
 

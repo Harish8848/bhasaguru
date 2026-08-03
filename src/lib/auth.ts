@@ -1,32 +1,15 @@
 import { UserRole, AccountStatus } from '@/generated/prisma/client';
-import { NextAuthOptions, User, Session } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from '@/lib/prisma';
 
-interface CustomUser extends User {
+interface CustomJWT extends JWT {
   id: string;
   role: UserRole;
   status: AccountStatus;
-}
-
-interface CustomJWT extends Partial<JWT> {
-  id: string;
-  role: UserRole;
-  status: AccountStatus;
-  picture?: string | null;
-}
-
-interface CustomSession extends Session {
-  user: {
-    id: string;
-    role: UserRole;
-    status: AccountStatus;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  };
+  profilePicture?: string | null;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -37,34 +20,31 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }: { token: CustomJWT; user?: CustomUser }) {
+    async jwt({ token, user }: { token: CustomJWT; user?: any }) {
       if (user) {
         token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.picture = user.image;
         token.role = user.role;
         token.status = user.status;
+        token.profilePicture = user.profilePicture;
       }
       return token;
     },
-    async session({ session, token }: { session: CustomSession; token: CustomJWT }) {
+    async session({ session, token }: { session: any; token: CustomJWT }) {
       if (session.user) {
         session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
         session.user.role = token.role;
         session.user.status = token.status;
+        session.user.profilePicture = token.profilePicture;
       }
       return session;
     },
   },
   pages: {
-    signIn: '/auth/signin',
+    signIn: '/auth',
   },
 };

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 // GET /api/admin/notifications - Get all notifications (Admin only)
 export async function GET(request: NextRequest) {
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
 
     const notification = await prisma.adminNotification.create({
       data: {
+        id: crypto.randomUUID(),
         type,
         title,
         message,

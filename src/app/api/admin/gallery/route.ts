@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
@@ -50,6 +50,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
   const item = await prisma.galleryItem.create({
     data: {
+      updatedAt: new Date(), // Provide the current timestamp for updatedAt
       title,
       type,
       url,

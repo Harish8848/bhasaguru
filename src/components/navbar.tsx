@@ -1,12 +1,8 @@
 "use client"
 
 import { useState } from "react"
-<<<<<<< HEAD
 import { useRouter } from "next/navigation"
-import { Menu, X, Globe, Loader2 } from "lucide-react"
-=======
 import { Menu, X, Globe, Loader2, Sparkles } from "lucide-react"
->>>>>>> 0e80ed9 (Add new configuration for Llama 3.3 model and update auth imports across API routes)
 import { Button } from "@/components/ui/button"
 import { signIn, signOut, useSession } from "next-auth/react"
 import Link from "next/link"
@@ -58,21 +54,17 @@ export default function Navbar() {
             <Link href="/blog" className="text-sm font-medium hover:text-accent transition-colors">
               Blogs
             </Link>
-<<<<<<< HEAD
             <Link href="/gallery" className="text-sm font-medium hover:text-accent transition-colors">
               Gallery
             </Link>
             <Link href="/contact" className="text-sm font-medium hover:text-accent transition-colors">
               Contact
             </Link>
-                      </div>
-=======
             <Link href="/chat" className="text-sm font-medium hover:text-accent transition-colors flex items-center gap-1.5">
               <Sparkles className="w-4 h-4" />
               AI Tutor
             </Link>
           </div>
->>>>>>> 0e80ed9 (Add new configuration for Llama 3.3 model and update auth imports across API routes)
 
           {/* CTA Buttons - Desktop */}
           <div className="hidden md:flex items-center gap-3">
@@ -147,27 +139,12 @@ export default function Navbar() {
             <Link href="/gallery" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Gallery
             </Link>
-<<<<<<< HEAD
             <Link href="/blog" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Blog
             </Link>
             <Link href="/contact" className="block text-md font-medium hover:text-accent py-1 text-blue-600">
               Contact
             </Link>
-                        
-            {/* Sign In for Non-authenticated Users */}
-            {!session && (
-              <div className="pt-3">
-                {status === "loading" ? (
-                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                ) : (
-                  <Button variant="outline" size="sm" className="border-accent text-accent bg-transparent" onClick={() => signIn('google', { callbackUrl: '/' })}>
-                    Sign In
-                  </Button>
-                )}
-              </div>
-            )}
-=======
             <Link href="/chat" className="text-md font-medium hover:text-accent py-1 text-blue-600 flex items-center gap-1.5 justify-center">
               <Sparkles className="w-4 h-4" />
               AI Tutor
@@ -186,9 +163,7 @@ export default function Navbar() {
                   Sign In
                 </Button>
               )}
-
             </div>
->>>>>>> 0e80ed9 (Add new configuration for Llama 3.3 model and update auth imports across API routes)
           </div>
         )}
       </div>

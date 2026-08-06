@@ -1,5 +1,0 @@
-models:
-  - name: Llama 3.3 70B
-    provider: groq
-    model: llama-3.3-70b-versatile
-    apiKey: YOUR_GROQ_API_KEY

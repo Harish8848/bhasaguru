@@ -12,8 +12,8 @@ import {
   LogOut,
   Video,
   Bell,
-  Image,
-  Newspaper,
+  ClipboardList,
+  Briefcase,
 } from "lucide-react";
 import { useAppSelector } from "@/lib/hooks";
 
@@ -42,8 +42,8 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
       label: "Notifications",
       icon: Bell,
     },
-    { href: "/admin/gallery", label: "Gallery", icon: Image },
-    { href: "/admin/articles", label: "Articles", icon: Newspaper },
+    { href: "/admin/mock-tests", label: "Mock Tests", icon: ClipboardList },
+    { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
   ];
 
   const moderatorLinks = [
@@ -102,7 +102,7 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
               </p>
             </div>
             <button
-              onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+              onClick={() => signOut({ callbackUrl: "/auth/signin" })}
               className="w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors text-sm cursor-pointer"
             >
               <LogOut size={16} />

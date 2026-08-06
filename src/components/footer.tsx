@@ -17,15 +17,14 @@ export default function Footer() {
                 <Globe className="w-5 h-5 text-primary-foreground" />
               </div>
               <a href="/" className="inline-flex justify-center items-center">
-                <img src="/favicon.ico" alt="" />
-                <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
-                  YUKI Consulting & Training Center
+                <span className=" text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
+                  BhasaGuru
                 </span>
               </a>
             </div>
             <p className="text-md text-muted-foreground text-center ">
-              Empowering Nepalese to master Japanese languages and achieve
-               careers in Japan.
+              Empowering Students to master their preffered languages and achieve
+               careers in abroad.
             </p>
             <div className="flex gap-4 pt-1 justify-center ">
               <a

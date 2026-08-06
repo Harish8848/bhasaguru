@@ -7,10 +7,12 @@ export default function FeaturesSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-4 mb-12 md:mb-16">
           <h2 className="text-3xl md:text-5xl font-bold leading-tight">
-            Why Choose <span className="text-accent">YUKI Consulting and Training Center?</span>
+            Why Choose  <span className="p-2 text-5xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mt-2">
+                BhasaGuru
+              </span>
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-            Everything you need to master Japanese language and advance your international career
+            Everything you need to master your preffered  language and advance your international career
           </p>
         </div>
 

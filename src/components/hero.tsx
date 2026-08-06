@@ -17,19 +17,20 @@ export default function HeroSection() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20">
                 <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
                 <span className="text-xs md:text-sm font-medium text-accent">
-                  Yuki Consulting and Training Center.
+                  BhasaGuru A Language Learning Platform
                 </span>
               </div>
               <h1 className="text-3xl md:text-6xl sm:text:xl font-bold leading-tight text-pretty">
-                Best Consultancy & Training Center for Japanese Language Learners in{" "}
-                <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Kathmandu
-                </span>
+                Best Language Learning Platfrom for  Language Learning Students {" "}
+                
               </h1>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-pretty max-w-lg">
-                Learn Japanese language from expert
-                instructors. Find jobs, and unlock endless career
-                opportunities in Japan.
+                Learn Japanese, Korean and English language from  
+                <span className=" p-2 text-2xl md:text-sm font-medium text-accent">
+                  BhasaGuru
+                </span>
+                . Find jobs, and unlock endless career
+                opportunities in abroad.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
@@ -79,10 +80,10 @@ export default function HeroSection() {
                 <div className="text-center space-y-4">
                   <div className="text-4xl md:text-5xl">🌍</div>
                   <h3 className="text-lg md:text-xl font-semibold">
-                    Japanese Language Learning
+                    Language Learning
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    High Visa Success Rate for Japanese
+                    Learn Prefered language Effectively
                   </p>
                 </div>
               </div>

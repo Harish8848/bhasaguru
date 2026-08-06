@@ -95,7 +95,7 @@ export default function StudentFeedbackSection() {
             <div className="grid md:grid-cols-2 gap-6 md:gap-6 mb-10">
               {items.length === 0 ? (
                 <div className="md:col-span-2 text-center text-muted-foreground py-10 border border-dashed rounded-lg">
-                  No approved feedback yet.
+                  No feedback yet.
                 </div>
               ) : (
                 items.map((item) => (
@@ -128,9 +128,7 @@ export default function StudentFeedbackSection() {
 
             <div className="border border-border rounded-lg p-6 bg-background">
               <h3 className="text-xl font-semibold">Add your comment</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Your feedback will be submitted for approval.
-              </p>
+             
 
               <form onSubmit={onSubmit} className="mt-4 space-y-4">
                 <div>

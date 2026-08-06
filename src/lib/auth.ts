@@ -12,6 +12,17 @@ interface CustomJWT extends JWT {
   profilePicture?: string | null;
 }
 
+// Resolve the auth secret with AUTH_SECRET as a fallback for @auth/core v0.34+ compatibility.
+// Fail fast if no secret is configured to prevent NextAuth from auto-generating a random
+// secret that changes on every server restart (which causes JWEDecryptionFailed errors).
+const authSecret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
+
+if (!authSecret) {
+  throw new Error(
+    "Missing authentication secret. Set NEXTAUTH_SECRET (or AUTH_SECRET) in your environment variables."
+  );
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -20,9 +31,23 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: authSecret,
   session: {
     strategy: "jwt",
+  },
+  // Use a custom cookie name to invalidate any stale session cookies that were
+  // encrypted with a previous/different secret. This forces users to re-authenticate
+  // with the current secret, resolving JWEDecryptionFailed errors.
+  cookies: {
+    sessionToken: {
+      name: `bhasaguru.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   callbacks: {
     async jwt({ token, user }: { token: CustomJWT; user?: any }) {

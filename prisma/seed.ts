@@ -1,6 +1,17 @@
 import { PrismaClient, ArticleStatus } from "../src/generated/prisma/client"
+import { PrismaPg } from "@prisma/adapter-pg"
+import "dotenv/config"
 
-const prisma = new PrismaClient()
+// Use the direct PostgreSQL connection for seeding (PrismaPg adapter cannot
+// connect via an Accelerate URL). Fall back to DATABASE_URL if DIRECT_DATABASE_URL
+// is not set.
+const databaseUrl = process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL!
+
+const adapter = new PrismaPg({
+  connectionString: databaseUrl,
+})
+
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
   console.log("🌱 Seeding culture articles (US, UK, AU, JP, KR)...")

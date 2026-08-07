@@ -258,4 +258,51 @@ export async function fetchFromRemoteOK(
       const desc = job.description?.toLowerCase() || '';
 
       const matchCountry = keywords.some((k) =>
-        loc.includes(k) || tags.includes(k) || title.includes(k)
+        loc.includes(k) || tags.includes(k) || title.includes(k) || desc.includes(k)
+      );
+
+      const matchQuery = !q || title.includes(q) || company.includes(q) || tags.includes(q);
+
+      return matchCountry && matchQuery;
+    });
+
+    console.log(`[RemoteOK] Filtered ${filtered.length} jobs for country: ${country}`);
+
+    return filtered.map((job: any) => {
+      const description = job.description || '';
+      const title = job.position || 'Untitled Position';
+      const id = `remoteok-${job.id}`;
+      const { salary, currency } = extractSalary(
+        job.salary_min,
+        job.salary_max,
+        job.salary_currency
+      );
+
+      return {
+        id,
+        slug: generateSlug(title, String(job.id)),
+        title,
+        company: job.company || 'Unknown Company',
+        location: job.location || 'Remote / Global',
+        type: extractJobType(job.type, description),
+        status: 'ACTIVE',
+        description: description.slice(0, 5000),
+        requirements: extractRequirements(description),
+        languageRequired: extractLanguage(description, title),
+        languageLevel: extractLanguageLevel(description),
+        salary,
+        currency,
+        applicationUrl: job.apply_url || job.url || null,
+        email: null,
+        viewCount: 0,
+        applicationCount: 0,
+        createdAt: job.date ? new Date(job.date).toISOString() : new Date().toISOString(),
+        expiresAt: null,
+        source: 'remoteok' as const,
+      };
+    });
+  } catch (err) {
+    console.error('[RemoteOK] Fetch error:', err);
+    return [];
+  }
+}

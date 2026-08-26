@@ -72,12 +72,12 @@ export default function CulturePage() {
         {/* Search */}
         <div className="grow container  max-w-4xl mx-auto ">
           <div className="relative max-w-sm flex-1 mx-auto">
-            <Search className="absolute  top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+            <Search className="absolute  left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
             <Input
               placeholder="Search culture posts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 p-6 bg-accent/10 border-border text-foreground placeholder:text-muted-foreground text-base"
+              className="pl-10  bg-accent/10 border-border text-foreground placeholder:text-muted-foreground text-base"
             />
           </div>
         </div>

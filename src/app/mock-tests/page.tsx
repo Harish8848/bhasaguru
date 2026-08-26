@@ -110,12 +110,7 @@ export default function MockTestsPage() {
       <Navbar />
       <main className="grow container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Mock Tests</h1>
-          <p className="text-muted-foreground mt-2">
-            Practice and assess your Japanese language proficiency
-          </p>
-        </div>
+       
 
         {/* Search & Filters */}
         <div className="flex flex-col gap-4 mb-6 max-w-xl mx-auto">
@@ -128,7 +123,7 @@ export default function MockTestsPage() {
               placeholder="Search mock tests..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 p-6 bg-accent/10 border-border text-foreground placeholder:text-muted-foreground text-base"
+              className="pl-10  bg-accent/10 border-border text-foreground placeholder:text-muted-foreground text-base"
             />
           </div>
           <div className="flex flex-wrap justify-center gap-2">

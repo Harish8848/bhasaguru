@@ -11,6 +11,7 @@ import {
   Briefcase,
   Clock,
   Eye,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -34,10 +35,13 @@ interface JobListing {
   languageLevel: string;
   salary: string | null;
   currency: string | null;
+  applicationUrl: string | null;
+  email: string | null;
   viewCount: number;
   applicationCount: number;
   createdAt: string;
   expiresAt: string | null;
+  source?: "adzuna" | "remoteok" | "db";
 }
 
 export default function JobsPage() {
@@ -86,6 +90,17 @@ export default function JobsPage() {
     });
   };
 
+  const getSourceLabel = (source?: string) => {
+    switch (source) {
+      case "adzuna":
+        return "Adzuna";
+      case "remoteok":
+        return "RemoteOK";
+      default:
+        return null;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -103,14 +118,7 @@ export default function JobsPage() {
       <Navbar />
       <main className="grow container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">
-            Job Opportunities
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Find career opportunities in Japan
-          </p>
-        </div>
+       
 
         {/* Search & Filters */}
         <div className="flex flex-col gap-4 mb-6 max-w-xl mx-auto">
@@ -123,7 +131,7 @@ export default function JobsPage() {
               placeholder="Search jobs by title, company, or location..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 p-6 bg-accent/10 border-border text-foreground placeholder:text-muted-foreground text-base"
+              className="pl-10  bg-accent/10 border-border text-foreground placeholder:text-muted-foreground text-base"
             />
           </div>
           <div className="flex flex-wrap justify-center gap-2">
@@ -160,15 +168,24 @@ export default function JobsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredJobs.map((job) => (
-              <Link key={job.id} href={`/jobs/${job.id}`}>
+            {filteredJobs.map((job) => {
+              const isExternal = job.source === "adzuna" || job.source === "remoteok";
+              const sourceLabel = getSourceLabel(job.source);
+              const cardContent = (
                 <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="p-5 space-y-4">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <Badge variant="default" className="text-xs mb-2">
-                          {job.type.replace("_", " ")}
-                        </Badge>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="default" className="text-xs">
+                            {job.type.replace("_", " ")}
+                          </Badge>
+                          {sourceLabel && (
+                            <Badge variant="secondary" className="text-xs">
+                              {sourceLabel}
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="text-xs">
                             {job.languageRequired}
@@ -209,14 +226,40 @@ export default function JobsPage() {
                         <span>{job.applicationCount} applications</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Eye size={14} />
-                        <span>{job.viewCount} views</span>
+                        {isExternal ? (
+                          <>
+                            <ExternalLink size={14} />
+                            <span>External</span>
+                          </>
+                        ) : (
+                          <>
+                            <Eye size={14} />
+                            <span>{job.viewCount} views</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
                 </Card>
-              </Link>
-            ))}
+              );
+
+              // External jobs link to their application URL, DB jobs link to detail page
+              return isExternal && job.applicationUrl ? (
+                <a
+                  key={job.id}
+                  href={job.applicationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block h-full"
+                >
+                  {cardContent}
+                </a>
+              ) : (
+                <Link key={job.id} href={`/jobs/${job.id}`} className="block h-full">
+                  {cardContent}
+                </Link>
+              );
+            })}
           </div>
         )}
       </main>

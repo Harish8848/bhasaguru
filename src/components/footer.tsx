@@ -44,7 +44,7 @@ export default function Footer() {
           {/* Links */}
           <p className="  text-lg text-muted-foreground pb-4 md:pb-0  md:col-span-2 lg:col-span-2 ">
             {" "}
-            &copy; {currentYear} YUKI Consulting & Training Center. All rights reserved.
+            &copy; {currentYear} BhasaGuru, All rights reserved.
           </p>
         </div>
       </div>

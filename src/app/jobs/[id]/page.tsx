@@ -16,6 +16,7 @@ import {
   DollarSign,
   FileText,
   Send,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ interface JobListing {
   applicationCount: number;
   createdAt: string;
   expiresAt: string | null;
+  source?: "adzuna" | "remoteok" | "db";
 }
 
 export default function JobDetailPage() {
@@ -164,6 +166,9 @@ export default function JobDetailPage() {
     });
   };
 
+  const isExternal = job.source === "adzuna" || job.source === "remoteok";
+  const sourceLabel = job.source === "adzuna" ? "Adzuna" : job.source === "remoteok" ? "RemoteOK" : null;
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -273,7 +278,22 @@ export default function JobDetailPage() {
             </div>
 
             <div className="pt-4 border-t">
-              {applied ? (
+              {isExternal && job.applicationUrl ? (
+                <a
+                  href={job.applicationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block"
+                >
+                  <Button
+                    size="lg"
+                    className="w-full md:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
+                  >
+                    <ExternalLink className="h-5 w-5 mr-2" />
+                    Apply on {sourceLabel || "External Site"}
+                  </Button>
+                </a>
+              ) : applied ? (
                 <div className="flex items-center gap-2 text-green-600 bg-green-600/10 rounded-lg p-4">
                   <Send className="h-5 w-5" />
                   <span className="font-medium">

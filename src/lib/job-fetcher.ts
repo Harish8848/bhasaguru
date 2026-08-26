@@ -1,5 +1,30 @@
 // Job fetching service for Adzuna and RemoteOK APIs
 
+// Simple in-memory cache with TTL to avoid hammering external APIs
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const externalJobCache = new Map<string, { data: ExternalJob[]; expiresAt: number }>();
+
+function getCached(key: string): ExternalJob[] | null {
+  const cached = externalJobCache.get(key);
+  if (!cached) return null;
+  if (Date.now() > cached.expiresAt) {
+    externalJobCache.delete(key);
+    return null;
+  }
+  return cached.data;
+}
+
+function setCache(key: string, data: ExternalJob[]): void {
+  externalJobCache.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+  // Clean up expired entries occasionally
+  if (externalJobCache.size > 50) {
+    const now = Date.now();
+    for (const [k, v] of externalJobCache) {
+      if (now > v.expiresAt) externalJobCache.delete(k);
+    }
+  }
+}
+
 export interface ExternalJob {
   id: string;
   slug: string;
@@ -159,18 +184,23 @@ export async function fetchFromAdzuna(
   try {
     const response = await fetch(url, {
       cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'BhasaGuru/1.0 (job aggregator)',
+      },
     });
 
     if (!response.ok) {
-      console.error('[Adzuna] API Error:', response.status, await response.text());
+      const errorText = await response.text();
+      // Auth failures are expected if credentials are wrong - log once, don't spam
+      console.warn(`[Adzuna] API Error (${response.status}):`, errorText.slice(0, 200));
       return [];
     }
 
     const json = await response.json();
 
     if (!json.results || !Array.isArray(json.results)) {
-      console.error('[Adzuna] Invalid response format');
+      console.warn('[Adzuna] Invalid response format:', JSON.stringify(json).slice(0, 500));
       return [];
     }
 
@@ -180,7 +210,7 @@ export async function fetchFromAdzuna(
       const { salary, currency } = extractSalary(
         job.salary_min,
         job.salary_max,
-        job.salary_is_predicted ? null : job.currency
+        job.currency
       );
       const description = job.description || '';
       const title = job.title || 'Untitled Position';
@@ -231,11 +261,16 @@ export async function fetchFromRemoteOK(
   try {
     const response = await fetch(url, {
       cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'BhasaGuru/1.0 (job aggregator; contact: admin@bhasaguru.com)',
+        'Accept': 'application/json',
+      },
     });
 
     if (!response.ok) {
-      console.error('[RemoteOK] API Error:', response.status);
+      const errorText = await response.text();
+      console.error('[RemoteOK] API Error:', response.status, errorText.slice(0, 500));
       return [];
     }
 
@@ -268,7 +303,7 @@ export async function fetchFromRemoteOK(
 
     console.log(`[RemoteOK] Filtered ${filtered.length} jobs for country: ${country}`);
 
-    return filtered.map((job: any) => {
+    return filtered.slice(0, limit).map((job: any) => {
       const description = job.description || '';
       const title = job.position || 'Untitled Position';
       const id = `remoteok-${job.id}`;
@@ -305,4 +340,52 @@ export async function fetchFromRemoteOK(
     console.error('[RemoteOK] Fetch error:', err);
     return [];
   }
+}
+
+/**
+ * Fetch jobs from both Adzuna and RemoteOK APIs
+ * Combines results and sorts by createdAt
+ * Results are cached in-memory for 10 minutes
+ */
+export async function fetchExternalJobs(
+  query: string = '',
+  country: string = 'japan',
+  limit: number = 20
+): Promise<ExternalJob[]> {
+  const cacheKey = `${country}|${query}|${limit}`;
+
+  // Check cache first
+  const cached = getCached(cacheKey);
+  if (cached) {
+    console.log(`[JobFetcher] Returning cached ${cached.length} jobs for key: ${cacheKey}`);
+    return cached;
+  }
+
+  const [adzunaJobs, remoteOkJobs] = await Promise.allSettled([
+    fetchFromAdzuna(query, country, limit),
+    fetchFromRemoteOK(query, country, limit),
+  ]);
+
+  const jobs: ExternalJob[] = [];
+
+  if (adzunaJobs.status === 'fulfilled') {
+    jobs.push(...adzunaJobs.value);
+  } else {
+    console.error('[JobFetcher] Adzuna failed:', adzunaJobs.reason);
+  }
+
+  if (remoteOkJobs.status === 'fulfilled') {
+    jobs.push(...remoteOkJobs.value);
+  } else {
+    console.error('[JobFetcher] RemoteOK failed:', remoteOkJobs.reason);
+  }
+
+  // Sort by createdAt descending
+  const sorted = jobs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  // Cache the result
+  setCache(cacheKey, sorted);
+  console.log(`[JobFetcher] Cached ${sorted.length} jobs for key: ${cacheKey}`);
+
+  return sorted;
 }

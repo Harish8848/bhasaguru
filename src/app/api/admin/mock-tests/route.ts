@@ -5,6 +5,8 @@ import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
 import { TestType } from '@/generated/prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 // GET - List all mock tests (admin)
 export const GET = withErrorHandler(async (request: NextRequest) => {
   await requireAdmin();

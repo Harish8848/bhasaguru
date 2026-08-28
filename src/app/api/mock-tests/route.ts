@@ -4,6 +4,8 @@ import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
 import { cacheHelpers } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 // GET - List mock tests with pagination and optional filters
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
@@ -26,6 +28,13 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 
   if (search) {
     where.title = { contains: search, mode: 'insensitive' };
+  }
+
+  const cacheKey = `mock-tests:${page}:${limit}:${language || 'all'}:${type || 'all'}:${search || ''}`;
+  const cachedData = await cacheHelpers.get<any>(cacheKey);
+
+  if (cachedData) {
+    return ApiResponse.success(cachedData);
   }
 
   const [tests, total] = await Promise.all([
@@ -55,6 +64,8 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       totalPages: Math.ceil(total / limit),
     },
   };
+
+  await cacheHelpers.set(cacheKey, result, 300); // Cache for 5 minutes
 
   return ApiResponse.success(result);
 });

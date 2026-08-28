@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/lib/api-response';
 import { withErrorHandler } from '@/lib/api-wrapper';
+import { cacheHelpers } from '@/lib/cache';
 
 // GET - Get single mock test (admin)
 export const GET = withErrorHandler(async (
@@ -57,6 +58,10 @@ export const PATCH = withErrorHandler(async (
     data: updateData,
   });
 
+  // Invalidate cache so both admin and user list reflect the update
+  await cacheHelpers.deletePattern('mock-tests:*');
+  await cacheHelpers.deletePattern('admin-mock-tests:*');
+
   return ApiResponse.success(test, 'Mock test updated successfully');
 });
 
@@ -80,6 +85,10 @@ export const DELETE = withErrorHandler(async (
   await prisma.mockTest.delete({
     where: { id },
   });
+
+  // Invalidate cache so deleted test no longer appears to users
+  await cacheHelpers.deletePattern('mock-tests:*');
+  await cacheHelpers.deletePattern('admin-mock-tests:*');
 
   return ApiResponse.success(null, 'Mock test deleted successfully');
 });

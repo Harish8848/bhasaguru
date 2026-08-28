@@ -1,18 +1,17 @@
 import { PrismaClient } from "../src/generated/prisma/client"
-import { PrismaPg } from "@prisma/adapter-pg"
 import "dotenv/config"
 import { cacheHelpers } from "../src/lib/cache"
 
-// Use the direct PostgreSQL connection for seeding (PrismaPg adapter cannot
-// connect via an Accelerate URL). Fall back to DATABASE_URL if DIRECT_DATABASE_URL
-// is not set.
-const databaseUrl = process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL!
+// Use the same Accelerate connection as the app so seeded data
+// appears in the same database the app reads from.
+const accelerateUrl = process.env.DATABASE_URL
+if (!accelerateUrl) {
+  throw new Error('DATABASE_URL environment variable is not set')
+}
 
-const adapter = new PrismaPg({
-  connectionString: databaseUrl,
+const prisma = new PrismaClient({
+  accelerateUrl,
 })
-
-const prisma = new PrismaClient({ adapter })
 
 async function main() {
   console.log("🌱 Seeding JLPT N5 mock tests")

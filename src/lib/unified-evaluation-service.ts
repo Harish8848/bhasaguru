@@ -65,6 +65,8 @@ export interface ReadingComprehensionAnswer extends BaseAnswerPayload {
   userAnswer: {
     passageId: string
     answers: { [questionId: string]: any } // nested answers
+    selectedOption?: string // simple format: single question with options
+    textAnswer?: string // simple format: free-text answer
     timeOnPassage: number
   }
 }
@@ -74,6 +76,8 @@ export interface ListeningComprehensionAnswer extends BaseAnswerPayload {
   userAnswer: {
     audioId: string
     answers: { [questionId: string]: any }
+    selectedOption?: string // simple format: single question with options
+    textAnswer?: string // simple format: free-text answer
     timeOnAudio: number
   }
 }
@@ -342,7 +346,13 @@ export class UnifiedEvaluationService implements EvaluationService {
   private evaluateMultipleChoice(question: any, answer: MultipleChoiceAnswer, config: EvaluationConfig): MultipleChoiceEvaluation {
     const expected = question.correctAnswer;
     const selected = answer.userAnswer?.selectedOption;
-    const isCorrect = expected === selected;
+    // correctAnswer is free text (option text) in seeded/admin-created
+    // questions, so compare case-insensitively and trimmed.
+    const isCorrect = this.compareAnswers(
+      expected != null ? String(expected).trim() : undefined,
+      selected != null ? String(selected).trim() : undefined,
+      config
+    );
     const maxScore = question.points ?? 1;
 
     return {
@@ -510,6 +520,30 @@ export class UnifiedEvaluationService implements EvaluationService {
     const maxScore = question.points ?? 1;
 
     if (!audio) {
+      // Fallback: option/text-based audio questions are auto-graded like
+      // multiple choice when no audio recording was provided.
+      const selected = answer.userAnswer?.selectedOption ?? answer.userAnswer?.textAnswer;
+      if (selected && question.correctAnswer != null) {
+        const isCorrect = this.compareAnswers(String(question.correctAnswer), selected, config);
+        return {
+          questionId: answer.questionId,
+          questionType: QuestionType.AUDIO_QUESTION,
+          isCorrect,
+          score: isCorrect ? maxScore : 0,
+          maxScore,
+          timeSpent: answer.timeSpent ?? 0,
+          status: 'completed',
+          hasAudioResponse: false,
+          audioEvaluation: {
+            quality: isCorrect ? 1 : 0,
+            clarity: isCorrect ? 1 : 0,
+            relevance: isCorrect ? 1 : 0
+          },
+          partialCredit: isCorrect ? 1 : 0,
+          evaluationMetadata: {}
+        };
+      }
+
       return {
         questionId: answer.questionId,
         questionType: QuestionType.AUDIO_QUESTION,
@@ -554,6 +588,32 @@ export class UnifiedEvaluationService implements EvaluationService {
   private evaluateReadingComprehension(question: any, answer: ReadingComprehensionAnswer, config: EvaluationConfig): ReadingComprehensionEvaluation {
     const answers = answer.userAnswer?.answers ?? {};
     const subs = question.questions ?? [];
+    const maxScore = question.points ?? 1;
+
+    // Simple format: one question with options + correctAnswer and a direct
+    // selection (used by seeded tests and admin-created questions). Without
+    // this fallback these questions could never earn any points.
+    const providedSimple = answer.userAnswer?.selectedOption ?? answer.userAnswer?.textAnswer;
+    if (subs.length === 0 && providedSimple) {
+      const isCorrect = this.compareAnswers(
+        question.correctAnswer != null ? String(question.correctAnswer) : undefined,
+        providedSimple,
+        config
+      );
+      return {
+        questionId: answer.questionId,
+        questionType: QuestionType.READING_COMPREHENSION,
+        isCorrect,
+        score: isCorrect ? maxScore : 0,
+        maxScore,
+        timeSpent: answer.timeSpent ?? 0,
+        status: 'completed',
+        passageId: answer.userAnswer?.passageId || '',
+        nestedEvaluations: [],
+        partialCredit: isCorrect ? 1 : 0,
+        evaluationMetadata: {}
+      };
+    }
 
     let correct = 0;
     subs.forEach((q: any) => {
@@ -562,7 +622,6 @@ export class UnifiedEvaluationService implements EvaluationService {
 
     const total = subs.length || 1;
     const ratio = correct / total;
-    const maxScore = question.points ?? 1;
 
     return {
       questionId: answer.questionId,
@@ -582,6 +641,32 @@ export class UnifiedEvaluationService implements EvaluationService {
   private evaluateListeningComprehension(question: any, answer: ListeningComprehensionAnswer, config: EvaluationConfig): ListeningComprehensionEvaluation {
     const answers = answer.userAnswer?.answers ?? {};
     const subs = question.questions ?? [];
+    const maxScore = question.points ?? 1;
+
+    // Simple format: one question with options + correctAnswer and a direct
+    // selection (used by seeded tests and admin-created questions). Without
+    // this fallback these questions could never earn any points.
+    const providedSimple = answer.userAnswer?.selectedOption ?? answer.userAnswer?.textAnswer;
+    if (subs.length === 0 && providedSimple) {
+      const isCorrect = this.compareAnswers(
+        question.correctAnswer != null ? String(question.correctAnswer) : undefined,
+        providedSimple,
+        config
+      );
+      return {
+        questionId: answer.questionId,
+        questionType: QuestionType.LISTENING_COMPREHENSION,
+        isCorrect,
+        score: isCorrect ? maxScore : 0,
+        maxScore,
+        timeSpent: answer.timeSpent ?? 0,
+        status: 'completed',
+        audioId: answer.userAnswer?.audioId || '',
+        nestedEvaluations: [],
+        partialCredit: isCorrect ? 1 : 0,
+        evaluationMetadata: {}
+      };
+    }
 
     let correct = 0;
     subs.forEach((q: any) => {
@@ -590,7 +675,6 @@ export class UnifiedEvaluationService implements EvaluationService {
 
     const total = subs.length || 1;
     const ratio = correct / total;
-    const maxScore = question.points ?? 1;
 
     return {
       questionId: answer.questionId,

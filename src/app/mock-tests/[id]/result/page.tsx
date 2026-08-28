@@ -54,20 +54,19 @@ export default function MockTestResultPage() {
     const fetchResult = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/mock-test/results?limit=50`);
+        // Fetch the specific attempt directly so the page always shows the
+        // attempt the user just completed (never a stale/other attempt).
+        const response = await fetch(
+          `/api/mock-test/results?attemptId=${attemptId}`,
+          { cache: "no-store" }
+        );
         const json = await response.json();
 
         if (!response.ok) {
           throw new Error(json.message || "Failed to load results");
         }
 
-        const data = json.data;
-        const attempts = Array.isArray(data) ? data : [];
-        const found =
-          attempts.find((a: TestAttempt) => a.id === attemptId) ||
-          attempts[0] ||
-          null;
-        setAttempt(found);
+        setAttempt(json.data ?? null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load results");
       } finally {

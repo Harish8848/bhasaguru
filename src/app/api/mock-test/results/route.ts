@@ -16,6 +16,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '20');
   const type = searchParams.get('type'); // 'practice', 'formal', or null for all
+  const attemptId = searchParams.get('attemptId');
 
   try {
     // Build where clause
@@ -23,6 +24,11 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       userId: session.user.id,
       completedAt: { not: null }, // Only completed attempts
     };
+
+    // Fetch a specific attempt when attemptId is provided
+    if (attemptId) {
+      where.id = attemptId;
+    }
 
     if (type === 'practice') {
       where.testId = null; // Practice sessions have null testId
@@ -80,6 +86,14 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       } : null,
       answersCount: attempt._count.answers,
     }));
+
+    // Single-attempt lookup returns the object directly
+    if (attemptId) {
+      if (transformedAttempts.length === 0) {
+        return ApiResponse.notFound('Attempt not found');
+      }
+      return ApiResponse.success(transformedAttempts[0]);
+    }
 
     return ApiResponse.paginated(transformedAttempts, total, page, limit);
 

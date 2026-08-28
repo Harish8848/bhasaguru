@@ -128,15 +128,28 @@ export default function MockTestTakePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          answers: questions.map((q) => ({
-            questionId: q.id,
-            selectedOption:
-              typeof answers[q.id] === "string" ? answers[q.id] : undefined,
-            textAnswer:
-              typeof answers[q.id] === "string" ? undefined : answers[q.id],
-            timeSpent: Math.max(1, Math.floor(timeSpent / questions.length)),
-            timestamp: new Date(),
-          })),
+          answers: questions.map((q) => {
+            const value = answers[q.id];
+            const isOptionQuestion = Array.isArray(q.options);
+            return {
+              questionId: q.id,
+              // Option-based questions send the picked option text;
+              // free-text questions (textarea) send textAnswer.
+              selectedOption:
+                isOptionQuestion && typeof value === "string"
+                  ? value
+                  : undefined,
+              textAnswer:
+                !isOptionQuestion && typeof value === "string"
+                  ? value
+                  : undefined,
+              timeSpent: Math.max(
+                1,
+                Math.floor(timeSpent / questions.length)
+              ),
+              timestamp: new Date(),
+            };
+          }),
           timeSpent: Math.max(1, timeSpent),
           testId: params.id,
         }),

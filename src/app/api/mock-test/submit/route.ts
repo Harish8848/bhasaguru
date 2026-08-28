@@ -140,13 +140,16 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           } as AnswerPayload;
 
         case QuestionType.TRUE_FALSE:
+          // The take page sends the picked option text via selectedOption
+          // (e.g. "True"/"False"); textAnswer is only used by legacy clients.
+          const trueFalseRaw = answer.selectedOption ?? answer.textAnswer ?? '';
           return {
             questionId: answer.questionId,
             questionType: QuestionType.TRUE_FALSE,
             timeSpent: answer.timeSpent,
             timestamp: answer.timestamp,
             userAnswer: {
-              value: answer.textAnswer?.toLowerCase() === 'true',
+              value: trueFalseRaw.toLowerCase() === 'true' || trueFalseRaw === '1',
             },
           } as AnswerPayload;
 
@@ -225,6 +228,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             userAnswer: {
               passageId: question.id,
               answers: answer.answers || {},
+              // Simple-format questions (seeded/admin-created) send the
+              // picked option text; without this they could never score.
+              selectedOption: answer.selectedOption,
+              textAnswer: answer.textAnswer,
               timeOnPassage: answer.timeSpent,
             },
           } as AnswerPayload;
@@ -238,6 +245,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             userAnswer: {
               audioId: question.id,
               answers: answer.answers || {},
+              // Simple-format questions (seeded/admin-created) send the
+              // picked option text; without this they could never score.
+              selectedOption: answer.selectedOption,
+              textAnswer: answer.textAnswer,
               timeOnAudio: answer.timeSpent,
             },
           } as AnswerPayload;

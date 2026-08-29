@@ -96,9 +96,17 @@ const LessonCard = memo(({ lesson }: { lesson: Lesson }) => {
 
 LessonCard.displayName = "LessonCard";
 
+const LANGUAGE_OPTIONS = [
+  { value: "all", label: "All Languages" },
+  { value: "Japanese", label: "Japanese" },
+  { value: "Korean", label: "Korean" },
+  { value: "English", label: "English" },
+  { value: "Chinese", label: "Chinese" },
+] as const;
+
 export default function LessonsPage() {
   const searchParams = useSearchParams();
-  const [selectedLanguage] = useState("Japanese");
+  const [selectedLanguage, setSelectedLanguage] = useState("all");
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -109,11 +117,16 @@ export default function LessonsPage() {
   // Initialize state from URL parameters
   useEffect(() => {
     const level = searchParams.get("level");
+    const language = searchParams.get("language");
 
     if (level) {
       setSelectedLevel(level);
     }
+    if (language) {
+      setSelectedLanguage(language);
+    }
   }, [searchParams]);
+
 
   // Debounced search term
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -160,15 +173,17 @@ export default function LessonsPage() {
         setError(null);
 
         const params = new URLSearchParams({
-          language: selectedLanguage,
+          ...(selectedLanguage && selectedLanguage !== "all" && { language: selectedLanguage }),
           ...(selectedLevel && { level: selectedLevel }),
           ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
+          limit: "50",
         });
 
         const response = await fetch(`/api/lessons?${params}`, {
-          next: { revalidate: 300 }, // Cache for 5 minutes
+          cache: "no-store",
         });
         const data = await response.json();
+
 
         if (!response.ok) {
           throw new Error(data.error || "Failed to fetch lessons");
@@ -194,19 +209,38 @@ export default function LessonsPage() {
       {/* Header */}
       <main className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
         {/* Search Bar */}
-        <div className="max-w-xl mx-auto">
-          <div className="relative gap-2   mx-auto ">
+        <div className="max-w-xl mx-auto space-y-4">
+          <div className="relative gap-2 mx-auto">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              size={10}
+              size={18}
             />
             <Input
               placeholder="Search lessons..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10  h-11 bg-accent/10 border-border text-foreground placeholder:text-muted-foreground text-base"
+              className="pl-10 h-11 bg-accent/10 border-border text-foreground placeholder:text-muted-foreground text-base"
             />
-            
+          </div>
+
+          {/* Language filter */}
+          <div className="flex flex-wrap justify-center gap-2">
+            {LANGUAGE_OPTIONS.map((lang) => (
+              <Button
+                key={lang.value}
+                type="button"
+                size="sm"
+                variant={selectedLanguage === lang.value ? "default" : "outline"}
+                onClick={() => setSelectedLanguage(lang.value)}
+                className={
+                  selectedLanguage === lang.value
+                    ? "bg-primary text-primary-foreground"
+                    : "border-border text-foreground hover:bg-muted"
+                }
+              >
+                {lang.label}
+              </Button>
+            ))}
           </div>
         </div>
 
@@ -214,7 +248,9 @@ export default function LessonsPage() {
         <div className="flex items-center justify-between ">
           <div>
             <h2 className="text-2xl font-bold text-foreground">
-              Japanese Lessons
+              {selectedLanguage === "all"
+                ? "All Lessons"
+                : `${selectedLanguage} Lessons`}
               {selectedLevel && (
                 <span className="text-primary ml-2">({selectedLevel})</span>
               )}
@@ -228,6 +264,7 @@ export default function LessonsPage() {
             </p>
           </div>
         </div>
+
 
         {/* Loading State */}
         {loading && (

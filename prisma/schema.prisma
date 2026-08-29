@@ -9,22 +9,22 @@ datasource db {
 
 model User {
   id                String           @id @default(cuid())
-  name              String?
   email             String           @unique
-  emailVerified     DateTime?
+  name              String?
   image             String?
-  profilePicture    String?
-  phone             String?
-  address           String?
-  gender            String?
   role              UserRole         @default(USER)
   status            AccountStatus    @default(ACTIVE)
+  emailVerified     DateTime?
   nativeLanguage    String?
   learningLanguages String[]
   timezone          String?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   lastLoginAt       DateTime?
+  address           String?
+  gender            String?
+  phone             String?
+  profilePicture    String?
   accounts          Account[]
   comments          Comment[]
   enrollments       Enrollment[]
@@ -82,22 +82,17 @@ model VerificationToken {
 }
 
 model AdminNotification {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   type      NotificationType
   title     String
   message   String
-  isRead    Boolean  @default(false)
+  isRead    Boolean          @default(false)
   metadata  Json?
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
 
   @@index([isRead, createdAt])
   @@index([type, createdAt])
   @@map("admin_notifications")
-}
-
-enum NotificationType {
-  NEW_USER_REGISTRATION
-  CONTACT_FORM_SUBMISSION
 }
 
 model Course {
@@ -199,10 +194,6 @@ model MockTest {
   courseId         String?
   title            String
   description      String?
-  language         String?
-  module           String?
-  section          String?
-  standardSection  String?
   type             TestType
   duration         Int
   passingScore     Int
@@ -213,6 +204,10 @@ model MockTest {
   allowRetake      Boolean       @default(true)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+  language         String?
+  module           String?
+  section          String?
+  standardSection  String?
   course           Course?       @relation(fields: [courseId], references: [id])
   questions        Question[]
   attempts         TestAttempt[]
@@ -230,23 +225,23 @@ model Question {
   questionText      String
   audioUrl          String?
   imageUrl          String?
-  videoUrl          String?
   options           Json?
   correctAnswer     String?
   points            Int          @default(1)
   order             Int
   explanation       String?
-  language          String?
-  module            String?
-  section           String?
-  standardSection   String?
-  difficulty        String?
-  preparationTime   Int?
-  speakingTime      Int?
-  cueCardContent    String?
-  followUpQuestions Json?
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
+  cueCardContent    String?
+  difficulty        String?
+  followUpQuestions Json?
+  language          String?
+  module            String?
+  preparationTime   Int?
+  section           String?
+  speakingTime      Int?
+  standardSection   String?
+  videoUrl          String?
   answers           Answer[]
   test              MockTest     @relation(fields: [testId], references: [id], onDelete: Cascade)
 
@@ -282,10 +277,10 @@ model Answer {
   questionId     String
   selectedOption String?
   textAnswer     String?
-  jsonAnswer     Json?
-  audioUrl       String?
   isCorrect      Boolean
   answeredAt     DateTime    @default(now())
+  audioUrl       String?
+  jsonAnswer     Json?
   attempt        TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   question       Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
@@ -462,6 +457,35 @@ model PageView {
   @@map("page_views")
 }
 
+model GalleryItem {
+  id        String        @id @default(cuid())
+  title     String
+  type      MediaType
+  url       String
+  thumbnail String?
+  alt       String?
+  caption   String?
+  size      Int?
+  width     Int?
+  height    Int?
+  folder    String        @default("gallery")
+  status    GalleryStatus @default(ACTIVE)
+  order     Int           @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([type, status])
+  @@index([folder, status])
+  @@index([order])
+  @@index([createdAt])
+  @@map("gallery_items")
+}
+
+enum NotificationType {
+  NEW_USER_REGISTRATION
+  CONTACT_FORM_SUBMISSION
+}
+
 enum UserRole {
   USER
   ADMIN
@@ -513,30 +537,6 @@ enum SavedItemType {
   LESSON
   ARTICLE
   JOB
-}
-
-model GalleryItem {
-  id        String   @id @default(cuid())
-  title     String
-  type      MediaType
-  url       String
-  thumbnail String?
-  alt       String?
-  caption   String?
-  size      Int?
-  width     Int?
-  height    Int?
-  folder    String   @default("gallery")
-  status    GalleryStatus @default(ACTIVE)
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([type, status])
-  @@index([folder, status])
-  @@index([order])
-  @@index([createdAt])
-  @@map("gallery_items")
 }
 
 enum MediaType {

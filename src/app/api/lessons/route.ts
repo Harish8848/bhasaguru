@@ -18,12 +18,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cachedData);
     }
 
-    const where: any = {};
+    const where: any = {
+      // Only show lessons from published courses on the public page
+      course: {
+        status: "PUBLISHED",
+      },
+    };
 
     // Filter by language and/or level if provided
     if (language && language !== "all") {
       where.course = {
-        language: language,
+        ...where.course,
+        // Case-insensitive match so "english" / "English" both work
+        language: { equals: language, mode: "insensitive" },
       };
     }
 
@@ -34,14 +41,20 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Filter by search term if provided
+    // Filter by search term if provided (AND with course filters above)
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-        { course: { title: { contains: search, mode: "insensitive" } } },
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: [
+            { title: { contains: search, mode: "insensitive" } },
+            { description: { contains: search, mode: "insensitive" } },
+            { course: { title: { contains: search, mode: "insensitive" } } },
+          ],
+        },
       ];
     }
+
 
     // Optimize query: Get lessons with course information and count in a single transaction
     const [lessons, total] = await Promise.all([

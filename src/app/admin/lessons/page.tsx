@@ -43,11 +43,12 @@ export default function LessonsPage() {
   useEffect(() => {
     const fetchLessons = async () => {
       try {
-        const response = await fetch('/api/admin/lessons')
+        // Fetch a large page so admin can see all lessons (matches courses admin pattern)
+        const response = await fetch('/api/admin/lessons?limit=100', { cache: 'no-store' })
         const result = await response.json()
 
         if (result.success) {
-          setLessons(result.data)
+          setLessons(Array.isArray(result.data) ? result.data : [])
         } else {
           setError(result.message || 'Failed to fetch lessons')
         }
@@ -60,6 +61,7 @@ export default function LessonsPage() {
 
     fetchLessons()
   }, [])
+
 
   const filteredLessons = lessons.filter((lesson) => {
     const matchesSearch = lesson.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -169,21 +171,19 @@ export default function LessonsPage() {
         </Button>
       </div>
 
-      {/* Search */}
-      <div className="flex flex-col min-h-screen ">
-        <div className=" grow container max-w-4xl mx-auto p-8">
-          <div className="relative flex-1 max-w-sm mx-auto">
-            <Search className="absolute  top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
-            <Input
-              placeholder="Search lessons..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10  bg-input border-border text-foreground placeholder:text-muted-foreground"
-            />
-          </div>
+      {/* Search & Filters */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="relative flex-1 max-w-sm w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <Input
+            placeholder="Search lessons..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-input border-border text-foreground placeholder:text-muted-foreground"
+          />
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {["all", "VIDEO", "TEXT", "AUDIO", "INTERACTIVE", "QUIZ"].map((type) => (
             <Button
               key={type}
@@ -218,67 +218,78 @@ export default function LessonsPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredLessons.map((lesson) => {
-                const type = typeConfig[lesson.type as keyof typeof typeConfig]
-                const TypeIcon = type.icon
-                return (
-                  <tr key={lesson.id} className="border-b border-border hover:bg-muted/20 transition-colors">
-                    <td className="p-4 text-foreground font-medium">{lesson.title}</td>
-                    <td className="p-4 text-foreground text-sm">{lesson.course.title}</td>
-                    <td className="p-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit ${type.color}`}
-                      >
-                        <TypeIcon size={14} />
-                        {type.label}
-                      </span>
-                    </td>
-                    <td className="p-4 text-foreground text-sm">
-                      {formatDuration(lesson.duration)}
-                    </td>
-                    <td className="p-4 text-foreground">{lesson._count.progress.toLocaleString()}</td>
-                    <td className="p-4">
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
-                        Active
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                          title="Preview"
+              {filteredLessons.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                    {lessons.length === 0
+                      ? "No lessons found. Create your first lesson to get started."
+                      : "No lessons match your search or filter."}
+                  </td>
+                </tr>
+              ) : (
+                filteredLessons.map((lesson) => {
+                  const type = typeConfig[lesson.type as keyof typeof typeConfig] || typeConfig.TEXT
+                  const TypeIcon = type.icon
+                  return (
+                    <tr key={lesson.id} className="border-b border-border hover:bg-muted/20 transition-colors">
+                      <td className="p-4 text-foreground font-medium">{lesson.title}</td>
+                      <td className="p-4 text-foreground text-sm">{lesson.course?.title ?? "—"}</td>
+                      <td className="p-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit ${type.color}`}
                         >
-                          <Eye size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                          title="Edit"
-                          onClick={() => handleEditLesson(lesson.id)}
-                        >
-                          <Edit2 size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive/80"
-                          title="Delete"
-                          onClick={() => handleDeleteLesson(lesson.id)}
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
+                          <TypeIcon size={14} />
+                          {type.label}
+                        </span>
+                      </td>
+                      <td className="p-4 text-foreground text-sm">
+                        {formatDuration(lesson.duration)}
+                      </td>
+                      <td className="p-4 text-foreground">{(lesson._count?.progress ?? 0).toLocaleString()}</td>
+                      <td className="p-4">
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                          Active
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            title="Preview"
+                          >
+                            <Eye size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            title="Edit"
+                            onClick={() => handleEditLesson(lesson.id)}
+                          >
+                            <Edit2 size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive/80"
+                            title="Delete"
+                            onClick={() => handleDeleteLesson(lesson.id)}
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
             </tbody>
           </table>
         </div>
       </Card>
+
 
       {/* Results summary */}
       <div className="text-sm text-muted-foreground">

@@ -54,8 +54,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
   try {
     // Call Groq API using OpenAI SDK
-    // Updated to use llama-3.3-70b-versatile (current supported model as of 2026)
-    const model = process.env.GROQ_CHAT_MODEL || 'llama-3.3-70b-versatile';
+    // Using openai/gpt-oss-120b (current supported model on Groq)
+    const model = process.env.GROQ_CHAT_MODEL || 'openai/gpt-oss-120b';
     const completion = await openai.chat.completions.create({
       model,
       messages: fullMessages,

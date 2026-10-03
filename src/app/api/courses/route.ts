@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { cacheHelpers } from "@/lib/cache";
+import { LanguageLevel, Prisma } from "@/generated/prisma/client";
 
 export async function GET(request: NextRequest) {
     try {
@@ -14,9 +14,11 @@ export async function GET(request: NextRequest) {
       const page = parseInt(searchParams.get("page") || "1");
       const limit = parseInt(searchParams.get("limit") || "12");
 
-      const where: any = { status: "PUBLISHED" };
+      const where: Prisma.CourseWhereInput = { status: "PUBLISHED" };
       if (language && language !== "all") where.language = language;
-      if (level) where.level = level;
+      if (level && Object.values(LanguageLevel).includes(level as LanguageLevel)) {
+        where.level = level as LanguageLevel;
+      }
 
       if (search) {
         where.OR = [
@@ -78,6 +80,7 @@ export async function GET(request: NextRequest) {
         },
       });
     } catch (error) {
+      console.error("Failed to fetch courses:", error);
       return NextResponse.json(
         { error: "Failed to fetch courses" },
         { status: 500 }
@@ -105,6 +108,7 @@ export async function GET(request: NextRequest) {
   
       return NextResponse.json(course, { status: 201 });
     } catch (error) {
+      console.error("Failed to create course:", error);
       return NextResponse.json(
         { error: "Failed to create course" },
         { status: 500 }

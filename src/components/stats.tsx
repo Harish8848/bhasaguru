@@ -48,7 +48,7 @@ export default function StatsSection() {
     {
       number: stats.activeLearners.toString(),
       label: "Active Learners",
-      description: "Learning with YUKI Consulting & Training Center",
+      description: "Learning with BhasaGuru to achieve their language goals",
     },
     {
       number: `${stats.expertCourses}+`,
@@ -58,7 +58,7 @@ export default function StatsSection() {
     {
       number: `${stats.satisfactionRate}%`,
       label: "Satisfaction Rate",
-      description: "Learners recommend YUKI Consulting & Training Center to others",
+      description: "Learners recommend BhasaGuru to others",
     },
   ] : []
 

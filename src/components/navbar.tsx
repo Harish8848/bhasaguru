@@ -24,56 +24,64 @@ export default function Navbar() {
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <nav className="sticky top-0 z-50 bg-background border-b border-border backdrop-blur-sm">
+    <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-[4.5rem]">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-accent flex items-center justify-center">
-              <Globe className="w-5 h-5 text-primary-foreground" />
+            <div className="w-9 h-9 rounded-xl bg-teal-700 flex items-center justify-center shadow-sm shadow-teal-900/20">
+              <Globe className="w-5 h-5 text-white" />
             </div>
-            <Link href="/" className="inline-flex fixed left-0.5">
-              <span className="p-5 text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mt-2">
+            <Link href="/" className="inline-flex items-center">
+              <span className="text-xl font-bold tracking-tight text-slate-900">
                 BhasaGuru
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-6">
             <Link
               href="/lessons"
-              className="text-sm font-medium hover:text-accent transition-colors"
+              className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
             >
               Lessons
             </Link>
             <Link
               href="/courses"
-              className="text-sm font-medium hover:text-accent transition-colors"
+              className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
             >
               Courses
             </Link>
             <Link
               href="/culture"
-              className="text-sm font-medium hover:text-accent transition-colors"
+              className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
             >
               Culture
             </Link>
             <Link
               href="/mock-tests"
-              className="text-sm font-medium hover:text-accent transition-colors"
+              className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
             >
               Mock Test
             </Link>
             <Link
               href="/jobs"
-              className="text-sm font-medium hover:text-accent transition-colors"
+              className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
             >
               Jobs
             </Link>
+
+            <Link
+              href="/address"
+              className="text-sm font-medium hover:text-accent transition-colors"
+            >
+              Address
+            </Link>
+
             <Link
               href="/chat"
-              className="text-sm font-medium hover:text-accent transition-colors flex items-center gap-1.5"
+              className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors flex items-center gap-1.5"
             >
               <Sparkles className="w-4 h-4" />
               AI Tutor
@@ -81,7 +89,7 @@ export default function Navbar() {
           </div>
 
           {/* CTA Buttons - Desktop */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             {status === "loading" ? (
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
@@ -119,7 +127,7 @@ export default function Navbar() {
             ) : (
               <Button
                 variant="outline"
-                className="border-accent hover:bg-blue-400 bg-white text-stone-900"
+                className="rounded-xl border-slate-300 bg-white text-slate-700 hover:border-teal-300 hover:bg-teal-50"
                 onClick={() => signIn("google", { callbackUrl: "/" })}
               >
                 Sign In
@@ -128,14 +136,14 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button className="md:hidden p-2" onClick={toggleMenu}>
+          <button aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"} className="lg:hidden rounded-lg p-2 text-slate-700 hover:bg-slate-100" onClick={toggleMenu}>
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden pb-4 flex flex-col justify-center items-center bg-accent/10 rounded-lg">
+          <div className="lg:hidden pb-5 flex flex-col gap-1 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg">
             {/* Profile Avatar at Top - Mobile */}
             {session && (
               <div className="pt-2 pb-3">
@@ -183,37 +191,37 @@ export default function Navbar() {
             {/* Navigation Links */}
             <Link
               href="/lessons"
-              className="block text-md font-medium hover:text-accent py-1 text-blue-600"
+              className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-800"
             >
               Lessons
             </Link>
             <Link
               href="/courses"
-              className="block text-md font-medium hover:text-accent py-1 text-blue-600"
+              className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-800"
             >
               Courses
             </Link>
             <Link
               href="/culture"
-              className="block text-md font-medium hover:text-accent py-1 text-blue-600"
+              className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-800"
             >
               Culture
             </Link>
             <Link
               href="/mock-tests"
-              className="block text-md font-medium hover:text-accent py-1 text-blue-600"
+              className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-800"
             >
               Mock Test
             </Link>
             <Link
               href="/jobs"
-              className="block text-md font-medium hover:text-accent py-1 text-blue-600"
+              className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-800"
             >
               Jobs
             </Link>
             <Link
               href="/chat"
-              className="text-md font-medium hover:text-accent py-1 text-blue-600 flex items-center gap-1.5 justify-center"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-800"
             >
               <Sparkles className="w-4 h-4" />
               AI Tutor

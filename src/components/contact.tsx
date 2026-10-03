@@ -212,7 +212,7 @@ export default function ContactSection() {
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Email</h4>
-                      <p className="text-sm text-muted-foreground">info@yukiconsulting.com</p>
+                      <p className="text-sm text-muted-foreground">info@bhasaguru.com</p>
                     </div>
                   </div>
                 </CardContent>
@@ -258,7 +258,7 @@ export default function ContactSection() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="YUKI Consulting & Training Center Location"
+                  title="BhasaGuru"
                 />
               </div>
             </Card>

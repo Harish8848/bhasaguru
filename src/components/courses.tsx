@@ -1,5 +1,13 @@
 "use client";
-import { BookOpen, Users, Clock, Loader2, Search, AlertCircle, PlayCircle } from "lucide-react";
+import {
+  BookOpen,
+  Users,
+  Clock,
+  Loader2,
+  Search,
+  AlertCircle,
+  PlayCircle,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Course {
   id: string;
@@ -24,19 +32,56 @@ interface Course {
   isEnrolled?: boolean;
 }
 
+const LANGUAGE_OPTIONS = [
+  { value: "all", label: "All Languages" },
+  { value: "Japanese", label: "Japanese" },
+  { value: "Korean", label: "Korean" },
+  { value: "English", label: "English" },
+  { value: "Chinese", label: "Chinese" },
+  { value: "Spanish", label: "Spanish" },
+  { value: "French", label: "French" },
+  { value: "German", label: "German" },
+] as const;
+
 export default function CoursesSection() {
   const router = useRouter();
   const { data: session } = useSession();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-  const [enrollingCourseId, setEnrollingCourseId] = useState<string | null>(null);
+  const [enrollingCourseId, setEnrollingCourseId] = useState<string | null>(
+    null
+  );
   const [showProfileAlert, setShowProfileAlert] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("Japanese");
+  const [selectedLanguage, setSelectedLanguage] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchCourses = useCallback(async () => {
+    const params = new URLSearchParams({ limit: "100" });
+    const normalizedSearch = searchQuery.trim();
+
+    if (selectedLanguage !== "all") {
+      params.set("language", selectedLanguage);
+    }
+
+    if (normalizedSearch) {
+      params.set("search", normalizedSearch);
+    }
+
+    const response = await fetch(`/api/courses?${params.toString()}`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch courses");
+    }
+
+    const result = await response.json();
+    setCourses(result.courses ?? []);
+  }, [searchQuery, selectedLanguage]);
 
   const handleEnroll = async (course: Course) => {
     if (!session) {
-      router.push('/auth');
+      router.push("/auth");
       return;
     }
 
@@ -45,43 +90,28 @@ export default function CoursesSection() {
       const response = await fetch(`/api/courses/${course.id}/enroll`, {
         method: "POST",
       });
-      
+
       const result = await response.json();
-      
+
       if (result.error === "profile_incomplete") {
         setShowProfileAlert(true);
         setTimeout(() => {
           setShowProfileAlert(false);
-          router.push('/profile');
+          router.push("/profile");
         }, 2000);
         return;
       }
-      
+
       if (!response.ok) {
         alert(result.error || "Failed to enroll");
         return;
       }
-      
-      // Refresh courses from API to get updated enrollment status
-      const params = new URLSearchParams();
-      params.append("language", "Japanese");
-      if (searchQuery) {
-        params.append("search", searchQuery);
-      }
 
-      const url = `/api/courses${
-        params.toString() ? `?${params.toString()}` : ""
-      }`;
-
+      // Refresh all published courses to get updated enrollment status.
       setLoading(true);
-      const coursesResponse = await fetch(url);
-      const coursesResult = await coursesResponse.json();
-
-      if (coursesResult.courses) {
-        setCourses(coursesResult.courses.slice(0, 6));
-      }
+      await fetchCourses();
       setLoading(false);
-      
+
       alert("Successfully enrolled! Start learning now.");
     } catch (error) {
       console.error("Enrollment error:", error);
@@ -91,30 +121,15 @@ export default function CoursesSection() {
     }
   };
 
-  const handleContinueLearning = (_course: Course) => {
-    // Force a hard navigation to ensure fresh session state is read
-    window.location.href = "/lessons?t=" + Date.now();
+  const handleContinueLearning = () => {
+    router.push("/lessons");
   };
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const loadCourses = async () => {
       try {
         setLoading(true);
-        const params = new URLSearchParams();
-        params.append("language", "Japanese");
-        if (searchQuery) {
-          params.append("search", searchQuery);
-        }
-
-        const url = `/api/courses${
-          params.toString() ? `?${params.toString()}` : ""
-        }`;
-        const response = await fetch(url, { cache: "no-store" });
-        const result = await response.json();
-
-        if (result.courses) {
-          setCourses(result.courses.slice(0, 6));
-        }
+        await fetchCourses();
       } catch (err) {
         console.error("Failed to fetch courses:", err);
       } finally {
@@ -122,8 +137,8 @@ export default function CoursesSection() {
       }
     };
 
-    fetchCourses();
-  }, [session?.user?.id]);
+    loadCourses();
+  }, [session?.user?.id, fetchCourses]);
 
   return (
     <>
@@ -151,9 +166,46 @@ export default function CoursesSection() {
                     className="bg-accent/10 pl-10 h-11 border-border text-foreground placeholder:text-muted-foreground text-base"
                   />
                 </div>
-              </div>
 
-                          </div>
+                <div className="flex flex-wrap justify-center gap-2 mt-4">
+                  {LANGUAGE_OPTIONS.map((language) => (
+                    <Button
+                      key={language.value}
+                      type="button"
+                      size="sm"
+                      variant={
+                        selectedLanguage === language.value
+                          ? "default"
+                          : "outline"
+                      }
+                      onClick={() => setSelectedLanguage(language.value)}
+                      className={
+                        selectedLanguage === language.value
+                          ? "bg-primary text-primary-foreground"
+                          : "border-border text-foreground hover:bg-muted"
+                      }
+                    >
+                      {language.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">
+                {selectedLanguage === "all"
+                  ? "All Courses"
+                  : `${selectedLanguage} Courses`}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {loading
+                  ? "Loading..."
+                  : `${courses.length} course${
+                      courses.length !== 1 ? "s" : ""
+                    } available`}
+              </p>
+            </div>
 
             {loading ? (
               <div className="flex justify-center items-center h-64">
@@ -179,7 +231,10 @@ export default function CoursesSection() {
                       </div>
                       {course.isEnrolled && (
                         <div className="absolute top-3 right-3">
-                          <Badge variant="default" className="bg-green-600 text-white text-xs">
+                          <Badge
+                            variant="default"
+                            className="bg-green-600 text-white text-xs"
+                          >
                             Enrolled
                           </Badge>
                         </div>
@@ -218,7 +273,7 @@ export default function CoursesSection() {
                       {course.isEnrolled ? (
                         <Button
                           className="w-full bg-green-600 hover:bg-green-700 text-white"
-                          onClick={() => handleContinueLearning(course)}
+                          onClick={handleContinueLearning}
                         >
                           <PlayCircle className="h-4 w-4 mr-2" />
                           Continue Learning
